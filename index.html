@@ -80,6 +80,42 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 .lw{padding:0 16px;}
 .mbar{display:flex;gap:8px;padding:12px 16px 0;overflow-x:auto;scrollbar-width:none;}
 .mbar::-webkit-scrollbar{display:none;}
+
+/* SETTLEMENT */
+.settle-card{background:var(--w);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:10px;}
+.settle-row{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bd);}
+.settle-row:last-child{border-bottom:none;}
+.settle-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;}
+.settle-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.settle-arrow{font-size:18px;color:var(--t3);}
+.settle-amount{text-align:right;}
+.settle-jpy{font-size:15px;font-weight:700;color:var(--o);}
+.settle-twd{font-size:11px;color:var(--t2);}
+.settle-done{opacity:.45;text-decoration:line-through;}
+.split-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.split-chip{display:flex;align-items:center;gap:4px;padding:5px 10px 5px 6px;border-radius:20px;background:var(--bg);border:1.5px solid var(--bd);font-size:12px;font-weight:500;cursor:pointer;}
+.split-chip.on{border-color:var(--o);background:var(--ol);}
+.split-chip-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;flex-shrink:0;}
+.split-chip-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.balance-card{border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.balance-pos{background:#F0FFF4;border:1px solid #B7EFC5;}
+.balance-neg{background:#FFF2F2;border:1px solid #FFCDD2;}
+.balance-zero{background:var(--bg);border:1px solid var(--bd);}
+.summary-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+/* AVATAR upload */
+.av-upload{position:relative;cursor:pointer;}
+.av-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.av-edit-badge{position:absolute;bottom:0;right:0;width:18px;height:18px;background:var(--o);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;border:2px solid var(--w);}
+/* Circle avatar everywhere */
+.mca,.eav,.pca,.split-chip-av,.settle-av,.mrav{border-radius:50%;overflow:hidden;}
+.mca img,.eav img,.pca img,.split-chip-av img,.settle-av img,.mrav img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+
+.av-upload{position:relative;width:72px;height:72px;margin:0 auto 12px;cursor:pointer;}
+.av-upload-img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--o);}
+.av-upload-placeholder{width:72px;height:72px;border-radius:50%;background:var(--ol);border:3px solid var(--o);display:flex;align-items:center;justify-content:center;font-size:32px;}
+.av-upload-badge{position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--o);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--w);}
+
 .mc{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
 .mca{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid transparent;}
 .mca.me{border-color:var(--o);}
@@ -201,6 +237,42 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 .cop{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;}
 .cop.on{border-color:var(--tx);transform:scale(1.1);}
 ::-webkit-scrollbar{display:none;}
+
+/* SETTLEMENT */
+.settle-card{background:var(--w);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:10px;}
+.settle-row{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bd);}
+.settle-row:last-child{border-bottom:none;}
+.settle-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;}
+.settle-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.settle-arrow{font-size:18px;color:var(--t3);}
+.settle-amount{text-align:right;}
+.settle-jpy{font-size:15px;font-weight:700;color:var(--o);}
+.settle-twd{font-size:11px;color:var(--t2);}
+.settle-done{opacity:.45;text-decoration:line-through;}
+.split-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.split-chip{display:flex;align-items:center;gap:4px;padding:5px 10px 5px 6px;border-radius:20px;background:var(--bg);border:1.5px solid var(--bd);font-size:12px;font-weight:500;cursor:pointer;}
+.split-chip.on{border-color:var(--o);background:var(--ol);}
+.split-chip-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;flex-shrink:0;}
+.split-chip-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.balance-card{border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.balance-pos{background:#F0FFF4;border:1px solid #B7EFC5;}
+.balance-neg{background:#FFF2F2;border:1px solid #FFCDD2;}
+.balance-zero{background:var(--bg);border:1px solid var(--bd);}
+.summary-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+/* AVATAR upload */
+.av-upload{position:relative;cursor:pointer;}
+.av-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.av-edit-badge{position:absolute;bottom:0;right:0;width:18px;height:18px;background:var(--o);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;border:2px solid var(--w);}
+/* Circle avatar everywhere */
+.mca,.eav,.pca,.split-chip-av,.settle-av,.mrav{border-radius:50%;overflow:hidden;}
+.mca img,.eav img,.pca img,.split-chip-av img,.settle-av img,.mrav img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+
+.av-upload{position:relative;width:72px;height:72px;margin:0 auto 12px;cursor:pointer;}
+.av-upload-img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--o);}
+.av-upload-placeholder{width:72px;height:72px;border-radius:50%;background:var(--ol);border:3px solid var(--o);display:flex;align-items:center;justify-content:center;font-size:32px;}
+.av-upload-badge{position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--o);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--w);}
+
 </style>
 </head>
 <body>
@@ -319,6 +391,31 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
       <div class="card"><div style="font-size:15px;font-weight:700;margin-bottom:4px;">每日趨勢</div><div class="tch"><canvas id="cht"></canvas></div></div>
       <div class="card"><div style="font-size:15px;font-weight:700;margin-bottom:12px;">花費前十名</div><div id="t10"></div></div>
     </div>
+    <!-- SETTLE -->
+    <div class="view" id="view-settle">
+      <div style="padding:14px 16px 0;">
+        <div style="font-size:22px;font-weight:700;margin-bottom:4px;">旅程結算</div>
+        <div style="font-size:13px;color:var(--t2);margin-bottom:16px;">計算誰代墊、誰欠誰多少錢</div>
+      </div>
+      <div style="padding:0 16px;">
+        <div class="card" id="settle-summary"></div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:10px;">💸 轉帳清單</div>
+        <div id="settle-list"></div>
+        <div style="font-size:15px;font-weight:700;margin:16px 0 10px;">👤 每人明細</div>
+        <div id="settle-members"></div>
+      </div>
+    </div>
+    <!-- SETTLEMENT -->
+    <div class="view" id="view-settle">
+      <div style="padding:14px 16px 0;">
+        <div style="font-size:22px;font-weight:700;margin-bottom:4px;">旅程結算</div>
+        <div style="font-size:13px;color:var(--t2);margin-bottom:14px;">誰代墊了多少，最後怎麼還</div>
+        <div id="balance-wrap"></div>
+        <div style="font-size:15px;font-weight:700;margin:16px 0 8px;">轉帳清單</div>
+        <div id="settle-wrap"></div>
+        <button class="btn btp" style="margin-top:12px;" onclick="calcSettle()">🔄 重新計算</button>
+      </div>
+    </div>
     <!-- SETTINGS -->
     <div class="view" id="view-settings">
       <div style="padding:14px 0 4px;"></div>
@@ -336,11 +433,13 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
       <div class="card" style="font-size:12px;color:var(--t3);line-height:1.7;text-align:center;">旅趣 Tabitoku たびとく v4.0<br>Gemini AI · Supabase · 多人共享旅程</div>
     </div>
   </div>
-  <div id="nb">
+  <div id="nb" style="padding-left:2px;padding-right:2px;">
     <button class="ni on" data-view="home" onclick="switchView('home',this)"><svg viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.8"/><path d="M9 21V12h6v9" stroke="currentColor" stroke-width="1.8"/></svg><span>首頁</span></button>
     <button class="ni" data-view="records" onclick="switchView('records',this)"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>紀錄</span></button>
     <div class="nsc"><button class="nsb" onclick="switchView('scan',document.querySelector('[data-view=scan]'))"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="5" height="5" rx="1" stroke="#fff" stroke-width="2"/><rect x="16" y="3" width="5" height="5" rx="1" stroke="#fff" stroke-width="2"/><rect x="3" y="16" width="5" height="5" rx="1" stroke="#fff" stroke-width="2"/><path d="M16 16h5v5h-5z" stroke="#fff" stroke-width="2"/><path d="M12 3v4M3 12h4M17 12h4M12 17v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></button></div>
     <button class="ni" data-view="stats" onclick="switchView('stats',this)"><svg viewBox="0 0 24 24" fill="none"><path d="M3 20h18M7 14v6M12 8v12M17 3v17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>統計</span></button>
+    <button class="ni" data-view="settle" onclick="switchView('settle',this)"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>結算</span></button>
+    <button class="ni" data-view="settle" onclick="switchView('settle',this)"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>結算</span></button>
     <button class="ni" data-view="settings" onclick="switchView('settings',this)"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>設定</span></button>
   </div>
 </div>
@@ -351,7 +450,17 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
   <div class="fr"><div class="fg" style="margin-bottom:0;"><label class="fl">出發日期</label><input class="fi" type="date" id="nts"></div><div class="fg" style="margin-bottom:0;"><label class="fl">回程日期</label><input class="fi" type="date" id="nte"></div></div>
   <div class="fg" style="margin-top:12px;"><label class="fl">預算（¥）</label><input class="fi" type="number" id="ntb" placeholder="100000"></div>
   <div class="fg"><label class="fl">你的暱稱</label><input class="fi" id="ntnn" placeholder="小明"></div>
-  <div class="fg" style="margin-bottom:4px;"><label class="fl">頭像 emoji</label><input class="fi" id="ntem" placeholder="😊" style="font-size:24px;text-align:center;"></div>
+  <div class="fg" style="margin-bottom:4px;">
+    <label class="fl">頭像（上傳照片或選 emoji）</label>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+      <div class="av-upload" style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;overflow:hidden;" id="nt-av-preview">
+        <span style="font-size:28px;" id="nt-av-icon">😊</span>
+        <input type="file" accept="image/*" onchange="previewAv(this,'nt-av-preview','nt-av-icon','ntAvFile')">
+        <div class="av-edit-badge">✏️</div>
+      </div>
+      <input class="fi" id="ntem" placeholder="😊" style="font-size:24px;text-align:center;width:100px;" oninput="document.getElementById('nt-av-icon').textContent=this.value||'😊'">
+    </div>
+  </div>
   <div style="margin-bottom:14px;"><div class="fl">頭像顏色</div><div class="co" id="ntco">
     <div class="cop on" style="background:#F5891E;" onclick="sc1('#F5891E',this)"></div>
     <div class="cop" style="background:#007AFF;" onclick="sc1('#007AFF',this)"></div>
@@ -366,7 +475,17 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 <div class="mo" id="m-jn"><div class="ms"><div class="mh"></div><div class="mhd"><div class="mtt">加入旅程</div><button class="mx" onclick="cm('m-jn')">✕</button></div><div class="mb2">
   <div class="fg"><label class="fl">邀請碼（8 碼）</label><input class="fi" id="jnc" placeholder="如：a1b2c3d4" style="font-size:20px;font-weight:700;text-align:center;letter-spacing:3px;" maxlength="8"></div>
   <div class="fg"><label class="fl">你的暱稱</label><input class="fi" id="jnnn" placeholder="小明"></div>
-  <div class="fg" style="margin-bottom:4px;"><label class="fl">頭像 emoji</label><input class="fi" id="jnem" placeholder="😊" style="font-size:24px;text-align:center;"></div>
+  <div class="fg" style="margin-bottom:4px;">
+    <label class="fl">頭像（上傳照片或選 emoji）</label>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+      <div class="av-upload" style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;overflow:hidden;" id="jn-av-preview">
+        <span style="font-size:28px;" id="jn-av-icon">😊</span>
+        <input type="file" accept="image/*" onchange="previewAv(this,'jn-av-preview','jn-av-icon','jnAvFile')">
+        <div class="av-edit-badge">✏️</div>
+      </div>
+      <input class="fi" id="jnem" placeholder="😊" style="font-size:24px;text-align:center;width:100px;" oninput="document.getElementById('jn-av-icon').textContent=this.value||'😊'">
+    </div>
+  </div>
   <div style="margin-bottom:14px;"><div class="fl">頭像顏色</div><div class="co" id="jnco">
     <div class="cop on" style="background:#007AFF;" onclick="sc2('#007AFF',this)"></div>
     <div class="cop" style="background:#F5891E;" onclick="sc2('#F5891E',this)"></div>
@@ -385,13 +504,16 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
   <div class="fg"><label class="fl">類別</label><div class="ccs" id="acc"></div></div>
   <div class="fr"><div class="fg" style="margin-bottom:0;"><label class="fl">支付方式</label><select class="fs" id="apm"><option>現金</option><option>信用卡</option><option>Suica</option><option>PayPay</option><option>其他</option></select></div><div class="fg" style="margin-bottom:0;"><label class="fl">日期</label><input class="fi" type="date" id="adt"></div></div>
   <div class="fg" style="margin-top:12px;"><label class="fl">地區</label><input class="fi" id="arg" placeholder="自動偵測"></div>
+  <div class="fg"><label class="fl">分攤成員（預設全員均分）</label><div class="pcs" id="asp"></div></div>
+  <div class="fg"><label class="fl">分攤成員（誰要分這筆？）</label><div class="split-chips" id="asp"></div></div>
   <div class="fg"><label class="fl">備註</label><input class="fi" id="ant" placeholder="可選"></div>
   <div class="br" style="margin-top:8px;"><button class="btn bts" onclick="cm('m-add')">取消</button><button class="btn btp" onclick="saveExp()">記帳 ✓</button></div>
 </div></div></div>
 
 <div class="mo" id="m-ex"><div class="ms"><div class="mh"></div><div class="mhd"><div class="mtt">匯率設定</div><button class="mx" onclick="cm('m-ex')">✕</button></div><div class="mb2">
   <div class="fg"><label class="fl">¥1 JPY = NT$ ?</label><input class="fi" type="number" step="0.001" id="rin" placeholder="0.220" style="font-size:24px;font-weight:700;text-align:center;"></div>
-  <button class="btn btp" onclick="saveRate()">儲存</button>
+  <button class="btn bts" style="margin-bottom:10px;" onclick="fetchRate().then(()=>cm('m-ex'))">🔄 自動抓取最新匯率</button>
+  <button class="btn btp" onclick="saveRate()">手動儲存</button>
 </div></div></div>
 
 <div class="mo" id="m-te"><div class="ms"><div class="mh"></div><div class="mhd"><div class="mtt">旅程資訊</div><button class="mx" onclick="cm('m-te')">✕</button></div><div class="mb2">
@@ -422,6 +544,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 
 <div class="mo" id="m-det"><div class="ms"><div class="mh"></div><div class="mhd"><div class="mtt" id="dett">詳情</div><button class="mx" onclick="cm('m-det')">✕</button></div><div class="mb2" id="detb"></div></div></div>
 
+
+<div class="mo" id="m-settle-confirm"><div class="ms"><div class="mh"></div><div class="mhd"><div class="mtt">確認結清</div><button class="mx" onclick="cm('m-settle-confirm')">✕</button></div><div class="mb2">
+  <div id="sc-body"></div>
+  <button class="btn btp" style="margin-top:12px;" onclick="markSettled()">確認已轉帳 ✓</button>
+</div></div></div>
 <div id="toast"></div>
 
 <script>
@@ -440,7 +567,7 @@ const PCOL={'現金':'#34C759','信用卡':'#007AFF','Suica':'#32ADE6','PayPay':
 
 let DB=null,CU=null,CT=null,MEMS=[],EXPS=[],SCHED=[];
 let sPayer=null,sCat='餐飲',c1='#F5891E',c2='#007AFF';
-let rTab='day',sFilter='all',charts={},rcData=null,camStr=null;
+let rTab='day',sFilter='all',charts={},rcData=null,camStr=null,splitMems=[];
 
 async function boot(){
   DB=supabase.createClient(SB_URL,SB_KEY);
@@ -503,7 +630,8 @@ async function createTrip(){
   try{
     const{data:trip,error}=await DB.from('trips').insert([{name,owner_id:CU.id,start_date:g('nts'),end_date:g('nte'),budget:parseInt(g('ntb'))||100000,exchange_rate:0.22}]).select().single();
     if(error)throw error;
-    await DB.from('trip_members').insert([{trip_id:trip.id,user_id:CU.id,display_name:nick,emoji:em,color:c1}]);
+    const ntUrl=await uploadAvatar(ntAvFile,CU.id);ntAvFile=null;
+    await DB.from('trip_members').insert([{trip_id:trip.id,user_id:CU.id,display_name:nick,emoji:em,color:c1,avatar_url:ntUrl}]);
     cm('m-nt');await enterTrip(trip.id);
   }catch(e){toast('建立失敗：'+e.message);}
 }
@@ -518,7 +646,8 @@ async function joinTrip(){
     const{data:trip}=await DB.from('trips').select().eq('invite_code',code).single();
     if(!trip)return toast('找不到此邀請碼');
     const{data:ex}=await DB.from('trip_members').select().eq('trip_id',trip.id).eq('user_id',CU.id).single();
-    if(!ex)await DB.from('trip_members').insert([{trip_id:trip.id,user_id:CU.id,display_name:nick,emoji:em,color:c2}]);
+    const jnUrl=await uploadAvatar(jnAvFile,CU.id);jnAvFile=null;
+    if(!ex)await DB.from('trip_members').insert([{trip_id:trip.id,user_id:CU.id,display_name:nick,emoji:em,color:c2,avatar_url:jnUrl}]);
     cm('m-jn');await enterTrip(trip.id);
   }catch(e){toast('加入失敗：'+e.message);}
 }
@@ -550,6 +679,8 @@ async function enterTrip(id){
   EXPS=(exps||[]).map(r=>({id:r.id,shop:r.shop,amount:r.amount,cat:r.cat,payment:r.payment,region:r.region,note:r.note,payer:r.payer,date:r.date,items:r.items||[]}));
   renderApp();
   subExps(id);
+  fetchRate();
+  fetchExRate();
 }
 
 function subExps(id){
@@ -565,6 +696,21 @@ function subExps(id){
 function backToTrips(){
   document.getElementById('app').style.display='none';
   CT=null;EXPS=[];MEMS=[];on('ts');loadTrips();
+}
+
+async function fetchRate(){
+  try{
+    const res=await fetch('https://api.frankfurter.app/latest?from=JPY&to=TWD');
+    const data=await res.json();
+    const rate=data.rates?.TWD;
+    if(rate&&CT){
+      await DB.from('trips').update({exchange_rate:Math.round(rate*1000)/1000}).eq('id',CT.id);
+      CT.exchange_rate=Math.round(rate*1000)/1000;
+      document.getElementById('rdsp').textContent=`¥1 = NT$${CT.exchange_rate}`;
+      renderHome();
+      toast(`匯率已更新 ¥1 = NT$${CT.exchange_rate}`);
+    }
+  }catch(e){console.log('Rate fetch failed',e);}
 }
 
 function renderApp(){
@@ -604,7 +750,7 @@ function renderHome(){
   document.getElementById('mbar').innerHTML=MEMS.map(m=>{
     const mt=EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0);
     const im=m.user_id===CU?.id;
-    return`<div class="mc"><div class="mca${im?' me':''}" style="background:${m.color}22;">${m.emoji}</div><div class="mcn">${m.display_name}</div><div class="mct">¥${(mt/1000).toFixed(1)}k</div></div>`;
+    return`<div class="mc"><div class="mca${im?' me':''}" style="background:${m.color}22;overflow:hidden;">${m.avatar_url?`<img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:`${m.emoji}`}</div><div class="mcn">${m.display_name}</div><div class="mct">¥${(mt/1000).toFixed(1)}k</div></div>`;
   }).join('');
   document.getElementById('htl').innerHTML=te.length?te.slice(0,5).map(eh).join(''):'<div class="es" style="padding:24px;"><div style="font-size:36px;">☀️</div><div style="margin-top:8px;">今日尚無支出</div></div>';
   const rec=EXPS.filter(e=>e.date!==today).slice(0,5);
@@ -616,8 +762,9 @@ function renderHome(){
 
 function eh(e){
   const c=ci(e.cat);const m=mb(e.payer);const r=CT?.exchange_rate||0.22;
+  const avImg = m?.avatar_url ? `<img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (m?m.emoji:c.icon);
   return`<div class="ei" onclick="showDet(${e.id})">
-    <div class="eav">${m?m.emoji:c.icon}</div>
+    <div class="eav" style="overflow:hidden;">${avImg}</div>
     <div class="ein"><div class="ens">${e.shop}</div><div class="etg"><span class="ecat">${e.cat}</span><span class="epay">${e.payment}</span>${e.region?`<span class="eloc">⊙ ${e.region}</span>`:''}</div></div>
     <div class="eam"><div class="eyn">¥${e.amount.toLocaleString()}</div><div class="etw">NT$${Math.round(e.amount*r).toLocaleString()}</div></div>
   </div>`;
@@ -669,18 +816,35 @@ function showAS(){
   ['aam','ash','ant'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('adt').value=today;document.getElementById('atwd').textContent='≈ NT$0';
   document.getElementById('arg').value=ar(today);
-  rPC('apc');rCC();sm('m-add');
+  splitMembers=MEMS.map(m=>m.id);
+  rPC('apc');rCC();renderSplitChips('asp');sm('m-add');
 }
 function rPC(cid){
   const el=document.getElementById(cid);
   if(!MEMS.length){el.innerHTML='<span style="font-size:13px;color:var(--t3);">尚無成員</span>';return;}
-  el.innerHTML=MEMS.map(m=>`<div class="pc ${m.id===sPayer?'on':''}" data-mid="${m.id}"><div class="pca" style="background:${m.color}22;">${m.emoji}</div>${m.display_name}</div>`).join('');
+  el.innerHTML=MEMS.map(m=>{
+    const avH=m.avatar_url?`<img src="${m.avatar_url}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;">`:`<span style="font-size:15px;">${m.emoji}</span>`;
+    return`<div class="pc ${m.id===sPayer?'on':''}" data-mid="${m.id}"><div class="pca" style="background:${m.color}22;">${avH}</div>${m.display_name}</div>`;
+  }).join('');
   el.querySelectorAll('.pc').forEach(c=>{c.addEventListener('click',()=>{sPayer=c.dataset.mid;el.querySelectorAll('.pc').forEach(x=>x.classList.toggle('on',x.dataset.mid===sPayer));});});
 }
 function rCC(){
   document.getElementById('acc').innerHTML=CATS.map(c=>`<div class="cc ${c.name===sCat?'on':''}" onclick="sCat2('${c.name}')">${c.icon} ${c.name}</div>`).join('');
 }
 function sCat2(n){sCat=n;rCC();}
+function rSplitChips(cid){
+  const el=document.getElementById(cid);if(!el)return;
+  el.innerHTML=MEMS.map(m=>{
+    const on=splitMems.includes(m.id);
+    const avHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">`:`<span style="font-size:12px;">${m.emoji}</span>`;
+    return`<div class="split-chip ${on?'on':''}" data-mid="${m.id}" onclick="toggleSplit('${m.id}',this,'${cid}')"><div class="split-chip-av">${avHtml}</div>${m.display_name}</div>`;
+  }).join('');
+}
+function toggleSplit(id,el,cid){
+  if(splitMems.includes(id))splitMems=splitMems.filter(x=>x!==id);
+  else splitMems.push(id);
+  rSplitChips(cid);
+}
 function uTWD(){const a=parseInt(document.getElementById('aam').value)||0;document.getElementById('atwd').textContent=`≈ NT$${Math.round(a*(CT?.exchange_rate||.22)).toLocaleString()}`;}
 
 async function saveExp(){
@@ -688,7 +852,7 @@ async function saveExp(){
   if(!amount||amount<=0)return toast('請輸入金額');
   const shop=g('ash')||'未知店家';const date=g('adt')||ts();const region=g('arg')||ar(date);
   try{
-    await DB.from('tabikake_expenses').insert([{id:Date.now(),shop,amount,cat:sCat,payment:g('apm'),region,note:g('ant'),payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:[],created_at:new Date().toISOString()}]);
+    await DB.from('tabikake_expenses').insert([{id:Date.now(),shop,amount,cat:sCat,payment:g('apm'),region,note:g('ant'),payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:[],split_members:splitMembers,created_at:new Date().toISOString()}]);
     cm('m-add');toast(`已記帳 ¥${amount.toLocaleString()} ✓`);
   }catch(e){toast('儲存失敗：'+e.message);}
 }
@@ -741,6 +905,7 @@ function showRC(data){
   pc.querySelectorAll('.pc').forEach(c=>{c.addEventListener('click',()=>{sPayer=c.dataset.mid;pc.querySelectorAll('.pc').forEach(x=>x.classList.toggle('on',x.dataset.mid===sPayer));});});
   const cs=document.getElementById('rccat');cs.innerHTML=CATS.map(c=>`<option ${c.name===(data.category||'其他')?'selected':''}>${c.name}</option>`).join('');
   document.getElementById('rcreg').value=ar(data.date||'')||'';
+  splitMems=[...MEMS.map(m=>m.id)];
   renderRI();
 }
 function renderRI(){
@@ -755,7 +920,7 @@ async function confirmSave(){
   if(!rcData)return;const date=rcData.date||ts();const region=g('rcreg')||ar(date);
   const notes=[rcData.tax_type,rcData.discount>0?`折扣¥${rcData.discount}`:'',rcData.notes].filter(Boolean).join(' | ');
   try{
-    await DB.from('tabikake_expenses').insert([{id:Date.now(),shop:document.getElementById('rcsz').textContent,amount:rcData.total_amount||rcData.items.reduce((s,i)=>s+i.price*i.qty,0),cat:document.getElementById('rccat').value,payment:g('rcpay'),region,note:notes,payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:rcData.items,created_at:new Date().toISOString()}]);
+    await DB.from('tabikake_expenses').insert([{id:Date.now(),shop:document.getElementById('rcsz').textContent,amount:rcData.total_amount||rcData.items.reduce((s,i)=>s+i.price*i.qty,0),cat:document.getElementById('rccat').value,payment:g('rcpay'),region,note:notes,payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:rcData.items,split_members:MEMS.map(m=>m.id),created_at:new Date().toISOString()}]);
     backScan();switchView('home',document.querySelector('[data-view=home]'));toast('✅ 收據已儲存同步');
   }catch(e){toast('儲存失敗：'+e.message);}
 }
@@ -775,8 +940,9 @@ function showDet(id){
       <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd);"><span style="color:var(--t2);font-size:14px;">類別</span><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--ol);color:var(--o);">${e.cat}</span></div>
       <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd);"><span style="color:var(--t2);font-size:14px;">支付</span><span style="font-size:14px;font-weight:500;">${e.payment}</span></div>
       ${e.region?`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd);"><span style="color:var(--t2);font-size:14px;">地區</span><span style="font-size:14px;font-weight:500;">📍 ${e.region}</span></div>`:''}
-      ${m?`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd);"><span style="color:var(--t2);font-size:14px;">消費者</span><span style="font-size:16px;">${m.emoji} ${m.display_name}</span></div>`:''}
+      ${m?`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd);"><span style="color:var(--t2);font-size:14px;">消費者</span><span style="display:flex;align-items:center;gap:6px;">${m.avatar_url?`<img src="${m.avatar_url}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">`:`<span style="font-size:20px;">${m.emoji}</span>`} ${m.display_name}</span></div>`:''}
       ${e.note?`<div style="padding:7px 0;"><span style="color:var(--t2);font-size:13px;">備註</span><div style="font-size:14px;margin-top:3px;">${e.note}</div></div>`:''}
+    ${e.split_members?.length?`<div style="padding:7px 0;"><span style="color:var(--t2);font-size:13px;">分攤成員</span><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">${e.split_members.map(mid=>{const sm2=mb(mid);return sm2?`<div style="display:flex;align-items:center;gap:4px;padding:3px 8px;background:var(--ol);border-radius:12px;font-size:12px;">${sm2.avatar_url?`<img src="${sm2.avatar_url}" style="width:16px;height:16px;border-radius:50%;object-fit:cover;">`:`<span>${sm2.emoji}</span>`}${sm2.display_name}</div>`:''}).join('')}</div></div>`:''}
     </div>
     ${e.items?.length?`<div style="margin-top:14px;"><div style="font-size:14px;font-weight:600;margin-bottom:8px;">品項明細</div><div style="background:var(--bg);border-radius:var(--r);padding:12px 16px;">${e.items.map(it=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd);font-size:13px;"><span>${it.name_zh||it.name_ja}</span><span style="font-weight:600;">¥${it.price}</span></div>`).join('')}</div></div>`:''}
     <div class="br" style="margin-top:16px;">
@@ -805,7 +971,8 @@ function copyInv(url,code){
 function showMS(){
   document.getElementById('mbl').innerHTML=MEMS.map(m=>{
     const mt=EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0);const im=m.user_id===CU?.id;
-    return`<div class="mrw"><div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;background:${m.color}22;">${m.emoji}</div><div style="flex:1;"><div style="font-size:15px;font-weight:600;">${m.display_name}${im?' <span style="font-size:11px;color:var(--o);">(我)</span>':''}</div><div style="font-size:12px;color:var(--t2);">¥${mt.toLocaleString()} · ${EXPS.filter(e=>e.payer===m.id).length} 筆</div></div><div style="font-size:14px;font-weight:700;color:var(--o);">¥${(mt/1000).toFixed(1)}k</div></div>`;
+    const mAvHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`:`<div style="width:40px;height:40px;border-radius:50%;background:${m.color}22;display:flex;align-items:center;justify-content:center;font-size:22px;">${m.emoji}</div>`;
+    return`<div class="mrw"><div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;">${mAvHtml}</div><div style="flex:1;"><div style="font-size:15px;font-weight:600;">${m.display_name}${im?' <span style="font-size:11px;color:var(--o);">(我)</span>':''}</div><div style="font-size:12px;color:var(--t2);">¥${mt.toLocaleString()} · ${EXPS.filter(e=>e.payer===m.id).length} 筆</div></div><div style="font-size:14px;font-weight:700;color:var(--o);">¥${(mt/1000).toFixed(1)}k</div></div>`;
   }).join('');
   if(CT){
     const code=CT.invite_code;const url=`${location.origin}${location.pathname}?invite=${code}`;
@@ -865,8 +1032,104 @@ function showUS(){
 }
 
 function sc1(c,el){c1=c;document.querySelectorAll('#ntco .cop').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
+
+// Avatar file holders
+let ntAvFile=null,jnAvFile=null;
+
+function previewAv(input,previewId,iconId,fileVar){
+  const file=input.files[0];if(!file)return;
+  if(fileVar==='ntAvFile')ntAvFile=file;
+  else jnAvFile=file;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const prev=document.getElementById(previewId);
+    prev.innerHTML=`<img src="${e.target.result}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;"><div class="av-edit-badge">✏️</div><input type="file" accept="image/*" onchange="previewAv(this,'${previewId}','${iconId}','${fileVar}')">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadAvatar(file,userId){
+  if(!file)return null;
+  try{
+    // crop to square via canvas
+    const dataUrl=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});
+    const img=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.src=dataUrl;});
+    const size=Math.min(img.width,img.height);
+    const c=document.createElement('canvas');c.width=200;c.height=200;
+    const ctx=c.getContext('2d');
+    ctx.beginPath();ctx.arc(100,100,100,0,Math.PI*2);ctx.clip();
+    ctx.drawImage(img,(img.width-size)/2,(img.height-size)/2,size,size,0,0,200,200);
+    const blob=await new Promise(res=>c.toBlob(res,'image/jpeg',0.85));
+    const path=`avatars/${userId}_${Date.now()}.jpg`;
+    const{error}=await DB.storage.from('avatars').upload(path,blob,{contentType:'image/jpeg',upsert:true});
+    if(error)throw error;
+    const{data}=DB.storage.from('avatars').getPublicUrl(path);
+    return data.publicUrl;
+  }catch(e){console.log('Avatar upload failed',e);return null;}
+}
 function sc2(c,el){c2=c;document.querySelectorAll('#jnco .cop').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
 function requireLogin(action){if(CU)action();else toast('🔒 此功能需要登入');}
+
+function calcSettle(){
+  const r=CT?.exchange_rate||0.22;
+  // balance[memberId] = net amount (positive = owed money, negative = owes money)
+  const balance={};
+  MEMS.forEach(m=>balance[m.id]=0);
+  
+  EXPS.forEach(e=>{
+    const payer=e.payer;
+    const splits=e.split_members&&e.split_members.length>0?e.split_members:MEMS.map(m=>m.id);
+    const validSplits=splits.filter(id=>MEMS.find(m=>m.id===id));
+    if(!validSplits.length)return;
+    const share=e.amount/validSplits.length;
+    // payer paid full amount → gets credited
+    if(balance[payer]!==undefined)balance[payer]+=e.amount;
+    // each splitter owes their share
+    validSplits.forEach(id=>{if(balance[id]!==undefined)balance[id]-=share;});
+  });
+
+  // render balance cards
+  const bw=document.getElementById('balance-wrap');
+  bw.innerHTML=MEMS.map(m=>{
+    const b=balance[m.id]||0;
+    const cls=b>0.5?'balance-pos':b<-0.5?'balance-neg':'balance-zero';
+    const label=b>0.5?`別人欠他 ¥${Math.round(b).toLocaleString()}`:b<-0.5?`他欠別人 ¥${Math.round(Math.abs(b)).toLocaleString()}`:'已結清';
+    const color=b>0.5?'var(--green)':b<-0.5?'var(--red)':'var(--t3)';
+    const avHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`:`<div style="width:40px;height:40px;border-radius:50%;background:${m.color}22;display:flex;align-items:center;justify-content:center;font-size:22px;">${m.emoji}</div>`;
+    return`<div class="balance-card ${cls}"><div>${avHtml}</div><div style="flex:1;"><div style="font-size:15px;font-weight:600;">${m.display_name}</div><div style="font-size:12px;color:var(--t2);">實際付出 ¥${EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0).toLocaleString()}</div></div><div style="text-align:right;"><div style="font-size:14px;font-weight:700;color:${color};">${label}</div><div style="font-size:11px;color:var(--t2);">≈ NT$${Math.round(Math.abs(b)*r).toLocaleString()}</div></div></div>`;
+  }).join('');
+
+  // Minimize transactions algorithm
+  const pos=[],neg=[];
+  const bal2={};MEMS.forEach(m=>bal2[m.id]=Math.round((balance[m.id]||0)));
+  Object.entries(bal2).forEach(([id,b])=>{if(b>0)pos.push({id,b});else if(b<0)neg.push({id,b:Math.abs(b)});});
+  
+  const txns=[];
+  let pi=0,ni=0;
+  while(pi<pos.length&&ni<neg.length){
+    const p=pos[pi],n=neg[ni];
+    const amt=Math.min(p.b,n.b);
+    if(amt>1)txns.push({from:n.id,to:p.id,jpy:amt,twd:Math.round(amt*r)});
+    p.b-=amt;n.b-=amt;
+    if(p.b<1)pi++;if(n.b<1)ni++;
+  }
+
+  const sw=document.getElementById('settle-wrap');
+  if(!txns.length){sw.innerHTML='<div class="es" style="padding:24px;"><div style="font-size:36px;">🎉</div><div style="margin-top:8px;font-size:14px;">大家都結清了！</div></div>';return;}
+  sw.innerHTML=txns.map(t=>{
+    const fm=MEMS.find(m=>m.id===t.from);const tm=MEMS.find(m=>m.id===t.to);
+    const favHtml=fm?.avatar_url?`<img src="${fm.avatar_url}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`:`<div style="width:36px;height:36px;border-radius:50%;background:${fm?.color||'#ccc'}22;display:flex;align-items:center;justify-content:center;font-size:18px;">${fm?.emoji||'?'}</div>`;
+    const tavhHtml=tm?.avatar_url?`<img src="${tm.avatar_url}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`:`<div style="width:36px;height:36px;border-radius:50%;background:${tm?.color||'#ccc'}22;display:flex;align-items:center;justify-content:center;font-size:18px;">${tm?.emoji||'?'}</div>`;
+    return`<div class="settle-card"><div class="settle-row">
+      <div class="settle-av">${favhHtml}</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:600;">${fm?.display_name||'?'}</div><div style="font-size:11px;color:var(--t2);">付給</div></div>
+      <div class="settle-arrow">→</div>
+      <div style="flex:1;text-align:right;"><div style="font-size:14px;font-weight:600;">${tm?.display_name||'?'}</div></div>
+      <div class="settle-av">${tavhHtml}</div>
+      <div class="settle-amount" style="min-width:80px;text-align:right;margin-left:8px;"><div class="settle-jpy">¥${t.jpy.toLocaleString()}</div><div class="settle-twd">NT$${t.twd.toLocaleString()}</div></div>
+    </div></div>`;
+  }).join('');
+}
 
 function switchView(name,el){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -877,6 +1140,7 @@ function switchView(name,el){
   if(name==='records')renderRec();
   if(name==='stats')renderStats();
   if(name==='settings')renderIVC();
+  if(name==='settle')renderSettle();
 }
 
 function g(id){return document.getElementById(id)?.value||'';}
@@ -887,6 +1151,195 @@ function cm(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)cm(m.id);}));
 function toast(msg,d=2400){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),d);}
 function fd(s){if(!s)return'';return new Date(s+'T00:00:00').toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});}
+
+
+
+// ===== AVATAR UPLOAD =====
+async function uploadAvatar(file, memberId) {
+  const ext = file.name.split('.').pop();
+  const path = `avatars/${memberId}.${ext}`;
+  // Upload to Supabase Storage (bucket: avatars)
+  const { error } = await DB.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type });
+  if (error) { toast('上傳失敗：' + error.message); return null; }
+  const { data } = DB.storage.from('avatars').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function handleAvatarUpload(input, memberId) {
+  const file = input.files[0]; if (!file) return;
+  toast('上傳中...');
+  const url = await uploadAvatar(file, memberId);
+  if (!url) return;
+  await DB.from('trip_members').update({ avatar_url: url }).eq('id', memberId);
+  // update local
+  const m = MEMS.find(x => x.id === memberId);
+  if (m) m.avatar_url = url;
+  // refresh UI
+  renderHome(); renderApp();
+  toast('頭像已更新 ✓');
+  // update avatar display in sheet
+  const img = document.getElementById('av-preview-' + memberId);
+  if (img) { img.src = url; img.style.display = 'block'; }
+}
+
+// ===== SETTLEMENT =====
+let splitMembers = []; // selected member ids for current add form
+
+function renderSplitChips(cid) {
+  const el = document.getElementById(cid);
+  if (!MEMS.length) return;
+  // default all selected
+  if (!splitMembers.length) splitMembers = MEMS.map(m => m.id);
+  el.innerHTML = MEMS.map(m => `<div class="pc ${splitMembers.includes(m.id)?'on':''}" data-mid="${m.id}" onclick="toggleSplit('${cid}',this,'${m.id}')"><div class="pca" style="background:${m.color}22;border-radius:50%;overflow:hidden;width:26px;height:26px;">${m.avatar_url?`<img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:m.emoji}</div>${m.display_name}</div>`).join('');
+}
+
+function toggleSplit(cid, el, mid) {
+  if (splitMembers.includes(mid)) {
+    if (splitMembers.length <= 1) return; // keep at least 1
+    splitMembers = splitMembers.filter(x => x !== mid);
+  } else {
+    splitMembers.push(mid);
+  }
+  el.classList.toggle('on', splitMembers.includes(mid));
+}
+
+function calcSettlement() {
+  // net balance per member (positive = owed money, negative = owes money)
+  const balance = {};
+  MEMS.forEach(m => balance[m.id] = 0);
+  
+  EXPS.forEach(e => {
+    const splits = (e.split_members && e.split_members.length) ? e.split_members : MEMS.map(m => m.id);
+    const share = e.amount / splits.length;
+    // payer gets credited
+    if (balance[e.payer] !== undefined) balance[e.payer] += e.amount;
+    // each splitter gets debited
+    splits.forEach(mid => { if (balance[mid] !== undefined) balance[mid] -= share; });
+  });
+  
+  // simplify debts
+  const creditors = Object.entries(balance).filter(([,v]) => v > 0.5).map(([id,v]) => ({id, amt: v})).sort((a,b) => b.amt - a.amt);
+  const debtors = Object.entries(balance).filter(([,v]) => v < -0.5).map(([id,v]) => ({id, amt: -v})).sort((a,b) => b.amt - a.amt);
+  
+  const txns = [];
+  let ci = 0, di = 0;
+  const c = creditors.map(x => ({...x}));
+  const d = debtors.map(x => ({...x}));
+  
+  while (ci < c.length && di < d.length) {
+    const amt = Math.min(c[ci].amt, d[di].amt);
+    if (amt > 0.5) txns.push({ from: d[di].id, to: c[ci].id, jpy: Math.round(amt) });
+    c[ci].amt -= amt; d[di].amt -= amt;
+    if (c[ci].amt < 0.5) ci++;
+    if (d[di].amt < 0.5) di++;
+  }
+  return { balance, txns };
+}
+
+function renderSettle() {
+  const { balance, txns } = calcSettlement();
+  const r = CT?.exchange_rate || 0.22;
+  const total = EXPS.reduce((s,e) => s+e.amount, 0);
+  const perHead = MEMS.length ? Math.round(total / MEMS.length) : 0;
+  
+  // summary card
+  document.getElementById('settle-summary').innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:13px;color:var(--t2);">旅程總支出</span>
+      <span style="font-size:15px;font-weight:700;">¥${total.toLocaleString()}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:13px;color:var(--t2);">每人均攤</span>
+      <span style="font-size:15px;font-weight:700;">¥${perHead.toLocaleString()} <span style="font-size:12px;color:var(--t2);">≈ NT$${Math.round(perHead*r).toLocaleString()}</span></span>
+    </div>
+    <div style="height:1px;background:var(--bd);margin:10px 0;"></div>
+    <div style="font-size:12px;color:var(--t2);">共 ${MEMS.length} 人 · ${EXPS.length} 筆消費</div>`;
+  
+  // transactions
+  const sl = document.getElementById('settle-list');
+  if (!txns.length) {
+    sl.innerHTML = '<div class="es" style="padding:20px;"><div style="font-size:36px;">🎉</div><div style="margin-top:8px;font-size:14px;">大家都平了！</div></div>';
+  } else {
+    sl.innerHTML = txns.map((t,i) => {
+      const fm = mb(t.from), tm = mb(t.to);
+      const twd = Math.round(t.jpy * r);
+      return `<div class="card" style="padding:14px 16px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:${fm?.color||'#eee'}22;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;flex-shrink:0;">${fm?.avatar_url?`<img src="${fm.avatar_url}" style="width:100%;height:100%;object-fit:cover;">`:(fm?.emoji||'?')}</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">${fm?.display_name||'?'} <span style="color:var(--t2);">→</span> ${tm?.display_name||'?'}</div>
+            <div style="font-size:12px;color:var(--t2);margin-top:2px;">轉帳給對方</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:900;color:var(--o);">¥${t.jpy.toLocaleString()}</div>
+            <div style="font-size:12px;color:var(--t2);">NT$${twd.toLocaleString()}</div>
+          </div>
+        </div>
+        <button onclick="showSettleConfirm(${i})" style="margin-top:10px;width:100%;padding:8px;background:var(--ol);color:var(--o);border:1.5px solid var(--o);border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--ff);">✓ 標記已結清</button>
+      </div>`;
+    }).join('');
+  }
+  
+  // per member detail
+  document.getElementById('settle-members').innerHTML = MEMS.map(m => {
+    const paid = EXPS.filter(e => e.payer === m.id).reduce((s,e) => s+e.amount, 0);
+    const share = EXPS.reduce((s,e) => {
+      const splits = (e.split_members && e.split_members.length) ? e.split_members : MEMS.map(x => x.id);
+      return splits.includes(m.id) ? s + e.amount/splits.length : s;
+    }, 0);
+    const net = paid - share;
+    return `<div class="card" style="padding:14px 16px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:${m.color}22;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;flex-shrink:0;border:2px solid ${m.color};">${m.avatar_url?`<img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:m.emoji}</div>
+        <div style="flex:1;"><div style="font-size:15px;font-weight:700;">${m.display_name}</div><div style="font-size:12px;color:${net>0?'var(--green)':net<0?'var(--red)':'var(--t2)'};">${net>0?`多付了 ¥${Math.round(net).toLocaleString()}`:net<0?`少付了 ¥${Math.round(-net).toLocaleString()}`:'剛好平衡'}</div></div>
+        <div style="text-align:right;"><div style="font-size:13px;color:var(--t2);">實付</div><div style="font-size:16px;font-weight:700;">¥${Math.round(paid).toLocaleString()}</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--t2);background:var(--bg);padding:8px 10px;border-radius:var(--rs);">
+        <span>應分攤：¥${Math.round(share).toLocaleString()}</span>
+        <span>實際付：¥${Math.round(paid).toLocaleString()}</span>
+        <span style="color:${net>=0?'var(--green)':'var(--red)'};">${net>=0?'應收':'應付'} ¥${Math.round(Math.abs(net)).toLocaleString()}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let pendingSettleTxn = null;
+function showSettleConfirm(idx) {
+  const { txns } = calcSettlement();
+  const t = txns[idx];
+  if (!t) return;
+  pendingSettleTxn = t;
+  const fm = mb(t.from), tm = mb(t.to);
+  const r = CT?.exchange_rate || 0.22;
+  document.getElementById('sc-body').innerHTML = `
+    <div style="text-align:center;padding:16px 0;">
+      <div style="font-size:36px;margin-bottom:8px;">💸</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:4px;">${fm?.display_name} → ${tm?.display_name}</div>
+      <div style="font-size:32px;font-weight:900;color:var(--o);">¥${t.jpy.toLocaleString()}</div>
+      <div style="font-size:14px;color:var(--t2);margin-top:4px;">≈ NT$${Math.round(t.jpy*r).toLocaleString()}</div>
+    </div>`;
+  sm('m-settle-confirm');
+}
+function markSettled() {
+  cm('m-settle-confirm');
+  toast('✅ 已標記結清！');
+  pendingSettleTxn = null;
+}
+
+// ===== AUTO EXCHANGE RATE =====
+async function fetchExRate() {
+  try {
+    const res = await fetch('https://api.frankfurter.app/latest?from=JPY&to=TWD');
+    const data = await res.json();
+    const rate = data.rates?.TWD;
+    if (rate && CT) {
+      CT.exchange_rate = parseFloat(rate.toFixed(4));
+      await DB.from('trips').update({ exchange_rate: CT.exchange_rate }).eq('id', CT.id);
+      document.getElementById('rdsp').textContent = `¥1 = NT$${CT.exchange_rate}`;
+      renderHome();
+    }
+  } catch(e) { /* silent fail, keep manual rate */ }
+}
 
 boot();
 </script>
