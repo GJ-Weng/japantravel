@@ -571,16 +571,46 @@ let rTab='day',sFilter='all',charts={},rcData=null,camStr=null,splitMems=[];
 
 async function boot(){
   DB=supabase.createClient(SB_URL,SB_KEY);
+
+  // 監聽 auth 狀態變化（處理 OAuth redirect 回來的情況）
+  DB.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session?.user&&!CU){
+      CU=session.user;
+      off('as');
+      const inv=localStorage.getItem('tb_inv');
+      await loadTrips(inv||null);
+    }
+    if(event==='SIGNED_OUT'){
+      CU=null;CT=null;
+      document.getElementById('app').style.display='none';
+      off('ts');on('as');
+    }
+  });
+
+  // 同時也檢查現有 session（頁面重整時）
   const{data:{session}}=await DB.auth.getSession();
   const params=new URLSearchParams(window.location.search);
   const inv=params.get('invite');
   off('ls');
-  if(session?.user){CU=session.user;await loadTrips(inv);}
-  else{if(inv)localStorage.setItem('tb_inv',inv);on('as');}
+  if(session?.user){
+    CU=session.user;
+    await loadTrips(inv);
+  } else {
+    if(inv)localStorage.setItem('tb_inv',inv);
+    on('as');
+  }
 }
 
 async function signInGoogle(){
-  await DB.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href.split('?')[0]}});
+  // 取得目前頁面的完整 URL（不含 query string 和 hash）
+  const redirectTo=window.location.origin+window.location.pathname;
+  await DB.auth.signInWithOAuth({
+    provider:'google',
+    options:{
+      redirectTo,
+      queryParams:{access_type:'offline',prompt:'consent'}
+    }
+  });
 }
 async function signOut(){
   await DB.auth.signOut();CU=null;CT=null;
