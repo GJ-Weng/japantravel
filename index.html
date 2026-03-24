@@ -340,7 +340,13 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
             <div class="pcs" id="rcpc"></div>
             <div class="dv"></div>
             <div class="fr"><div><div class="fl">類別</div><select class="fs" id="rccat"></select></div><div><div class="fl">支付方式</div><select class="fs" id="rcpay"><option>現金</option><option>信用卡</option><option>Suica</option><option>PayPay</option><option>其他</option></select></div></div>
-            <div style="margin-top:10px;"><div class="fl">地區</div><input class="fi" id="rcreg" placeholder="自動偵測"></div>
+            <div style="margin-top:10px;">
+              <div class="fl">地區</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input class="fi" id="rcreg" placeholder="偵測中..." style="flex:1;">
+                <button type="button" onclick="detectRegion('rcreg')" style="flex-shrink:0;width:40px;height:44px;border-radius:var(--rs);background:var(--ol);border:1.5px solid var(--o);color:var(--o);font-size:18px;cursor:pointer;">📍</button>
+              </div>
+            </div>
           </div>
         </div>
         <button class="rcb" id="rccb" onclick="confirmSave()">確認儲存</button>
@@ -473,13 +479,19 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 <div class="mo" id="m-add"><div class="ms"><div class="mh"></div><div class="mhd"><div class="mtt">新增消費</div><button class="mx" onclick="cm('m-add')">✕</button></div><div class="mb2">
   <div class="fg"><label class="fl">消費者</label><div class="pcs" id="apc"></div></div>
   <div class="fg"><label class="fl">金額（¥ JPY）</label><div class="aiw"><div class="ap">¥</div><input class="ai" type="number" id="aam" placeholder="0" oninput="uTWD()"><div class="atw" id="atwd">≈ NT$0</div></div></div>
-  <div class="fg"><label class="fl">店家名稱</label><input class="fi" id="ash" placeholder="店名"></div>
+  <div class="fg"><label class="fl" id="ash-label">店家名稱</label><input class="fi" id="ash" placeholder="店名"></div>
   <div class="fg"><label class="fl">類別</label><div class="ccs" id="acc"></div></div>
   <div class="fr"><div class="fg" style="margin-bottom:0;"><label class="fl">支付方式</label><select class="fs" id="apm"><option>現金</option><option>信用卡</option><option>Suica</option><option>PayPay</option><option>其他</option></select></div><div class="fg" style="margin-bottom:0;"><label class="fl">日期</label><input class="fi" type="date" id="adt"></div></div>
-  <div class="fg" style="margin-top:12px;"><label class="fl">地區</label><input class="fi" id="arg" placeholder="自動偵測"></div>
+  <div class="fg" style="margin-top:12px;">
+    <label class="fl">地區</label>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input class="fi" id="arg" placeholder="偵測中..." style="flex:1;">
+      <button type="button" onclick="detectRegion('arg')" style="flex-shrink:0;width:40px;height:44px;border-radius:var(--rs);background:var(--ol);border:1.5px solid var(--o);color:var(--o);font-size:18px;cursor:pointer;">📍</button>
+    </div>
+  </div>
   <div class="fg"><label class="fl">分攤成員（預設全員均分）</label><div class="pcs" id="asp"></div></div>
   <div class="fg"><label class="fl">分攤成員（誰要分這筆？）</label><div class="split-chips" id="asp"></div></div>
-  <div class="fg"><label class="fl">備註</label><input class="fi" id="ant" placeholder="可選"></div>
+  <div class="fg"><label class="fl" id="ant-label">備註</label><input class="fi" id="ant" placeholder="可選"></div>
   <div class="br" style="margin-top:8px;"><button class="btn bts" onclick="cm('m-add')">取消</button><button class="btn btp" onclick="saveExp()">記帳 ✓</button></div>
 </div></div></div>
 
@@ -536,6 +548,17 @@ const CATS=[
   {name:'其他',icon:'📌',color:'#8E8E93'},
 ];
 const PCOL={'現金':'#34C759','信用卡':'#007AFF','Suica':'#32ADE6','PayPay':'#FF3B30','其他':'#8E8E93'};
+const CAT_FIELD={
+  '餐飲':   {label:'店家名稱',   placeholder:'如：すき家、一蘭拉麵'},
+  '便利店': {label:'店家名稱',   placeholder:'如：7-11、ローソン'},
+  '藥妝':   {label:'店家名稱',   placeholder:'如：マツキヨ、ドラッグストア'},
+  '購物':   {label:'購買地點',   placeholder:'如：唐吉訶德、新宿高島屋'},
+  '伴手禮': {label:'購買地點',   placeholder:'如：機場免稅店、土產店'},
+  '交通':   {label:'交通方式',   placeholder:'如：新幹線、地下鐵、巴士'},
+  '住宿':   {label:'住宿名稱',   placeholder:'如：東橫 INN、APA Hotel'},
+  '景點':   {label:'景點名稱',   placeholder:'如：淺草寺、富士山'},
+  '其他':   {label:'說明',       placeholder:'說明這筆消費'},
+};
 
 let DB=null,CU=null,CT=null,MEMS=[],EXPS=[],SCHED=[];
 let sPayer=null,sCat='餐飲',c1='#F5891E',c2='#007AFF';
@@ -760,6 +783,64 @@ function renderApp(){
 
 function ts(){return new Date().toISOString().split('T')[0];}
 function ar(d){return SCHED.find(s=>s.date===d)?.region||'';}
+
+// GPS 定位反查地名
+async function detectRegion(fieldId){
+  const inp=document.getElementById(fieldId);
+  if(!inp)return;
+  // 先試行程日程
+  const sched=ar(ts());
+  if(sched){inp.value=sched;return;}
+  // 沒有就用 GPS
+  if(!navigator.geolocation){inp.placeholder='此裝置不支援定位';return;}
+  inp.value='';inp.placeholder='定位中...';
+  navigator.geolocation.getCurrentPosition(
+    async(pos)=>{
+      const{latitude:lat,longitude:lng}=pos.coords;
+      try{
+        // 用 nominatim 反查地名（免費，不需 key）
+        const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=zh-TW`,{headers:{'User-Agent':'Tabitoku/1.0'}});
+        const data=await res.json();
+        // 取城市/區域名稱
+        const addr=data.address||{};
+        const region=addr.city||addr.town||addr.village||addr.county||addr.state||data.display_name?.split(',')[0]||'';
+        inp.value=region;
+        inp.placeholder='自動偵測';
+      }catch(e){
+        inp.placeholder='地名查詢失敗';
+      }
+    },
+    (err)=>{
+      inp.placeholder=err.code===1?'請允許定位權限':'定位失敗';
+    },
+    {timeout:8000,maximumAge:60000}
+  );
+}
+
+// 開啟記帳表單時自動觸發一次定位
+async function autoDetectRegion(fieldId){
+  const inp=document.getElementById(fieldId);
+  if(!inp)return;
+  // 先查行程日程
+  const sched=ar(ts());
+  if(sched){inp.value=sched;return;}
+  // 靜默嘗試 GPS（不顯示 loading，避免干擾）
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(
+    async(pos)=>{
+      const{latitude:lat,longitude:lng}=pos.coords;
+      try{
+        const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=zh-TW`,{headers:{'User-Agent':'Tabitoku/1.0'}});
+        const data=await res.json();
+        const addr=data.address||{};
+        const region=addr.city||addr.town||addr.village||addr.county||addr.state||'';
+        if(region&&inp.value==='')inp.value=region;
+      }catch(e){}
+    },
+    ()=>{},
+    {timeout:6000,maximumAge:120000}
+  );
+}
 function ci(n){return CATS.find(c=>c.name===n)||CATS[CATS.length-1];}
 function mb(id){return MEMS.find(m=>m.id==id);}
 
@@ -851,7 +932,15 @@ function showAS(){
   document.getElementById('adt').value=today;document.getElementById('atwd').textContent='≈ NT$0';
   document.getElementById('arg').value=ar(today);
   splitMems=MEMS.map(m=>m.id);
-  rPC('apc');rCC();rSplitChips('asp');sm('m-add');
+  rPC('apc');rCC();rSplitChips('asp');
+  const cf0=CAT_FIELD[sCat]||CAT_FIELD['其他'];
+  const lbl0=document.getElementById('ash-label');
+  const inp0=document.getElementById('ash');
+  if(lbl0)lbl0.textContent=cf0.label;
+  if(inp0)inp0.placeholder=cf0.placeholder;
+  sm('m-add');
+  // 自動偵測地區
+  autoDetectRegion('arg');
 }
 function rPC(cid){
   const el=document.getElementById(cid);
@@ -865,7 +954,30 @@ function rPC(cid){
 function rCC(){
   document.getElementById('acc').innerHTML=CATS.map(c=>`<div class="cc ${c.name===sCat?'on':''}" onclick="sCat2('${c.name}')">${c.icon} ${c.name}</div>`).join('');
 }
-function sCat2(n){sCat=n;rCC();}
+const CAT_NOTE={
+  '交通':   '如：東京→大阪、IC卡儲值',
+  '住宿':   '如：含早餐、雙人房',
+  '景點':   '如：門票、體驗費',
+  '餐飲':   '如：午餐、4人份',
+  '購物':   '如：衣服、電器',
+  '藥妝':   '如：感冒藥、保養品',
+  '便利店': '如：早餐、零食',
+  '伴手禮': '如：給家人、辦公室',
+  '其他':   '',
+};
+function sCat2(n){
+  sCat=n;
+  rCC();
+  const cf=CAT_FIELD[n]||CAT_FIELD['其他'];
+  const lbl=document.getElementById('ash-label');
+  const inp=document.getElementById('ash');
+  if(lbl)lbl.textContent=cf.label;
+  if(inp)inp.placeholder=cf.placeholder;
+  // update note placeholder
+  const notePh=CAT_NOTE[n]||'可選';
+  const noteInp=document.getElementById('ant');
+  if(noteInp)noteInp.placeholder=notePh||'可選';
+}
 function rSplitChips(cid){
   const el=document.getElementById(cid);if(!el)return;
   el.innerHTML=MEMS.map(m=>{
@@ -967,7 +1079,9 @@ function showRC(data){
   pc.innerHTML=MEMS.map(m=>`<div class="pc ${m.id===sPayer?'on':''}" data-mid="${m.id}"><div class="pca" style="background:${m.color}22;">${m.emoji}</div>${m.display_name}</div>`).join('');
   pc.querySelectorAll('.pc').forEach(c=>{c.addEventListener('click',()=>{sPayer=c.dataset.mid;pc.querySelectorAll('.pc').forEach(x=>x.classList.toggle('on',x.dataset.mid===sPayer));});});
   const cs=document.getElementById('rccat');cs.innerHTML=CATS.map(c=>`<option ${c.name===(data.category||'其他')?'selected':''}>${c.name}</option>`).join('');
-  document.getElementById('rcreg').value=ar(data.date||'')||'';
+  const schedRegion=ar(data.date||ts());
+  document.getElementById('rcreg').value=schedRegion;
+  if(!schedRegion)autoDetectRegion('rcreg');
   splitMems=[...MEMS.map(m=>m.id)];
   renderRI();
 }
