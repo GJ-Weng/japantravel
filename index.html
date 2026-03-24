@@ -406,17 +406,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
       </div>
     </div>
     <!-- SETTLEMENT -->
-    <div class="view" id="view-settle">
-      <div style="padding:14px 16px 0;">
-        <div style="font-size:22px;font-weight:700;margin-bottom:4px;">旅程結算</div>
-        <div style="font-size:13px;color:var(--t2);margin-bottom:14px;">誰代墊了多少，最後怎麼還</div>
-        <div id="balance-wrap"></div>
-        <div style="font-size:15px;font-weight:700;margin:16px 0 8px;">轉帳清單</div>
-        <div id="settle-wrap"></div>
-        <button class="btn btp" style="margin-top:12px;" onclick="calcSettle()">🔄 重新計算</button>
-      </div>
-    </div>
-    <!-- SETTINGS -->
+        <!-- SETTINGS -->
     <div class="view" id="view-settings">
       <div style="padding:14px 0 4px;"></div>
       <div id="ivcw" style="padding:0 0 10px;"></div>
@@ -438,7 +428,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
     <button class="ni" data-view="records" onclick="switchView('records',this)"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>紀錄</span></button>
     <div class="nsc"><button class="nsb" onclick="switchView('scan',document.querySelector('[data-view=scan]'))"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="5" height="5" rx="1" stroke="#fff" stroke-width="2"/><rect x="16" y="3" width="5" height="5" rx="1" stroke="#fff" stroke-width="2"/><rect x="3" y="16" width="5" height="5" rx="1" stroke="#fff" stroke-width="2"/><path d="M16 16h5v5h-5z" stroke="#fff" stroke-width="2"/><path d="M12 3v4M3 12h4M17 12h4M12 17v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></button></div>
     <button class="ni" data-view="stats" onclick="switchView('stats',this)"><svg viewBox="0 0 24 24" fill="none"><path d="M3 20h18M7 14v6M12 8v12M17 3v17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>統計</span></button>
-    <button class="ni" data-view="settle" onclick="switchView('settle',this)"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>結算</span></button>
     <button class="ni" data-view="settle" onclick="switchView('settle',this)"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>結算</span></button>
     <button class="ni" data-view="settings" onclick="switchView('settings',this)"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>設定</span></button>
   </div>
