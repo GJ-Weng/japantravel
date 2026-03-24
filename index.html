@@ -440,14 +440,17 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
   <div class="fg" style="margin-top:12px;"><label class="fl">預算（¥）</label><input class="fi" type="number" id="ntb" placeholder="100000"></div>
   <div class="fg"><label class="fl">你的暱稱</label><input class="fi" id="ntnn" placeholder="小明"></div>
   <div class="fg" style="margin-bottom:4px;">
-    <label class="fl">頭像（上傳照片或選 emoji）</label>
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
-      <div class="av-upload" style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;overflow:hidden;" id="nt-av-preview">
+    <label class="fl">頭像</label>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+      <div class="av-upload" style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;position:relative;" id="nt-av-preview">
         <span style="font-size:28px;" id="nt-av-icon">😊</span>
-        <input type="file" accept="image/*" onchange="previewAv(this,'nt-av-preview','nt-av-icon','ntAvFile')">
-        <div class="av-edit-badge">✏️</div>
+        <input type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="previewAv(this,'nt-av-preview','nt-av-icon','ntAvFile')">
+        <div class="av-edit-badge" style="position:absolute;bottom:2px;right:2px;width:18px;height:18px;background:var(--o);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;pointer-events:none;">📷</div>
       </div>
-      <input class="fi" id="ntem" placeholder="😊" style="font-size:24px;text-align:center;width:100px;" oninput="document.getElementById('nt-av-icon').textContent=this.value||'😊'">
+      <div style="flex:1;">
+        <div class="fl" style="margin-bottom:4px;">或選 Emoji</div>
+        <input class="fi" id="ntem" placeholder="😊" style="font-size:22px;text-align:center;" oninput="document.getElementById('nt-av-icon').textContent=this.value||'😊'">
+      </div>
     </div>
   </div>
   <div style="margin-bottom:14px;"><div class="fl">頭像顏色</div><div class="co" id="ntco">
@@ -465,14 +468,17 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
   <div class="fg"><label class="fl">邀請碼（8 碼）</label><input class="fi" id="jnc" placeholder="如：a1b2c3d4" style="font-size:20px;font-weight:700;text-align:center;letter-spacing:3px;" maxlength="8"></div>
   <div class="fg"><label class="fl">你的暱稱</label><input class="fi" id="jnnn" placeholder="小明"></div>
   <div class="fg" style="margin-bottom:4px;">
-    <label class="fl">頭像（上傳照片或選 emoji）</label>
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
-      <div class="av-upload" style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;overflow:hidden;" id="jn-av-preview">
+    <label class="fl">頭像</label>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+      <div class="av-upload" style="width:64px;height:64px;border-radius:50%;background:var(--bg);border:2px dashed var(--bd);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;position:relative;" id="jn-av-preview">
         <span style="font-size:28px;" id="jn-av-icon">😊</span>
-        <input type="file" accept="image/*" onchange="previewAv(this,'jn-av-preview','jn-av-icon','jnAvFile')">
-        <div class="av-edit-badge">✏️</div>
+        <input type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="previewAv(this,'jn-av-preview','jn-av-icon','jnAvFile')">
+        <div class="av-edit-badge" style="position:absolute;bottom:2px;right:2px;width:18px;height:18px;background:var(--o);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;pointer-events:none;">📷</div>
       </div>
-      <input class="fi" id="jnem" placeholder="😊" style="font-size:24px;text-align:center;width:100px;" oninput="document.getElementById('jn-av-icon').textContent=this.value||'😊'">
+      <div style="flex:1;">
+        <div class="fl" style="margin-bottom:4px;">或選 Emoji</div>
+        <input class="fi" id="jnem" placeholder="😊" style="font-size:22px;text-align:center;" oninput="document.getElementById('jn-av-icon').textContent=this.value||'😊'">
+      </div>
     </div>
   </div>
   <div style="margin-bottom:14px;"><div class="fl">頭像顏色</div><div class="co" id="jnco">
@@ -714,7 +720,7 @@ function subExps(id){
     EXPS=(data||[]).map(r=>({id:r.id,shop:r.shop,amount:r.amount,cat:r.cat,payment:r.payment,region:r.region,note:r.note,payer:r.payer,date:r.date,items:r.items||[]}));
     renderHome();
     if(document.getElementById('view-records').classList.contains('active'))renderRec();
-    toast('🔄 資料已同步');
+    
   }).subscribe();
 }
 
@@ -841,7 +847,7 @@ function showAS(){
   ['aam','ash','ant'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('adt').value=today;document.getElementById('atwd').textContent='≈ NT$0';
   document.getElementById('arg').value=ar(today);
-  splitMembers=MEMS.map(m=>m.id);
+  splitMems=MEMS.map(m=>m.id);
   rPC('apc');rCC();renderSplitChips('asp');sm('m-add');
 }
 function rPC(cid){
@@ -877,7 +883,7 @@ async function saveExp(){
   if(!amount||amount<=0)return toast('請輸入金額');
   const shop=g('ash')||'未知店家';const date=g('adt')||ts();const region=g('arg')||ar(date);
   try{
-    await DB.from('tabikake_expenses').insert([{id:Date.now(),shop,amount,cat:sCat,payment:g('apm'),region,note:g('ant'),payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:[],split_members:splitMembers,created_at:new Date().toISOString()}]);
+    await DB.from('tabikake_expenses').insert([{id:Date.now(),shop,amount,cat:sCat,payment:g('apm'),region,note:g('ant'),payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:[],split_members:splitMems.length>0?splitMems:MEMS.map(m=>m.id),created_at:new Date().toISOString()}]);
     cm('m-add');toast(`已記帳 ¥${amount.toLocaleString()} ✓`);
   }catch(e){toast('儲存失敗：'+e.message);}
 }
@@ -1068,13 +1074,16 @@ function previewAv(input,previewId,iconId,fileVar){
   const reader=new FileReader();
   reader.onload=e=>{
     const prev=document.getElementById(previewId);
-    prev.innerHTML=`<img src="${e.target.result}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;"><div class="av-edit-badge">✏️</div><input type="file" accept="image/*" onchange="previewAv(this,'${previewId}','${iconId}','${fileVar}')">`;
+    prev.innerHTML=`
+      <img src="${e.target.result}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;position:absolute;inset:0;">
+      <input type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="previewAv(this,'${previewId}','${iconId}','${fileVar}')">
+      <div style="position:absolute;bottom:2px;right:2px;width:18px;height:18px;background:var(--o);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;pointer-events:none;">📷</div>`;
   };
   reader.readAsDataURL(file);
 }
 
 async function uploadAvatar(file,userId){
-  if(!file)return null;
+  if(!file||!file.name)return null;
   try{
     // crop to square via canvas
     const dataUrl=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});
@@ -1205,165 +1214,6 @@ async function handleAvatarUpload(input, memberId) {
   // update avatar display in sheet
   const img = document.getElementById('av-preview-' + memberId);
   if (img) { img.src = url; img.style.display = 'block'; }
-}
-
-// ===== SETTLEMENT =====
-let splitMembers = []; // selected member ids for current add form
-
-function renderSplitChips(cid) {
-  const el = document.getElementById(cid);
-  if (!MEMS.length) return;
-  // default all selected
-  if (!splitMembers.length) splitMembers = MEMS.map(m => m.id);
-  el.innerHTML = MEMS.map(m => `<div class="pc ${splitMembers.includes(m.id)?'on':''}" data-mid="${m.id}" onclick="toggleSplit('${cid}',this,'${m.id}')"><div class="pca" style="background:${m.color}22;border-radius:50%;overflow:hidden;width:26px;height:26px;">${m.avatar_url?`<img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:m.emoji}</div>${m.display_name}</div>`).join('');
-}
-
-function toggleSplit(cid, el, mid) {
-  if (splitMembers.includes(mid)) {
-    if (splitMembers.length <= 1) return; // keep at least 1
-    splitMembers = splitMembers.filter(x => x !== mid);
-  } else {
-    splitMembers.push(mid);
-  }
-  el.classList.toggle('on', splitMembers.includes(mid));
-}
-
-function calcSettlement() {
-  // net balance per member (positive = owed money, negative = owes money)
-  const balance = {};
-  MEMS.forEach(m => balance[m.id] = 0);
-  
-  EXPS.forEach(e => {
-    const splits = (e.split_members && e.split_members.length) ? e.split_members : MEMS.map(m => m.id);
-    const share = e.amount / splits.length;
-    // payer gets credited
-    if (balance[e.payer] !== undefined) balance[e.payer] += e.amount;
-    // each splitter gets debited
-    splits.forEach(mid => { if (balance[mid] !== undefined) balance[mid] -= share; });
-  });
-  
-  // simplify debts
-  const creditors = Object.entries(balance).filter(([,v]) => v > 0.5).map(([id,v]) => ({id, amt: v})).sort((a,b) => b.amt - a.amt);
-  const debtors = Object.entries(balance).filter(([,v]) => v < -0.5).map(([id,v]) => ({id, amt: -v})).sort((a,b) => b.amt - a.amt);
-  
-  const txns = [];
-  let ci = 0, di = 0;
-  const c = creditors.map(x => ({...x}));
-  const d = debtors.map(x => ({...x}));
-  
-  while (ci < c.length && di < d.length) {
-    const amt = Math.min(c[ci].amt, d[di].amt);
-    if (amt > 0.5) txns.push({ from: d[di].id, to: c[ci].id, jpy: Math.round(amt) });
-    c[ci].amt -= amt; d[di].amt -= amt;
-    if (c[ci].amt < 0.5) ci++;
-    if (d[di].amt < 0.5) di++;
-  }
-  return { balance, txns };
-}
-
-function renderSettle() {
-  const { balance, txns } = calcSettlement();
-  const r = CT?.exchange_rate || 0.22;
-  const total = EXPS.reduce((s,e) => s+e.amount, 0);
-  const perHead = MEMS.length ? Math.round(total / MEMS.length) : 0;
-  
-  // summary card
-  document.getElementById('settle-summary').innerHTML = `
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-      <span style="font-size:13px;color:var(--t2);">旅程總支出</span>
-      <span style="font-size:15px;font-weight:700;">¥${total.toLocaleString()}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-      <span style="font-size:13px;color:var(--t2);">每人均攤</span>
-      <span style="font-size:15px;font-weight:700;">¥${perHead.toLocaleString()} <span style="font-size:12px;color:var(--t2);">≈ NT$${Math.round(perHead*r).toLocaleString()}</span></span>
-    </div>
-    <div style="height:1px;background:var(--bd);margin:10px 0;"></div>
-    <div style="font-size:12px;color:var(--t2);">共 ${MEMS.length} 人 · ${EXPS.length} 筆消費</div>`;
-  
-  // transactions
-  const sl = document.getElementById('settle-list');
-  if (!txns.length) {
-    sl.innerHTML = '<div class="es" style="padding:20px;"><div style="font-size:36px;">🎉</div><div style="margin-top:8px;font-size:14px;">大家都平了！</div></div>';
-  } else {
-    sl.innerHTML = txns.map((t,i) => {
-      const fm = mb(t.from), tm = mb(t.to);
-      const twd = Math.round(t.jpy * r);
-      return `<div class="card" style="padding:14px 16px;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:40px;height:40px;border-radius:50%;background:${fm?.color||'#eee'}22;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;flex-shrink:0;">${fm?.avatar_url?`<img src="${fm.avatar_url}" style="width:100%;height:100%;object-fit:cover;">`:(fm?.emoji||'?')}</div>
-          <div style="flex:1;">
-            <div style="font-size:14px;font-weight:600;">${fm?.display_name||'?'} <span style="color:var(--t2);">→</span> ${tm?.display_name||'?'}</div>
-            <div style="font-size:12px;color:var(--t2);margin-top:2px;">轉帳給對方</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:18px;font-weight:900;color:var(--o);">¥${t.jpy.toLocaleString()}</div>
-            <div style="font-size:12px;color:var(--t2);">NT$${twd.toLocaleString()}</div>
-          </div>
-        </div>
-        <button onclick="showSettleConfirm(${i})" style="margin-top:10px;width:100%;padding:8px;background:var(--ol);color:var(--o);border:1.5px solid var(--o);border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--ff);">✓ 標記已結清</button>
-      </div>`;
-    }).join('');
-  }
-  
-  // per member detail
-  document.getElementById('settle-members').innerHTML = MEMS.map(m => {
-    const paid = EXPS.filter(e => e.payer === m.id).reduce((s,e) => s+e.amount, 0);
-    const share = EXPS.reduce((s,e) => {
-      const splits = (e.split_members && e.split_members.length) ? e.split_members : MEMS.map(x => x.id);
-      return splits.includes(m.id) ? s + e.amount/splits.length : s;
-    }, 0);
-    const net = paid - share;
-    return `<div class="card" style="padding:14px 16px;margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div style="width:44px;height:44px;border-radius:50%;background:${m.color}22;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;flex-shrink:0;border:2px solid ${m.color};">${m.avatar_url?`<img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:m.emoji}</div>
-        <div style="flex:1;"><div style="font-size:15px;font-weight:700;">${m.display_name}</div><div style="font-size:12px;color:${net>0?'var(--green)':net<0?'var(--red)':'var(--t2)'};">${net>0?`多付了 ¥${Math.round(net).toLocaleString()}`:net<0?`少付了 ¥${Math.round(-net).toLocaleString()}`:'剛好平衡'}</div></div>
-        <div style="text-align:right;"><div style="font-size:13px;color:var(--t2);">實付</div><div style="font-size:16px;font-weight:700;">¥${Math.round(paid).toLocaleString()}</div></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--t2);background:var(--bg);padding:8px 10px;border-radius:var(--rs);">
-        <span>應分攤：¥${Math.round(share).toLocaleString()}</span>
-        <span>實際付：¥${Math.round(paid).toLocaleString()}</span>
-        <span style="color:${net>=0?'var(--green)':'var(--red)'};">${net>=0?'應收':'應付'} ¥${Math.round(Math.abs(net)).toLocaleString()}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-let pendingSettleTxn = null;
-function showSettleConfirm(idx) {
-  const { txns } = calcSettlement();
-  const t = txns[idx];
-  if (!t) return;
-  pendingSettleTxn = t;
-  const fm = mb(t.from), tm = mb(t.to);
-  const r = CT?.exchange_rate || 0.22;
-  document.getElementById('sc-body').innerHTML = `
-    <div style="text-align:center;padding:16px 0;">
-      <div style="font-size:36px;margin-bottom:8px;">💸</div>
-      <div style="font-size:20px;font-weight:700;margin-bottom:4px;">${fm?.display_name} → ${tm?.display_name}</div>
-      <div style="font-size:32px;font-weight:900;color:var(--o);">¥${t.jpy.toLocaleString()}</div>
-      <div style="font-size:14px;color:var(--t2);margin-top:4px;">≈ NT$${Math.round(t.jpy*r).toLocaleString()}</div>
-    </div>`;
-  sm('m-settle-confirm');
-}
-function markSettled() {
-  cm('m-settle-confirm');
-  toast('✅ 已標記結清！');
-  pendingSettleTxn = null;
-}
-
-// ===== AUTO EXCHANGE RATE =====
-async function fetchExRate() {
-  try {
-    const res = await fetch('https://api.frankfurter.app/latest?from=JPY&to=TWD');
-    const data = await res.json();
-    const rate = data.rates?.TWD;
-    if (rate && CT) {
-      CT.exchange_rate = parseFloat(rate.toFixed(4));
-      await DB.from('trips').update({ exchange_rate: CT.exchange_rate }).eq('id', CT.id);
-      document.getElementById('rdsp').textContent = `¥1 = NT$${CT.exchange_rate}`;
-      renderHome();
-    }
-  } catch(e) { /* silent fail, keep manual rate */ }
 }
 
 boot();
