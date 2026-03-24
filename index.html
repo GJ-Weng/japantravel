@@ -218,7 +218,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 .br{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .card{background:var(--w);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:var(--sh);}
 .es{text-align:center;padding:48px 16px;color:var(--t3);}
-#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(10px);background:rgba(28,28,30,.88);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(10px);}
+#toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(10px);background:rgba(28,28,30,.88);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(10px);}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 .dv{height:1px;background:var(--bd);margin:12px 0;}
 .dp{display:flex;gap:4px;align-items:center;}
@@ -858,11 +858,40 @@ function uTWD(){const a=parseInt(document.getElementById('aam').value)||0;docume
 async function saveExp(){
   const amount=parseInt(document.getElementById('aam').value);
   if(!amount||amount<=0)return toast('請輸入金額');
-  const shop=g('ash')||'未知店家';const date=g('adt')||ts();const region=g('arg')||ar(date);
-  try{
-    await DB.from('tabikake_expenses').insert([{shop,amount,cat:sCat,payment:g('apm'),region,note:g('ant'),payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:[],split_members:splitMems.length>0?splitMems:MEMS.map(m=>m.id)}]);
-    cm('m-add');toast(`已記帳 ¥${amount.toLocaleString()} ✓`);
-  }catch(e){toast('儲存失敗：'+e.message);}
+  if(!CT?.id)return toast('請先選擇旅程');
+  if(!sPayer&&!MEMS[0]?.id)return toast('尚無成員，無法記帳');
+  const shop=g('ash')||'未知店家';
+  const date=g('adt')||ts();
+  const region=g('arg')||ar(date);
+  const payer=sPayer||MEMS[0]?.id;
+  const splits=splitMems.length>0?splitMems:MEMS.map(m=>m.id);
+  // trip_name & items are optional extras; split_members needs jsonb column
+  const payload={
+    shop, amount,
+    cat: sCat,
+    payment: g('apm')||'現金',
+    region: region||'',
+    note: g('ant')||'',
+    payer,
+    date,
+    trip_id: CT.id,
+    trip_name: CT.name,
+    items: [],
+    split_members: splits
+  };
+  const{error}=await DB.from('tabikake_expenses').insert([payload]);
+  if(error){
+    toast('❌ '+error.message);
+    return;
+  }
+  // reload expenses immediately (realtime may delay on same client)
+  const{data:fresh}=await DB.from('tabikake_expenses').select().eq('trip_id',CT.id).order('created_at',{ascending:false});
+  if(fresh){
+    EXPS=fresh.map(r=>({id:r.id,shop:r.shop,amount:r.amount,cat:r.cat,payment:r.payment,region:r.region,note:r.note,payer:r.payer,date:r.date,items:r.items||[],split_members:r.split_members||[]}));
+    renderHome();
+  }
+  cm('m-add');
+  toast('已記帳 ¥'+amount.toLocaleString()+' ✓');
 }
 
 async function startCam(){
