@@ -550,7 +550,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
   <div class="mhd"><div class="mtt" id="dett">詳情</div><button class="mx" onclick="cm('m-det')">✕</button></div>
   <div class="mb2" id="detb"></div>
   <div style="padding:0 18px 4px;display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="det-actions">
-    <button class="btn bts" id="det-edit-btn" onclick="openEdit(editingId)">✏️ 編輯</button>
+    <button class="btn bts" id="det-edit-btn" onclick="openEdit(this.dataset.eid)" data-eid="">✏️ 編輯</button>
     <button class="btn btp" onclick="cm('m-det')">關閉</button>
   </div>
 </div></div>
@@ -567,7 +567,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
   <div class="fg"><label class="fl">備註</label><input class="fi" id="edit-note" placeholder="可選"></div>
   <div style="margin-top:8px;margin-bottom:6px;">
     <button class="btn btp" onclick="saveEdit()" style="margin-bottom:8px;">儲存修改</button>
-    <button class="btn btd" onclick="requireLogin(()=>delExp(editingId))">🗑 刪除這筆消費</button>
+    <button class="btn btd" id="edit-del-btn" onclick="requireLogin(()=>delExp(this.dataset.eid))" data-eid="">🗑 刪除這筆消費</button>
   </div>
 </div></div></div>
 
@@ -794,7 +794,18 @@ function subExps(id){
 
 function backToTrips(){
   document.getElementById('app').style.display='none';
-  CT=null;EXPS=[];MEMS=[];on('ts');loadTrips();
+  // 清空所有旅程資料，防止殘留
+  CT=null;EXPS=[];MEMS=[];SCHED=[];
+  editingId=null;editingCat='餐飲';
+  // 取消 realtime 訂閱
+  DB.removeAllChannels();
+  // 清空畫面
+  document.getElementById('htl').innerHTML='';
+  document.getElementById('hrl').innerHTML='';
+  document.getElementById('mbar').innerHTML='';
+  document.getElementById('rl').innerHTML='';
+  on('ts');
+  loadTrips();
 }
 
 async function fetchRate(){
@@ -1163,7 +1174,10 @@ async function confirmSave(){
 
 function showDet(id){
   const e=EXPS.find(x=>x.id===id);if(!e)return;
-  editingId=id; // store for edit/delete buttons
+  editingId=id;
+  // 直接把 id 寫到按鈕的 data attribute，100% 可靠
+  const editBtn=document.getElementById('det-edit-btn');
+  if(editBtn)editBtn.dataset.eid=id;
   const c=ci(e.cat);const m=mb(e.payer);const r=CT?.exchange_rate||.22;
   document.getElementById('dett').textContent=e.shop;
   
@@ -1215,8 +1229,13 @@ async function delExp(id){
 }
 
 function openEdit(id){
-  const e=EXPS.find(x=>x.id===id);if(!e)return;
+  if(!id){toast('找不到記錄');return;}
+  const e=EXPS.find(x=>x.id===id);
+  if(!e){toast('找不到此記錄');return;}
   editingId=id;editingCat=e.cat;
+  // 設定刪除按鈕的 id
+  const delBtn=document.getElementById('edit-del-btn');
+  if(delBtn)delBtn.dataset.eid=id;
   cm('m-det');
   // fill fields
   document.getElementById('edit-ash').value=e.shop||'';
@@ -1248,7 +1267,9 @@ function uEditTWD(){
 }
 
 async function saveEdit(){
-  if(!editingId)return;
+  if(!editingId){toast('找不到要編輯的記錄');return;}
+  const eCheck=EXPS.find(x=>x.id===editingId);
+  if(!eCheck){toast('記錄不存在');return;}
   const amount=parseInt(document.getElementById('edit-amt').value);
   if(!amount||amount<=0)return toast('請輸入金額');
   const payload={
