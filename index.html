@@ -571,12 +571,13 @@ async function boot(){
     }
   });
 
-  // Fallback：若 3 秒後 onAuthStateChange 還沒觸發（少數情況）
+  // Fallback：若 4 秒後 onAuthStateChange 還沒觸發
   setTimeout(()=>{
     if(!booted){
+      booted=true;
       off('ls');on('as');
     }
-  },3000);
+  },4000);
 }
 
 async function signInGoogle(){
@@ -601,14 +602,39 @@ async function loadTrips(inv){
   on('ts');renderUAv();
   const pending=inv||localStorage.getItem('tb_inv');
   if(pending){localStorage.removeItem('tb_inv');await handleInv(pending);return;}
-  const{data:rows}=await DB.from('trip_members').select('trip_id,trips(*)').eq('user_id',CU.id);
-  const trips=(rows||[]).map(r=>r.trips).filter(Boolean);
+  
   const el=document.getElementById('tlist');
-  if(!trips.length){el.innerHTML='<div class="es"><div style="font-size:48px;margin-bottom:10px;">🗺️</div><div>尚無旅程，建立一個吧！</div></div>';return;}
+  el.innerHTML='<div style="text-align:center;padding:32px;color:var(--t3);">載入中...</div>';
+  
+  // 兩段式查詢：先拿 member rows，再分別拿 trip 資料（避免 join 失敗）
+  const{data:rows,error:err1}=await DB.from('trip_members').select('trip_id').eq('user_id',CU.id);
+  if(err1){el.innerHTML='<div class="es"><div>載入失敗：'+err1.message+'</div></div>';return;}
+  if(!rows||!rows.length){
+    el.innerHTML='<div class="es"><div style="font-size:48px;margin-bottom:10px;">🗺️</div><div>尚無旅程，建立一個吧！</div></div>';
+    return;
+  }
+  
+  const tripIds=rows.map(r=>r.trip_id).filter(Boolean);
+  const{data:trips,error:err2}=await DB.from('trips').select('*').in('id',tripIds);
+  if(err2){el.innerHTML='<div class="es"><div>載入失敗：'+err2.message+'</div></div>';return;}
+  if(!trips||!trips.length){
+    el.innerHTML='<div class="es"><div style="font-size:48px;margin-bottom:10px;">🗺️</div><div>尚無旅程，建立一個吧！</div></div>';
+    return;
+  }
+  
+  // 排序：最新建立的在前
+  trips.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  
   el.innerHTML=trips.map(t=>`
     <div class="tcard" onclick="enterTrip('${t.id}')">
       <div class="tcico">✈️</div>
-      <div class="tcinf"><div class="tcnm">${t.name}</div><div class="tcmt"><span>${t.start_date||''}${t.end_date?' ~ '+t.end_date:''}</span><span class="tcbg">${t.owner_id===CU.id?'建立者':'成員'}</span></div></div>
+      <div class="tcinf">
+        <div class="tcnm">${t.name}</div>
+        <div class="tcmt">
+          <span>${t.start_date||''}${t.end_date?' ~ '+t.end_date:''}</span>
+          <span class="tcbg">${t.owner_id===CU.id?'建立者':'成員'}</span>
+        </div>
+      </div>
       <div style="color:var(--t3);font-size:20px;">›</div>
     </div>`).join('');
 }
@@ -957,7 +983,24 @@ async function confirmSave(){
   if(!rcData)return;const date=rcData.date||ts();const region=g('rcreg')||ar(date);
   const notes=[rcData.tax_type,rcData.discount>0?`折扣¥${rcData.discount}`:'',rcData.notes].filter(Boolean).join(' | ');
   try{
-    await DB.from('tabikake_expenses').insert([{shop:document.getElementById('rcsz').textContent,amount:rcData.total_amount||rcData.items.reduce((s,i)=>s+i.price*i.qty,0),cat:document.getElementById('rccat').value,payment:g('rcpay'),region,note:notes,payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:rcData.items,split_members:MEMS.map(m=>m.id),created_at:new Date().toISOString()}]);
+    const scanPayload={
+      shop:document.getElementById('rcsz').textContent,
+      amount:rcData.total_amount||rcData.items.reduce((s,i)=>s+i.price*i.qty,0),
+      cat:document.getElementById('rccat').value,
+      payment:g('rcpay')||'現金',
+      region:region||'',
+      note:notes||'',
+      payer:sPayer||MEMS[0]?.id,
+      date,
+      trip_id:CT.id,
+      trip_name:CT.name,
+      items:rcData.items||[],
+      split_members:splitMems.length>0?splitMems:MEMS.map(m=>m.id)
+    };
+    const{error:scanErr}=await DB.from('tabikake_expenses').insert([scanPayload]);
+    if(scanErr){toast('❌ '+scanErr.message);return;}
+    const{data:fresh2}=await DB.from('tabikake_expenses').select().eq('trip_id',CT.id).order('created_at',{ascending:false});
+    if(fresh2)EXPS=fresh2.map(r=>({id:r.id,shop:r.shop,amount:r.amount,cat:r.cat,payment:r.payment,region:r.region,note:r.note,payer:r.payer,date:r.date,items:r.items||[],split_members:r.split_members||[]}));
     backScan();switchView('home',document.querySelector('[data-view=home]'));toast('✅ 收據已儲存同步');
   }catch(e){toast('儲存失敗：'+e.message);}
 }
