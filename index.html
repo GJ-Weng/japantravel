@@ -560,34 +560,40 @@ let rTab='day',sFilter='all',charts={},rcData=null,camStr=null,splitMems=[];
 
 async function boot(){
   DB=supabase.createClient(SB_URL,SB_KEY);
+  const params=new URLSearchParams(window.location.search);
+  const inv=params.get('invite');
+  if(inv)localStorage.setItem('tb_inv',inv);
 
-  // 監聽 auth 狀態變化（處理 OAuth redirect 回來的情況）
+  // 只用 onAuthStateChange 當唯一入口，避免競態
+  // INITIAL_SESSION = 頁面載入時既有 session（含重整、OAuth redirect 回來）
+  // SIGNED_IN = 使用者主動登入
+  let booted=false;
   DB.auth.onAuthStateChange(async(event,session)=>{
-    if(event==='SIGNED_IN'&&session?.user&&!CU){
+    if((event==='INITIAL_SESSION'||event==='SIGNED_IN')&&session?.user&&!booted){
+      booted=true;
       CU=session.user;
-      off('as');
-      const inv=localStorage.getItem('tb_inv');
-      await loadTrips(inv||null);
+      off('ls');off('as');
+      const pendingInv=localStorage.getItem('tb_inv');
+      await loadTrips(pendingInv||null);
+    }
+    if(event==='INITIAL_SESSION'&&!session){
+      // 沒有登入
+      booted=true;
+      off('ls');on('as');
     }
     if(event==='SIGNED_OUT'){
-      CU=null;CT=null;
+      booted=false;CU=null;CT=null;
       document.getElementById('app').style.display='none';
       off('ts');on('as');
     }
   });
 
-  // 同時也檢查現有 session（頁面重整時）
-  const{data:{session}}=await DB.auth.getSession();
-  const params=new URLSearchParams(window.location.search);
-  const inv=params.get('invite');
-  off('ls');
-  if(session?.user){
-    CU=session.user;
-    await loadTrips(inv);
-  } else {
-    if(inv)localStorage.setItem('tb_inv',inv);
-    on('as');
-  }
+  // Fallback：若 3 秒後 onAuthStateChange 還沒觸發（少數情況）
+  setTimeout(()=>{
+    if(!booted){
+      off('ls');on('as');
+    }
+  },3000);
 }
 
 async function signInGoogle(){
