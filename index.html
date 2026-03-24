@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#ffffff">
-<title>旅掛 Tabikake</title>
+<title>旅趣 Tabitoku たびとく</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -256,8 +256,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 
 <!-- ===== AUTH SCREEN ===== -->
 <div id="auth-screen">
-  <div class="auth-logo">旅掛</div>
-  <div class="auth-tagline">Tabikake — 日系旅遊記帳</div>
+  <div class="auth-logo">旅趣</div>
+  <div class="auth-tagline">Tabitoku / たびとく — 聰明記帳·趣旅行</div>
   <div class="auth-illustration">✈️</div>
   <div class="auth-title">登入開始記帳</div>
   <div class="auth-sub">使用 Google 帳號登入<br>資料安全同步至雲端，多裝置共享</div>
@@ -271,7 +271,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 
 <!-- ===== CONFIG SCREEN ===== -->
 <div id="config-screen" style="display:none;">
-  <div class="config-logo">旅掛</div>
+  <div class="config-logo">旅趣</div>
   <div class="config-tagline">初次設定</div>
   <div class="config-section-title">旅程資訊</div>
   <div class="config-card">
@@ -297,7 +297,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 <div id="app" style="display:none;">
   <div id="topbar">
     <div style="flex:1;">
-      <div class="topbar-title" id="tb-title">旅掛</div>
+      <div class="topbar-title" id="tb-title">旅趣</div>
       <div class="topbar-sub" id="tb-sub"></div>
     </div>
     <!-- guest badge -->
@@ -433,7 +433,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
         <div class="settings-row" id="row-export" onclick="exportCSV()"><div class="settings-icon" style="background:#F0FFF4;">📤</div><div class="settings-label">匯出 CSV</div><div class="settings-arrow">›</div></div>
         <div class="settings-row" id="row-clear" onclick="requireLogin(clearData)"><div class="settings-icon" style="background:#FFF2F2;">🗑️</div><div class="settings-label" style="color:var(--red);">清除所有資料</div><div class="lock-badge" id="lock-clear"></div><div class="settings-arrow">›</div></div>
       </div>
-      <div class="card" style="font-size:12px;color:var(--text3);line-height:1.7;text-align:center;">旅掛 Tabikake v3.0 · Gemini AI · Supabase</div>
+      <div class="card" style="font-size:12px;color:var(--text3);line-height:1.7;text-align:center;">旅趣 Tabitoku たびとく v3.0 · Gemini AI · Supabase</div>
     </div>
   </div>
 
@@ -586,7 +586,7 @@ const PAY_COLORS={'現金':'#34C759','信用卡':'#007AFF','Suica':'#32ADE6','Pa
 
 // ===== STATE =====
 let S={
-  config:{geminiKey:'',supaUrl:'',supaKey:'',tripName:'旅掛',budget:100000,startDate:'',endDate:'',rate:0.22},
+  config:{geminiKey:'',supaUrl:'',supaKey:'',tripName:'我的日本之旅',budget:100000,startDate:'',endDate:'',rate:0.22},
   persons:[],expenses:[],schedule:[],
   selectedPayer:null,selectedCat:'餐飲',selectedColor:'#F5891E',
   recTab:'day',charts:{},rcData:null,rcPayer:null,rcCat:'伴手禮'
@@ -642,7 +642,7 @@ function guestMode(){
 }
 function continueAsGuest(){
   document.getElementById('auth-screen').style.display='none';
-  if(!localStorage.getItem('tk3_init')){document.getElementById('config-screen').style.display='block';}
+  if(!localStorage.getItem('tb_init')){document.getElementById('config-screen').style.display='block';}
   else{guestMode();}
 }
 function renderUserAvatar(){
@@ -714,26 +714,26 @@ async function deleteFromSupabase(id){
 
 // ===== INIT =====
 function init(){
-  const saved=localStorage.getItem('tk3_state');
+  const saved=localStorage.getItem('tb_state');
   if(saved)try{Object.assign(S,JSON.parse(saved));}catch(e){}
   const today=new Date().toISOString().split('T')[0];
   document.getElementById('cfg-start').value=today;
   const e=new Date(today);e.setDate(e.getDate()+7);
   document.getElementById('cfg-end').value=e.toISOString().split('T')[0];
   initSupabase();
-  if(localStorage.getItem('tk3_init')){
+  if(localStorage.getItem('tb_init')){
     document.getElementById('config-screen').style.display='none';
     if(supaClient){checkAuth();}else{guestMode();}
   }
 }
-function save(){localStorage.setItem('tk3_state',JSON.stringify(S));}
+function save(){localStorage.setItem('tb_state',JSON.stringify(S));}
 function finishConfig(){
   S.config.geminiKey=v('cfg-gemini');S.config.supaUrl=v('cfg-supa-url');S.config.supaKey=v('cfg-supa-key');
   S.config.tripName=v('cfg-trip-name')||'我的日本之旅';
   S.config.budget=parseInt(v('cfg-budget'))||100000;
   S.config.startDate=v('cfg-start');S.config.endDate=v('cfg-end');
   if(!S.persons.length){S.persons.push({id:1,name:'我',emoji:'😊',color:'#F5891E'});S.selectedPayer=1;}
-  save();localStorage.setItem('tk3_init','1');
+  save();localStorage.setItem('tb_init','1');
   initSupabase();
   document.getElementById('config-screen').style.display='none';
   if(supaClient){checkAuth();}else{guestMode();}
@@ -758,7 +758,7 @@ function demoMode(){
     {id:11,shop:'Uniqlo 名古屋',amount:6800,cat:'購物',payment:'信用卡',region:'名古屋',note:'',payer:3,date:'2026-03-16',items:[],createdAt:Date.now()-420000000},
     {id:12,shop:'矢場とん 味噌串かつ',amount:1540,cat:'餐飲',payment:'現金',region:'名古屋',note:'',payer:1,date:'2026-03-17',items:[],createdAt:Date.now()-360000000},
   ];
-  save();localStorage.setItem('tk3_init','1');
+  save();localStorage.setItem('tb_init','1');
   document.getElementById('config-screen').style.display='none';
   guestMode();showToast('示範資料已載入 ✓');
 }
