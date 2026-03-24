@@ -79,7 +79,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 .sm{font-size:13px;color:var(--o);font-weight:500;border:none;background:none;cursor:pointer;}
 .lw{padding:0 16px;}
 .mbar{display:flex;gap:8px;padding:12px 16px 0;overflow-x:auto;scrollbar-width:none;}
-.mbar::-webkit-scrollbar{display:none;}
+.mbar.stab{flex:1;padding:11px 4px;border:none;background:none;font-family:var(--ff);font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.stab.on{color:var(--o);border-bottom-color:var(--o);font-weight:700;}
+::-webkit-scrollbar{display:none;}
 
 /* SETTLEMENT */
 .settle-card{background:var(--w);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:10px;}
@@ -236,6 +238,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 .co{display:flex;gap:8px;flex-wrap:wrap;}
 .cop{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;}
 .cop.on{border-color:var(--tx);transform:scale(1.1);}
+.stab{flex:1;padding:11px 4px;border:none;background:none;font-family:var(--ff);font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.stab.on{color:var(--o);border-bottom-color:var(--o);font-weight:700;}
 ::-webkit-scrollbar{display:none;}
 
 /* SETTLEMENT */
@@ -392,20 +396,34 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
       <div class="card"><div style="font-size:15px;font-weight:700;margin-bottom:12px;">花費前十名</div><div id="t10"></div></div>
     </div>
     <!-- SETTLE -->
-    <div class="view" id="view-settle">
-      <div style="padding:14px 16px 0;">
-        <div style="font-size:22px;font-weight:700;margin-bottom:4px;">旅程結算</div>
-        <div style="font-size:13px;color:var(--t2);margin-bottom:16px;">計算誰代墊、誰欠誰多少錢</div>
+    <div class="view" id="view-settle" style="padding-bottom:20px;">
+      <!-- HERO -->
+      <div style="background:linear-gradient(135deg,#F5891E,#FF6B00);padding:22px 20px 36px;color:#fff;position:relative;overflow:hidden;">
+        <div style="position:absolute;right:-16px;top:-16px;font-size:110px;opacity:.08;font-weight:900;line-height:1;">¥</div>
+        <div style="font-size:12px;opacity:.75;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">旅程總支出</div>
+        <div style="font-size:36px;font-weight:900;letter-spacing:-1px;" id="sh-total">¥0</div>
+        <div style="font-size:13px;opacity:.75;margin-bottom:16px;" id="sh-twd">≈ NT$0</div>
+        <div style="display:flex;gap:10px;overflow-x:auto;" id="sh-members"></div>
       </div>
+      <!-- TABS -->
+      <div style="display:flex;background:#fff;border-bottom:1px solid var(--bd);">
+        <button class="stab on" id="stab-balance" onclick="switchSTb('balance')">💰 個人餘額</button>
+        <button class="stab" id="stab-txn" onclick="switchSTb('txn')">📋 轉帳清單</button>
+        <button class="stab" id="stab-detail" onclick="switchSTb('detail')">📊 代墊明細</button>
+      </div>
+      <!-- BALANCE -->
+      <div id="sp-balance" style="padding:14px 16px;"><div id="balance-wrap"></div></div>
+      <!-- TXN -->
+      <div id="sp-txn" style="padding:14px 16px;display:none;">
+        <div style="font-size:12px;color:var(--t2);margin-bottom:12px;text-align:center;">以最少轉帳次數結清 · ¥1 = NT$<span id="settle-rate">0.22</span></div>
+        <div id="settle-wrap"></div>
+      </div>
+      <!-- DETAIL -->
+      <div id="sp-detail" style="padding:14px 16px;display:none;"><div id="detail-wrap"></div></div>
       <div style="padding:0 16px;">
-        <div class="card" id="settle-summary"></div>
-        <div style="font-size:15px;font-weight:700;margin-bottom:10px;">💸 轉帳清單</div>
-        <div id="settle-list"></div>
-        <div style="font-size:15px;font-weight:700;margin:16px 0 10px;">👤 每人明細</div>
-        <div id="settle-members"></div>
+        <button class="btn bts" onclick="calcSettle()">🔄 重新計算</button>
       </div>
     </div>
-    <!-- SETTLEMENT -->
         <!-- SETTINGS -->
     <div class="view" id="view-settings">
       <div style="padding:14px 0 4px;"></div>
@@ -848,7 +866,7 @@ function showAS(){
   document.getElementById('adt').value=today;document.getElementById('atwd').textContent='≈ NT$0';
   document.getElementById('arg').value=ar(today);
   splitMems=MEMS.map(m=>m.id);
-  rPC('apc');rCC();renderSplitChips('asp');sm('m-add');
+  rPC('apc');rCC();rSplitChips('asp');sm('m-add');
 }
 function rPC(cid){
   const el=document.getElementById(cid);
@@ -1104,67 +1122,123 @@ async function uploadAvatar(file,userId){
 function sc2(c,el){c2=c;document.querySelectorAll('#jnco .cop').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
 function requireLogin(action){if(CU)action();else toast('🔒 此功能需要登入');}
 
+function avEl(m,sz=40){
+  if(!m)return`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*.45)}px;">?</div>`;
+  return m.avatar_url
+    ?`<img src="${m.avatar_url}" style="width:${sz}px;height:${sz}px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+    :`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${m.color}22;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*.5)}px;flex-shrink:0;">${m.emoji}</div>`;
+}
+function switchSTb(tab){
+  ['balance','txn','detail'].forEach(t=>{
+    document.getElementById('sp-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('stab-'+t).classList.toggle('on',t===tab);
+  });
+}
 function calcSettle(){
   const r=CT?.exchange_rate||0.22;
-  // balance[memberId] = net amount (positive = owed money, negative = owes money)
-  const balance={};
-  MEMS.forEach(m=>balance[m.id]=0);
-  
-  EXPS.forEach(e=>{
-    const payer=e.payer;
-    const splits=e.split_members&&e.split_members.length>0?e.split_members:MEMS.map(m=>m.id);
-    const validSplits=splits.filter(id=>MEMS.find(m=>m.id===id));
-    if(!validSplits.length)return;
-    const share=e.amount/validSplits.length;
-    // payer paid full amount → gets credited
-    if(balance[payer]!==undefined)balance[payer]+=e.amount;
-    // each splitter owes their share
-    validSplits.forEach(id=>{if(balance[id]!==undefined)balance[id]-=share;});
-  });
-
-  // render balance cards
-  const bw=document.getElementById('balance-wrap');
-  bw.innerHTML=MEMS.map(m=>{
-    const b=balance[m.id]||0;
-    const cls=b>0.5?'balance-pos':b<-0.5?'balance-neg':'balance-zero';
-    const label=b>0.5?`別人欠他 ¥${Math.round(b).toLocaleString()}`:b<-0.5?`他欠別人 ¥${Math.round(Math.abs(b)).toLocaleString()}`:'已結清';
-    const color=b>0.5?'var(--green)':b<-0.5?'var(--red)':'var(--t3)';
-    const avHtml=m.avatar_url?`<img src="${m.avatar_url}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`:`<div style="width:40px;height:40px;border-radius:50%;background:${m.color}22;display:flex;align-items:center;justify-content:center;font-size:22px;">${m.emoji}</div>`;
-    return`<div class="balance-card ${cls}"><div>${avHtml}</div><div style="flex:1;"><div style="font-size:15px;font-weight:600;">${m.display_name}</div><div style="font-size:12px;color:var(--t2);">實際付出 ¥${EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0).toLocaleString()}</div></div><div style="text-align:right;"><div style="font-size:14px;font-weight:700;color:${color};">${label}</div><div style="font-size:11px;color:var(--t2);">≈ NT$${Math.round(Math.abs(b)*r).toLocaleString()}</div></div></div>`;
+  const tot=EXPS.reduce((s,e)=>s+e.amount,0);
+  // Hero
+  document.getElementById('sh-total').textContent=`¥${tot.toLocaleString()}`;
+  document.getElementById('sh-twd').textContent=`≈ NT$${Math.round(tot*r).toLocaleString()}`;
+  document.getElementById('settle-rate').textContent=r;
+  document.getElementById('sh-members').innerHTML=MEMS.map(m=>{
+    const paid=EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0);
+    return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+      <div style="border:2px solid rgba(255,255,255,.5);border-radius:50%;overflow:hidden;">${avEl(m,34)}</div>
+      <div style="font-size:10px;opacity:.9;">${m.display_name}</div>
+      <div style="font-size:11px;font-weight:700;">¥${(paid/1000).toFixed(1)}k</div>
+    </div>`;
   }).join('');
-
-  // Minimize transactions algorithm
+  // Calc balance
+  const balance={};MEMS.forEach(m=>balance[m.id]=0);
+  EXPS.forEach(e=>{
+    const splits=(e.split_members&&e.split_members.length>0?e.split_members:MEMS.map(m=>m.id)).filter(id=>MEMS.find(m=>m.id===id));
+    if(!splits.length)return;
+    const share=e.amount/splits.length;
+    if(balance[e.payer]!==undefined)balance[e.payer]+=e.amount;
+    splits.forEach(id=>{if(balance[id]!==undefined)balance[id]-=share;});
+  });
+  // BALANCE TAB
+  const maxAbs=Math.max(...Object.values(balance).map(Math.abs),1);
+  document.getElementById('balance-wrap').innerHTML=!MEMS.length?'<div class="es">尚無成員</div>':MEMS.map(m=>{
+    const b=balance[m.id]||0;
+    const paid=EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0);
+    const isP=b>0.5,isN=b<-0.5;
+    const pct=Math.round(Math.abs(b)/maxAbs*100);
+    const clr=isP?'var(--green)':isN?'var(--red)':'var(--t3)';
+    return`<div style="background:var(--w);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:var(--sh);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        ${avEl(m,46)}
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:700;">${m.display_name}</div>
+          <div style="font-size:12px;color:var(--t2);">實付 ¥${paid.toLocaleString()} · 應分 ¥${Math.round(tot/Math.max(MEMS.length,1)).toLocaleString()}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:20px;font-weight:900;color:${clr};">${isP?'+':''}${Math.round(b).toLocaleString()}</div>
+          <div style="font-size:11px;color:var(--t2);">≈ NT$${Math.round(Math.abs(b)*r).toLocaleString()}</div>
+        </div>
+      </div>
+      <div style="height:5px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:5px;">
+        <div style="height:100%;width:${pct}%;background:${clr};border-radius:3px;transition:width .5s;"></div>
+      </div>
+      <div style="font-size:11px;color:${clr};font-weight:600;">${isP?'💚 別人欠他錢':isN?'🔴 他欠別人錢':'✅ 剛好持平'}</div>
+    </div>`;
+  }).join('');
+  // TXN TAB
   const pos=[],neg=[];
-  const bal2={};MEMS.forEach(m=>bal2[m.id]=Math.round((balance[m.id]||0)));
+  const bal2={};MEMS.forEach(m=>bal2[m.id]=Math.round(balance[m.id]||0));
   Object.entries(bal2).forEach(([id,b])=>{if(b>0)pos.push({id,b});else if(b<0)neg.push({id,b:Math.abs(b)});});
-  
-  const txns=[];
-  let pi=0,ni=0;
-  while(pi<pos.length&&ni<neg.length){
-    const p=pos[pi],n=neg[ni];
-    const amt=Math.min(p.b,n.b);
+  const txns=[];let pi=0,ni=0;
+  const p2=pos.map(x=>({...x})),n2=neg.map(x=>({...x}));
+  while(pi<p2.length&&ni<n2.length){
+    const p=p2[pi],n=n2[ni];const amt=Math.min(p.b,n.b);
     if(amt>1)txns.push({from:n.id,to:p.id,jpy:amt,twd:Math.round(amt*r)});
-    p.b-=amt;n.b-=amt;
-    if(p.b<1)pi++;if(n.b<1)ni++;
+    p.b-=amt;n.b-=amt;if(p.b<1)pi++;if(n.b<1)ni++;
   }
-
-  const sw=document.getElementById('settle-wrap');
-  if(!txns.length){sw.innerHTML='<div class="es" style="padding:24px;"><div style="font-size:36px;">🎉</div><div style="margin-top:8px;font-size:14px;">大家都結清了！</div></div>';return;}
-  sw.innerHTML=txns.map(t=>{
-    const fm=MEMS.find(m=>m.id===t.from);const tm=MEMS.find(m=>m.id===t.to);
-    const favHtml=fm?.avatar_url?`<img src="${fm.avatar_url}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`:`<div style="width:36px;height:36px;border-radius:50%;background:${fm?.color||'#ccc'}22;display:flex;align-items:center;justify-content:center;font-size:18px;">${fm?.emoji||'?'}</div>`;
-    const tavhHtml=tm?.avatar_url?`<img src="${tm.avatar_url}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`:`<div style="width:36px;height:36px;border-radius:50%;background:${tm?.color||'#ccc'}22;display:flex;align-items:center;justify-content:center;font-size:18px;">${tm?.emoji||'?'}</div>`;
-    return`<div class="settle-card"><div class="settle-row">
-      <div class="settle-av">${favhHtml}</div>
-      <div style="flex:1;"><div style="font-size:14px;font-weight:600;">${fm?.display_name||'?'}</div><div style="font-size:11px;color:var(--t2);">付給</div></div>
-      <div class="settle-arrow">→</div>
-      <div style="flex:1;text-align:right;"><div style="font-size:14px;font-weight:600;">${tm?.display_name||'?'}</div></div>
-      <div class="settle-av">${tavhHtml}</div>
-      <div class="settle-amount" style="min-width:80px;text-align:right;margin-left:8px;"><div class="settle-jpy">¥${t.jpy.toLocaleString()}</div><div class="settle-twd">NT$${t.twd.toLocaleString()}</div></div>
-    </div></div>`;
+  document.getElementById('settle-wrap').innerHTML=!txns.length
+    ?`<div style="text-align:center;padding:40px 0;"><div style="font-size:52px;margin-bottom:12px;">🎉</div><div style="font-size:18px;font-weight:700;margin-bottom:6px;">大家都結清了！</div><div style="font-size:13px;color:var(--t2);">無需任何轉帳</div></div>`
+    :txns.map((t,i)=>{
+      const fm=MEMS.find(m=>m.id===t.from),tm=MEMS.find(m=>m.id===t.to);
+      return`<div style="background:var(--w);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;box-shadow:var(--sh);">
+        <div style="font-size:11px;color:var(--t3);font-weight:600;margin-bottom:12px;">STEP ${i+1}</div>
+        <div style="display:flex;align-items:center;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            ${avEl(fm,50)}
+            <div style="font-size:13px;font-weight:700;">${fm?.display_name||'?'}</div>
+            <div style="font-size:11px;color:var(--t2);">付款</div>
+          </div>
+          <div style="flex:1.2;text-align:center;">
+            <div style="font-size:24px;font-weight:900;color:var(--o);">¥${t.jpy.toLocaleString()}</div>
+            <div style="font-size:12px;color:var(--t2);">NT$${t.twd.toLocaleString()}</div>
+            <div style="font-size:22px;margin-top:4px;">➜</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            ${avEl(tm,50)}
+            <div style="font-size:13px;font-weight:700;">${tm?.display_name||'?'}</div>
+            <div style="font-size:11px;color:var(--t2);">收款</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  // DETAIL TAB
+  document.getElementById('detail-wrap').innerHTML=MEMS.map(m=>{
+    const mE=EXPS.filter(e=>e.payer===m.id);if(!mE.length)return'';
+    const mT=mE.reduce((s,e)=>s+e.amount,0);
+    return`<div style="background:var(--w);border-radius:var(--r);margin-bottom:10px;box-shadow:var(--sh);overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bd);background:var(--ol);">
+        ${avEl(m,36)}
+        <div style="flex:1;"><div style="font-size:15px;font-weight:700;">${m.display_name}</div><div style="font-size:12px;color:var(--t2);">代墊 ${mE.length} 筆</div></div>
+        <div style="font-size:17px;font-weight:900;color:var(--o);">¥${mT.toLocaleString()}</div>
+      </div>
+      ${mE.slice(0,5).map(e=>`<div style="display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bd);gap:10px;">
+        <div style="font-size:18px;">${ci(e.cat).icon}</div>
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.shop}</div><div style="font-size:11px;color:var(--t2);">${e.date} · ${e.cat}</div></div>
+        <div style="font-size:14px;font-weight:700;">¥${e.amount.toLocaleString()}</div>
+      </div>`).join('')}
+      ${mE.length>5?`<div style="text-align:center;padding:8px;font-size:12px;color:var(--t2);">還有 ${mE.length-5} 筆</div>`:''}
+    </div>`;
   }).join('');
 }
-
 function switchView(name,el){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
