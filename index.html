@@ -84,16 +84,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 ::-webkit-scrollbar{display:none;}
 
 /* SETTLEMENT */
-.settle-card{background:var(--w);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:10px;}
-.settle-row{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bd);}
+
 .settle-row:last-child{border-bottom:none;}
-.settle-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;}
+
 .settle-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-.settle-arrow{font-size:18px;color:var(--t3);}
-.settle-amount{text-align:right;}
-.settle-jpy{font-size:15px;font-weight:700;color:var(--o);}
-.settle-twd{font-size:11px;color:var(--t2);}
-.settle-done{opacity:.45;text-decoration:line-through;}
+
 .split-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
 .split-chip{display:flex;align-items:center;gap:4px;padding:5px 10px 5px 6px;border-radius:20px;background:var(--bg);border:1.5px solid var(--bd);font-size:12px;font-weight:500;cursor:pointer;}
 .split-chip.on{border-color:var(--o);background:var(--ol);}
@@ -103,7 +98,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 .balance-pos{background:#F0FFF4;border:1px solid #B7EFC5;}
 .balance-neg{background:#FFF2F2;border:1px solid #FFCDD2;}
 .balance-zero{background:var(--bg);border:1px solid var(--bd);}
-.summary-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+
 /* AVATAR upload */
 .av-upload{position:relative;cursor:pointer;}
 .av-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;}
@@ -112,11 +107,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 .mca,.eav,.pca,.split-chip-av,.settle-av,.mrav{border-radius:50%;overflow:hidden;}
 .mca img,.eav img,.pca img,.split-chip-av img,.settle-av img,.mrav img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 
-
 .av-upload{position:relative;width:72px;height:72px;margin:0 auto 12px;cursor:pointer;}
-.av-upload-img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--o);}
-.av-upload-placeholder{width:72px;height:72px;border-radius:50%;background:var(--ol);border:3px solid var(--o);display:flex;align-items:center;justify-content:center;font-size:32px;}
-.av-upload-badge{position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--o);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--w);}
 
 .mc{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
 .mca{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid transparent;}
@@ -242,40 +233,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 .stab.on{color:var(--o);border-bottom-color:var(--o);font-weight:700;}
 ::-webkit-scrollbar{display:none;}
 
-/* SETTLEMENT */
-.settle-card{background:var(--w);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:10px;}
-.settle-row{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bd);}
-.settle-row:last-child{border-bottom:none;}
-.settle-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;}
-.settle-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-.settle-arrow{font-size:18px;color:var(--t3);}
-.settle-amount{text-align:right;}
-.settle-jpy{font-size:15px;font-weight:700;color:var(--o);}
-.settle-twd{font-size:11px;color:var(--t2);}
-.settle-done{opacity:.45;text-decoration:line-through;}
-.split-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
-.split-chip{display:flex;align-items:center;gap:4px;padding:5px 10px 5px 6px;border-radius:20px;background:var(--bg);border:1.5px solid var(--bd);font-size:12px;font-weight:500;cursor:pointer;}
-.split-chip.on{border-color:var(--o);background:var(--ol);}
-.split-chip-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;flex-shrink:0;}
-.split-chip-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-.balance-card{border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
-.balance-pos{background:#F0FFF4;border:1px solid #B7EFC5;}
-.balance-neg{background:#FFF2F2;border:1px solid #FFCDD2;}
-.balance-zero{background:var(--bg);border:1px solid var(--bd);}
-.summary-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;}
-/* AVATAR upload */
-.av-upload{position:relative;cursor:pointer;}
-.av-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.av-edit-badge{position:absolute;bottom:0;right:0;width:18px;height:18px;background:var(--o);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;border:2px solid var(--w);}
 /* Circle avatar everywhere */
 .mca,.eav,.pca,.split-chip-av,.settle-av,.mrav{border-radius:50%;overflow:hidden;}
 .mca img,.eav img,.pca img,.split-chip-av img,.settle-av img,.mrav img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-
-
-.av-upload{position:relative;width:72px;height:72px;margin:0 auto 12px;cursor:pointer;}
-.av-upload-img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--o);}
-.av-upload-placeholder{width:72px;height:72px;border-radius:50%;background:var(--ol);border:3px solid var(--o);display:flex;align-items:center;justify-content:center;font-size:32px;}
-.av-upload-badge{position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--o);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--w);}
 
 </style>
 </head>
@@ -557,7 +517,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--ff);background:var(--bg)
 
 <div class="mo" id="m-det"><div class="ms"><div class="mh"></div><div class="mhd"><div class="mtt" id="dett">詳情</div><button class="mx" onclick="cm('m-det')">✕</button></div><div class="mb2" id="detb"></div></div></div>
 
-
 <div class="mo" id="m-settle-confirm"><div class="ms"><div class="mh"></div><div class="mhd"><div class="mtt">確認結清</div><button class="mx" onclick="cm('m-settle-confirm')">✕</button></div><div class="mb2">
   <div id="sc-body"></div>
   <button class="btn btp" style="margin-top:12px;" onclick="markSettled()">確認已轉帳 ✓</button>
@@ -679,7 +638,7 @@ async function createTrip(){
   try{
     const{data:trip,error}=await DB.from('trips').insert([{name,owner_id:CU.id,start_date:g('nts'),end_date:g('nte'),budget:parseInt(g('ntb'))||100000,exchange_rate:0.22}]).select().single();
     if(error)throw error;
-    const ntUrl=await uploadAvatar(ntAvFile,CU.id);ntAvFile=null;
+    let ntUrl=null;try{ntUrl=await uploadAvatar(ntAvFile,CU.id);}catch(e){}ntAvFile=null;
     await DB.from('trip_members').insert([{trip_id:trip.id,user_id:CU.id,display_name:nick,emoji:em,color:c1,avatar_url:ntUrl}]);
     cm('m-nt');await enterTrip(trip.id);
   }catch(e){toast('建立失敗：'+e.message);}
@@ -695,7 +654,7 @@ async function joinTrip(){
     const{data:trip}=await DB.from('trips').select().eq('invite_code',code).single();
     if(!trip)return toast('找不到此邀請碼');
     const{data:ex}=await DB.from('trip_members').select().eq('trip_id',trip.id).eq('user_id',CU.id).single();
-    const jnUrl=await uploadAvatar(jnAvFile,CU.id);jnAvFile=null;
+    let jnUrl=null;try{jnUrl=await uploadAvatar(jnAvFile,CU.id);}catch(e){}jnAvFile=null;
     if(!ex)await DB.from('trip_members').insert([{trip_id:trip.id,user_id:CU.id,display_name:nick,emoji:em,color:c2,avatar_url:jnUrl}]);
     cm('m-jn');await enterTrip(trip.id);
   }catch(e){toast('加入失敗：'+e.message);}
@@ -759,7 +718,7 @@ async function fetchRate(){
       renderHome();
       toast(`匯率已更新 ¥1 = NT$${CT.exchange_rate}`);
     }
-  }catch(e){console.log('Rate fetch failed',e);}
+  }catch(e){}
 }
 
 function renderApp(){
@@ -801,15 +760,15 @@ function renderHome(){
     const im=m.user_id===CU?.id;
     return`<div class="mc"><div class="mca${im?' me':''}" style="background:${m.color}22;overflow:hidden;">${m.avatar_url?`<img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:`${m.emoji}`}</div><div class="mcn">${m.display_name}</div><div class="mct">¥${(mt/1000).toFixed(1)}k</div></div>`;
   }).join('');
-  document.getElementById('htl').innerHTML=te.length?te.slice(0,5).map(eh).join(''):'<div class="es" style="padding:24px;"><div style="font-size:36px;">☀️</div><div style="margin-top:8px;">今日尚無支出</div></div>';
+  document.getElementById('htl').innerHTML=te.length?te.slice(0,5).map(expHtml).join(''):'<div class="es" style="padding:24px;"><div style="font-size:36px;">☀️</div><div style="margin-top:8px;">今日尚無支出</div></div>';
   const rec=EXPS.filter(e=>e.date!==today).slice(0,5);
   document.getElementById('rech').style.display=rec.length?'':'none';
-  document.getElementById('hrl').innerHTML=rec.map(eh).join('');
+  document.getElementById('hrl').innerHTML=rec.map(expHtml).join('');
   document.getElementById('rt').textContent=`¥${tot.toLocaleString()}`;
   document.getElementById('rts').textContent=`≈ NT$${Math.round(tot*r).toLocaleString()} · ${EXPS.length} 筆`;
 }
 
-function eh(e){
+function expHtml(e){
   const c=ci(e.cat);const m=mb(e.payer);const r=CT?.exchange_rate||0.22;
   const avImg = m?.avatar_url ? `<img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (m?m.emoji:c.icon);
   return`<div class="ei" onclick="showDet(${e.id})">
@@ -828,15 +787,15 @@ function renderRec(){
     const bd={};EXPS.forEach(e=>{if(!bd[e.date])bd[e.date]=[];bd[e.date].push(e);});
     Object.keys(bd).sort((a,b)=>b.localeCompare(a)).forEach(d=>{
       const dt=bd[d].reduce((s,e)=>s+e.amount,0);const sc=SCHED.find(s=>s.date===d);
-      html+=`<div class="dgh"><div class="dd">${fd(d)}${sc?` <span style="font-size:12px;color:var(--t2);">· ${sc.region}</span>`:''}</div><div class="dt">¥${dt.toLocaleString()}</div></div>${bd[d].map(eh).join('')}`;
+      html+=`<div class="dgh"><div class="dd">${fd(d)}${sc?` <span style="font-size:12px;color:var(--t2);">· ${sc.region}</span>`:''}</div><div class="dt">¥${dt.toLocaleString()}</div></div>${bd[d].map(expHtml).join('')}`;
     });
   }else if(rTab==='cat'){
-    CATS.forEach(c=>{const ce=EXPS.filter(e=>e.cat===c.name);if(!ce.length)return;const ct=ce.reduce((s,e)=>s+e.amount,0);html+=`<div class="dgh"><div class="dd">${c.icon} ${c.name}</div><div class="dt">¥${ct.toLocaleString()}</div></div>${ce.map(eh).join('')}`;});
+    CATS.forEach(c=>{const ce=EXPS.filter(e=>e.cat===c.name);if(!ce.length)return;const ct=ce.reduce((s,e)=>s+e.amount,0);html+=`<div class="dgh"><div class="dd">${c.icon} ${c.name}</div><div class="dt">¥${ct.toLocaleString()}</div></div>${ce.map(expHtml).join('')}`;});
   }else if(rTab==='person'){
-    MEMS.forEach(m=>{const me=EXPS.filter(e=>e.payer===m.id);if(!me.length)return;const mt=me.reduce((s,e)=>s+e.amount,0);html+=`<div class="dgh"><div class="dd">${m.emoji} ${m.display_name}</div><div class="dt">¥${mt.toLocaleString()}</div></div>${me.map(eh).join('')}`;});
+    MEMS.forEach(m=>{const me=EXPS.filter(e=>e.payer===m.id);if(!me.length)return;const mt=me.reduce((s,e)=>s+e.amount,0);html+=`<div class="dgh"><div class="dd">${m.emoji} ${m.display_name}</div><div class="dt">¥${mt.toLocaleString()}</div></div>${me.map(expHtml).join('')}`;});
   }else{
     const br={};EXPS.forEach(e=>{const k=e.region||'未知';if(!br[k])br[k]=[];br[k].push(e);});
-    Object.keys(br).forEach(rg=>{const rt=br[rg].reduce((s,e)=>s+e.amount,0);html+=`<div class="dgh"><div class="dd">📍 ${rg}</div><div class="dt">¥${rt.toLocaleString()}</div></div>${br[rg].map(eh).join('')}`;});
+    Object.keys(br).forEach(rg=>{const rt=br[rg].reduce((s,e)=>s+e.amount,0);html+=`<div class="dgh"><div class="dd">📍 ${rg}</div><div class="dt">¥${rt.toLocaleString()}</div></div>${br[rg].map(expHtml).join('')}`;});
   }
   list.innerHTML=html;
 }
@@ -901,7 +860,7 @@ async function saveExp(){
   if(!amount||amount<=0)return toast('請輸入金額');
   const shop=g('ash')||'未知店家';const date=g('adt')||ts();const region=g('arg')||ar(date);
   try{
-    await DB.from('tabikake_expenses').insert([{id:Date.now(),shop,amount,cat:sCat,payment:g('apm'),region,note:g('ant'),payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:[],split_members:splitMems.length>0?splitMems:MEMS.map(m=>m.id),created_at:new Date().toISOString()}]);
+    await DB.from('tabikake_expenses').insert([{shop,amount,cat:sCat,payment:g('apm'),region,note:g('ant'),payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:[],split_members:splitMems.length>0?splitMems:MEMS.map(m=>m.id)}]);
     cm('m-add');toast(`已記帳 ¥${amount.toLocaleString()} ✓`);
   }catch(e){toast('儲存失敗：'+e.message);}
 }
@@ -969,7 +928,7 @@ async function confirmSave(){
   if(!rcData)return;const date=rcData.date||ts();const region=g('rcreg')||ar(date);
   const notes=[rcData.tax_type,rcData.discount>0?`折扣¥${rcData.discount}`:'',rcData.notes].filter(Boolean).join(' | ');
   try{
-    await DB.from('tabikake_expenses').insert([{id:Date.now(),shop:document.getElementById('rcsz').textContent,amount:rcData.total_amount||rcData.items.reduce((s,i)=>s+i.price*i.qty,0),cat:document.getElementById('rccat').value,payment:g('rcpay'),region,note:notes,payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:rcData.items,split_members:MEMS.map(m=>m.id),created_at:new Date().toISOString()}]);
+    await DB.from('tabikake_expenses').insert([{shop:document.getElementById('rcsz').textContent,amount:rcData.total_amount||rcData.items.reduce((s,i)=>s+i.price*i.qty,0),cat:document.getElementById('rccat').value,payment:g('rcpay'),region,note:notes,payer:sPayer||MEMS[0]?.id,date,trip_id:CT.id,trip_name:CT.name,items:rcData.items,split_members:MEMS.map(m=>m.id),created_at:new Date().toISOString()}]);
     backScan();switchView('home',document.querySelector('[data-view=home]'));toast('✅ 收據已儲存同步');
   }catch(e){toast('儲存失敗：'+e.message);}
 }
@@ -1101,7 +1060,7 @@ function previewAv(input,previewId,iconId,fileVar){
 }
 
 async function uploadAvatar(file,userId){
-  if(!file||!file.name)return null;
+  if(!file||typeof file!=='object'||!file.name)return null;
   try{
     // crop to square via canvas
     const dataUrl=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});
@@ -1117,7 +1076,7 @@ async function uploadAvatar(file,userId){
     if(error)throw error;
     const{data}=DB.storage.from('avatars').getPublicUrl(path);
     return data.publicUrl;
-  }catch(e){console.log('Avatar upload failed',e);return null;}
+  }catch(e){return null;}
 }
 function sc2(c,el){c2=c;document.querySelectorAll('#jnco .cop').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
 function requireLogin(action){if(CU)action();else toast('🔒 此功能需要登入');}
@@ -1259,36 +1218,6 @@ function cm(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)cm(m.id);}));
 function toast(msg,d=2400){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),d);}
 function fd(s){if(!s)return'';return new Date(s+'T00:00:00').toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});}
-
-
-
-// ===== AVATAR UPLOAD =====
-async function uploadAvatar(file, memberId) {
-  const ext = file.name.split('.').pop();
-  const path = `avatars/${memberId}.${ext}`;
-  // Upload to Supabase Storage (bucket: avatars)
-  const { error } = await DB.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type });
-  if (error) { toast('上傳失敗：' + error.message); return null; }
-  const { data } = DB.storage.from('avatars').getPublicUrl(path);
-  return data.publicUrl;
-}
-
-async function handleAvatarUpload(input, memberId) {
-  const file = input.files[0]; if (!file) return;
-  toast('上傳中...');
-  const url = await uploadAvatar(file, memberId);
-  if (!url) return;
-  await DB.from('trip_members').update({ avatar_url: url }).eq('id', memberId);
-  // update local
-  const m = MEMS.find(x => x.id === memberId);
-  if (m) m.avatar_url = url;
-  // refresh UI
-  renderHome(); renderApp();
-  toast('頭像已更新 ✓');
-  // update avatar display in sheet
-  const img = document.getElementById('av-preview-' + memberId);
-  if (img) { img.src = url; img.style.display = 'block'; }
-}
 
 boot();
 </script>
