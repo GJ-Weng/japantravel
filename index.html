@@ -1058,8 +1058,18 @@ function renderHome(){
   $('members-row').innerHTML=MEMS.map(m=>{
     const mt=EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0);
     const isme=m.user_id===CU?.id;
-    return`<div class="member-chip">${avHtml(m,36).replace('border-radius:50%;','border-radius:50%;'+(isme?'border:2px solid var(--a);':'')).replace('<div style="','<div class="member-av" style="')}
-      <div class="member-name">${m.display_name}</div><div class="member-amt">¥${(mt/1000).toFixed(1)}k</div></div>`;
+    const border=isme?'border:2.5px solid var(--ink);':'border:2px solid transparent;';
+    let avEl;
+    if(m.avatar_url){
+      avEl='<img src="'+m.avatar_url+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;'+border+'">';
+    } else {
+      const charCode=(m.display_name||'?').charCodeAt(0);
+      const animal=JP_AVATARS[charCode%JP_AVATARS.length];
+      avEl='<div style="width:36px;height:36px;border-radius:50%;background:'+m.color+'22;display:flex;align-items:center;justify-content:center;font-size:20px;'+border+'">'+animal+'</div>';
+    }
+    return'<div class="member-chip"><div class="member-av">'+avEl+'</div>'
+      +'<div class="member-name">'+m.display_name+'</div>'
+      +'<div class="member-amt">¥'+(mt/1000).toFixed(1)+'k</div></div>';
   }).join('');
   $('home-today').innerHTML=todExps.length?todExps.slice(0,5).map(expCard).join(''):'<div class="empty" style="padding:20px 0;"><div style="font-size:32px;margin-bottom:8px;">🌸</div><div style="font-size:13px;">今日尚無支出</div><div style="font-size:11px;color:var(--text3);margin-top:3px;">旅行中的每筆花費都值得記錄</div></div>';
   const rec=EXPS.filter(e=>e.date!==tod).slice(0,5);
@@ -1417,28 +1427,53 @@ document.addEventListener('change',e=>{
 $('btn-save-avatar').addEventListener('click',async()=>{
   const me=CT&&MEMS.find(m=>m.user_id===CU?.id);
   if(!me){toast('請先進入旅程');return;}
-  const newEmoji=selectedAnimal||me.emoji;
-  // 找 user-colors 裡的 active
-  const activeColor=document.querySelector('#user-colors .color-opt.active');
-  const newColor=(activeColor&&activeColor.dataset.color)||me.color;
-  // 上傳頭像圖片（如果有選）
-  let avatarUrl=me.avatar_url||null;
-  const fileInput=$('user-avatar-file');
-  if(fileInput&&fileInput.files[0]){
-    avatarUrl=await uploadAvatarImg(fileInput.files[0],me.id);
+
+  const btn=$('btn-save-avatar');
+  btn.disabled=true;btn.textContent='儲存中...';
+
+  try{
+    const newEmoji=selectedAnimal||me.emoji;
+    const activeColor=document.querySelector('#user-colors .color-opt.active');
+    const newColor=(activeColor&&activeColor.dataset.color)||me.color;
+
+    // 上傳照片
+    let avatarUrl=me.avatar_url||null;
+    const fileInput=$('user-avatar-file');
+    if(fileInput&&fileInput.files&&fileInput.files[0]){
+      toast('上傳圖片中...',2000);
+      const uploaded=await uploadAvatarImg(fileInput.files[0],me.id);
+      if(uploaded)avatarUrl=uploaded;
+    }
+
+    // 更新 DB
+    const updateData={emoji:newEmoji,color:newColor,avatar_url:avatarUrl};
+    const{data,error}=await DB.from('trip_members')
+      .update(updateData)
+      .eq('id',me.id)
+      .select()
+      .single();
+
+    if(error)throw error;
+
+    // 用 DB 回傳的資料更新本地（最可靠）
+    const updated=data||updateData;
+    me.emoji=updated.emoji||newEmoji;
+    me.color=updated.color||newColor;
+    me.avatar_url=updated.avatar_url||avatarUrl;
+
+    // 關閉 modal
+    closeModal('modal-user');
+
+    // 強制重繪所有頭像
+    const appAv=$('app-user-av');
+    if(appAv)appAv.innerHTML=jpAvatar(me,34);
+    renderHome();
+    toast('🎉 頭像已更新！');
+  }catch(err){
+    toast('❌ 更新失敗：'+err.message);
+  }finally{
+    btn.disabled=false;btn.textContent='✓ 儲存頭像';
   }
-  const updateData={emoji:newEmoji,color:newColor};
-  if(avatarUrl!==null)updateData.avatar_url=avatarUrl;
-  const{error}=await DB.from('trip_members').update(updateData).eq('id',me.id);
-  if(error){toast('❌ '+error.message);return;}
-  me.emoji=newEmoji;me.color=newColor;
-  if(avatarUrl!==null)me.avatar_url=avatarUrl;
-  closeModal('modal-user');
-  // 強制更新所有顯示
-  const appAv=$('app-user-av');
-  if(appAv)appAv.innerHTML=jpAvatar(me,34);
-  renderHome();
-  toast('頭像已更新 ✓');
 });
 $('btn-add-sched-row').addEventListener('click',addSchedRow);
 function renderSettle(){
