@@ -789,10 +789,8 @@ async function uploadAvatarImg(file,memberId){
 function jpAvatar(m,sz=36){
   if(!m)return'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:var(--sakura-light);"></div>';
   if(m.avatar_url)return'<img src="'+m.avatar_url+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;">';
-  // 根據 display_name 第一個字決定用哪個動物
-  const charCode=(m.display_name||'?').charCodeAt(0);
-  const animalIdx=charCode%JP_AVATARS.length;
-  const animal=JP_AVATARS[animalIdx];
+  // 優先用 m.emoji（使用者選擇的），沒有才用預設
+  const animal=m.emoji||'🐰';
   const fs=Math.round(sz*.55);
   return'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:'+m.color+'22;display:flex;align-items:center;justify-content:center;font-size:'+fs+'px;border:2px solid '+m.color+'44;">'+animal+'</div>';
 }
@@ -1063,8 +1061,7 @@ function renderHome(){
     if(m.avatar_url){
       avEl='<img src="'+m.avatar_url+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;'+border+'">';
     } else {
-      const charCode=(m.display_name||'?').charCodeAt(0);
-      const animal=JP_AVATARS[charCode%JP_AVATARS.length];
+      const animal=m.emoji||'🐰';
       avEl='<div style="width:36px;height:36px;border-radius:50%;background:'+m.color+'22;display:flex;align-items:center;justify-content:center;font-size:20px;'+border+'">'+animal+'</div>';
     }
     return'<div class="member-chip"><div class="member-av">'+avEl+'</div>'
