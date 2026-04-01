@@ -574,7 +574,7 @@ html,body{height:100%;overflow:hidden;background:var(--c);color:var(--a);font-si
 // ── CONFIG ──
 const SB_URL='https://dndevtahnvolknzrolnt.supabase.co';
 const SB_KEY='sb_publishable_Mb2f8OYKanhNkapOg4c7Ag_WRpGoXo3';
-const GM_KEY='AIzaSyBLZSos8eRpzO6T9ClYXvUjIssRtMCDp8g';
+const SCAN_ENDPOINT='https://dndevtahnvolknzrolnt.supabase.co/functions/v1/gemini-proxy';
 const CATS=[
   {n:'餐飲',i:'🍜',c:'#F97316'},{n:'交通',i:'🚅',c:'#3B82F6'},
   {n:'住宿',i:'🏨',c:'#A855F7'},{n:'購物',i:'🛍️',c:'#F97316'},
@@ -1329,14 +1329,22 @@ async function processImage(file){
   await analyzeReceipt(b64,mt);
 }
 async function analyzeReceipt(b64,mt){
-  const prompt='分析這張日文收據，只回JSON不含markdown：{"shop_name_ja":"","shop_name_zh":"","total_amount":0,"category":"餐飲","payment_method":null,"items":[{"name_ja":"","name_zh":"","price":0,"qty":1}],"date":null}';
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GM_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:mt,data:b64}},{text:prompt}]}]})});
+    const res=await fetch(SCAN_ENDPOINT,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+SB_KEY,
+        'apikey':SB_KEY
+      },
+      body:JSON.stringify({imageBase64:b64,mimeType:mt})
+    });
     const d=await res.json();
-    if(!res.ok)throw new Error(d.error?.message||`HTTP ${res.status}`);
-    const text=d.candidates?.[0]?.content?.parts?.[0]?.text;
-    if(!text)throw new Error('Gemini 回傳空白');
-    const json=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(!res.ok)throw new Error(d.error?.message||'HTTP '+res.status);
+    const text=d.choices?.[0]?.message?.content;
+    if(!text)throw new Error('回傳空白');
+    const clean=text.replace(/```json|```/g,'').trim();
+    const json=JSON.parse(clean);
     showScanConfirm(json);
   }catch(e){
     $('scan-ai-bar').style.display='none';
