@@ -580,23 +580,50 @@ async function boot(){
   const params=new URLSearchParams(location.search);
   const inv=params.get('invite');
   if(inv)localStorage.setItem('tb_pending_invite',inv);
-  let booted=false;
-  DB.auth.onAuthStateChange(async(event,session)=>{
-    if((event==='INITIAL_SESSION'||event==='SIGNED_IN')&&session?.user&&!booted){
-      booted=true; CU=session.user;
-      hide('scr-load'); show('scr-trips');
+
+  // 監聽登出事件（登入後的狀態切換）
+  DB.auth.onAuthStateChange((event,session)=>{
+    if(event==='SIGNED_OUT'){
+      CU=null;CT=null;
+      hide('scr-app');hide('scr-trips');show('scr-auth');
+    }
+    if(event==='SIGNED_IN'&&session?.user&&!CU){
+      // 處理 OAuth redirect 回來後的登入
+      CU=session.user;
+      hide('scr-load');hide('scr-auth');show('scr-trips');
+      renderUserAv('user-av-trips');
+      const inv2=localStorage.getItem('tb_pending_invite');
+      loadTrips(inv2);
+    }
+  });
+
+  // 主要：直接呼叫 getSession()，不依賴事件時序
+  try{
+    const{data:{session},error}=await DB.auth.getSession();
+    if(error)throw error;
+    if(session?.user){
+      CU=session.user;
+      hide('scr-load');show('scr-trips');
       renderUserAv('user-av-trips');
       const inv2=localStorage.getItem('tb_pending_invite');
       await loadTrips(inv2);
+    }else{
+      hide('scr-load');show('scr-auth');
     }
-    if(event==='INITIAL_SESSION'&&!session){booted=true;hide('scr-load');show('scr-auth');}
-    if(event==='SIGNED_OUT'){booted=false;CU=null;CT=null;hide('scr-app');hide('scr-trips');show('scr-auth');}
-  });
-  setTimeout(()=>{if(!booted){booted=true;hide('scr-load');show('scr-auth');}},4000);
+  }catch(err){
+    // getSession 失敗，還是顯示登入頁
+    hide('scr-load');show('scr-auth');
+  }
 }
 
 // ── AUTH ──
-$('btn-google-login').addEventListener('click',()=>DB.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}}));
+$('btn-google-login').addEventListener('click',()=>{
+  const redirectTo=location.origin+location.pathname;
+  DB.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo,queryParams:{access_type:'offline',prompt:'select_account'}}
+  });
+});
 $('btn-signout').addEventListener('click',async()=>{await DB.auth.signOut();closeModal('modal-user');});
 
 // ── HELPERS ──
