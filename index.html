@@ -1331,7 +1331,7 @@ async function processImage(file){
 async function analyzeReceipt(b64,mt){
   const prompt='分析這張日文收據，只回JSON不含markdown：{"shop_name_ja":"","shop_name_zh":"","total_amount":0,"category":"餐飲","payment_method":null,"items":[{"name_ja":"","name_zh":"","price":0,"qty":1}],"date":null}';
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GM_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:mt,data:b64}},{text:prompt}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GM_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:mt,data:b64}},{text:prompt}]}]})});
     const d=await res.json();
     if(!res.ok)throw new Error(d.error?.message||`HTTP ${res.status}`);
     const text=d.candidates?.[0]?.content?.parts?.[0]?.text;
