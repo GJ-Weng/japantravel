@@ -1325,14 +1325,19 @@ $('row-clear').addEventListener('click',async()=>{
   EXPS=[];renderCurrentView();toast('已清除');
 });
 function openScheduleModal(){
-  // 如果 SCHED 是空的，根據旅程日期自動產生每天的行程
-  if(SCHED.length===0 && CT?.start_date && CT?.end_date){
+  // 如果 SCHED 是空的，或第一筆日期跟旅程出發日不符（舊時區 bug），重新產生
+  if(CT?.start_date && CT?.end_date && (SCHED.length===0 || SCHED[0]?.date!==CT.start_date)){
+    SCHED=[];
     const start=new Date(CT.start_date+'T00:00:00');
     const end=new Date(CT.end_date+'T00:00:00');
     const days=Math.round((end-start)/86400000)+1;
     for(let i=0;i<days;i++){
       const d=new Date(start);d.setDate(d.getDate()+i);
-      SCHED.push({date:d.toISOString().split('T')[0],region:''});
+      // 用本地時間格式化，避免 UTC 時差問題
+      const yyyy=d.getFullYear();
+      const mm=String(d.getMonth()+1).padStart(2,'0');
+      const dd=String(d.getDate()).padStart(2,'0');
+      SCHED.push({date:yyyy+'-'+mm+'-'+dd,region:''});
     }
     saveSched();
   }
@@ -1367,7 +1372,8 @@ function saveSched(){
 function addSchedRow(){
   const last=SCHED[SCHED.length-1]?.date||CT?.start_date||today();
   const d=new Date(last+'T00:00:00');d.setDate(d.getDate()+1);
-  SCHED.push({date:d.toISOString().split('T')[0],region:''});
+  const _y=d.getFullYear(),_m=String(d.getMonth()+1).padStart(2,'0'),_d=String(d.getDate()).padStart(2,'0');
+  SCHED.push({date:_y+'-'+_m+'-'+_d,region:''});
   saveSched();renderSchedRows();
 }
 
