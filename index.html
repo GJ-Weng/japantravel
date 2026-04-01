@@ -139,7 +139,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 
 /* ── MEMBERS BAR ── */
 .members-row{display:flex;gap:12px;padding:12px 14px 0;overflow-x:auto;scrollbar-width:none;}
-.members-row::-webkit-scrollbar{display:none;}
+.members-row
+/* 動物頭像選擇器 */
+.animal-opt{width:44px;height:44px;border-radius:50%;background:var(--sakura-light);border:2.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:transform .12s,border-color .12s,background .12s;}
+.animal-opt:active{transform:scale(.88);}
+.animal-opt.active{border-color:var(--sakura);background:var(--sakura-light);transform:scale(1.1);box-shadow:0 2px 8px rgba(242,167,187,.4);}
+::-webkit-scrollbar{display:none;}
 .member-chip{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;cursor:pointer;}
 .member-av{width:38px;height:38px;border-radius:50%;background:var(--sakura-light);display:flex;align-items:center;justify-content:center;font-size:20px;border:2.5px solid transparent;overflow:hidden;flex-shrink:0;}
 .member-av img{width:100%;height:100%;object-fit:cover;}
@@ -327,6 +332,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .dot-pulse span:nth-child(2){animation-delay:.2s;}
 .dot-pulse span:nth-child(3){animation-delay:.4s;}
 @keyframes dp{0%,100%{opacity:.25;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
+
+/* 動物頭像選擇器 */
+.animal-opt{width:44px;height:44px;border-radius:50%;background:var(--sakura-light);border:2.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:transform .12s,border-color .12s,background .12s;}
+.animal-opt:active{transform:scale(.88);}
+.animal-opt.active{border-color:var(--sakura);background:var(--sakura-light);transform:scale(1.1);box-shadow:0 2px 8px rgba(242,167,187,.4);}
 ::-webkit-scrollbar{display:none;}
 </style>
 </head>
@@ -513,7 +523,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
   <div class="form-row"><div class="form-group" style="margin-bottom:0;"><label class="form-label">出發日期</label><input class="form-input" type="date" id="nt-start"></div><div class="form-group" style="margin-bottom:0;"><label class="form-label">回程日期</label><input class="form-input" type="date" id="nt-end"></div></div>
   <div class="form-group" style="margin-top:11px;"><label class="form-label">預算（¥）</label><input class="form-input" type="number" id="nt-budget" placeholder="100000"></div>
   <div class="form-group"><label class="form-label">你的暱稱</label><input class="form-input" id="nt-nick" placeholder="小明"></div>
-  <div class="form-group" style="margin-bottom:4px;"><label class="form-label">頭像 Emoji</label><input class="form-input" id="nt-emoji" placeholder="😊" style="font-size:22px;text-align:center;"></div>
+  <div class="form-group"><label class="form-label">選擇頭像角色</label>
+    <div id="nt-animal-opts" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+  </div>
   <div class="form-group"><label class="form-label">頭像顏色</label><div class="color-opts" id="nt-colors">
     <div class="color-opt active" data-color="#3B82F6" style="background:#3B82F6;"></div>
     <div class="color-opt" data-color="#EF4444" style="background:#EF4444;"></div>
@@ -528,7 +540,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 <div class="modal-overlay" id="modal-join-trip"><div class="modal-sheet"><div class="modal-handle"></div><div class="modal-header"><div class="modal-title">加入旅程</div><button class="modal-close" data-modal="modal-join-trip">✕</button></div><div class="modal-body">
   <div class="form-group"><label class="form-label">邀請碼（8碼）</label><input class="form-input" id="jt-code" placeholder="如：a1b2c3d4" style="font-size:20px;font-weight:700;text-align:center;letter-spacing:3px;" maxlength="8"></div>
   <div class="form-group"><label class="form-label">你的暱稱</label><input class="form-input" id="jt-nick" placeholder="小明"></div>
-  <div class="form-group" style="margin-bottom:4px;"><label class="form-label">頭像 Emoji</label><input class="form-input" id="jt-emoji" placeholder="😊" style="font-size:22px;text-align:center;"></div>
+  <div class="form-group"><label class="form-label">選擇頭像角色</label>
+    <div id="jt-animal-opts" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+  </div>
   <div class="form-group"><label class="form-label">頭像顏色</label><div class="color-opts" id="jt-colors">
     <div class="color-opt active" data-color="#EF4444" style="background:#EF4444;"></div>
     <div class="color-opt" data-color="#3B82F6" style="background:#3B82F6;"></div>
@@ -600,8 +614,26 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
   <button class="btn-secondary" id="btn-add-sched-row" style="margin-top:8px;">＋ 新增一天</button>
 </div></div></div>
 
-<div class="modal-overlay" id="modal-user"><div class="modal-sheet"><div class="modal-handle"></div><div class="modal-header"><div class="modal-title">帳號</div><button class="modal-close" data-modal="modal-user">✕</button></div><div class="modal-body">
-  <div id="user-profile" style="display:flex;align-items:center;gap:12px;padding:6px 0 16px;border-bottom:1px solid var(--d);margin-bottom:14px;"></div>
+<div class="modal-overlay" id="modal-user"><div class="modal-sheet"><div class="modal-handle"></div><div class="modal-header"><div class="modal-title">帳號設定</div><button class="modal-close" data-modal="modal-user">✕</button></div><div class="modal-body">
+  <div id="user-profile" style="display:flex;align-items:center;gap:12px;padding:6px 0 16px;border-bottom:2px solid var(--sakura-light);margin-bottom:14px;"></div>
+  <div id="user-member-edit" style="display:none;">
+    <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">更改此旅程的頭像</p>
+    <div class="form-group"><label class="form-label">選擇角色</label>
+      <div id="user-animal-opts" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;"></div>
+    </div>
+    <div class="form-group"><label class="form-label">顏色</label>
+      <div class="color-opts" id="user-colors">
+        <div class="color-opt" data-color="#3B82F6" style="background:#3B82F6;"></div>
+        <div class="color-opt" data-color="#EF4444" style="background:#EF4444;"></div>
+        <div class="color-opt" data-color="#22C55E" style="background:#22C55E;"></div>
+        <div class="color-opt" data-color="#F97316" style="background:#F97316;"></div>
+        <div class="color-opt" data-color="#A855F7" style="background:#A855F7;"></div>
+        <div class="color-opt" data-color="#1A1A1A" style="background:#1A1A1A;"></div>
+      </div>
+    </div>
+    <button class="btn-primary" id="btn-save-avatar" style="margin-bottom:12px;">✓ 儲存頭像</button>
+    <div class="divider"></div>
+  </div>
   <button class="btn-danger" id="btn-signout">登出</button>
 </div></div></div>
 
@@ -708,6 +740,23 @@ function openModal(id){$(id).classList.add('show');}
 function closeModal(id){$(id).classList.remove('show');}
 // 日系角色頭像清單
 const JP_AVATARS=['🐰','🐻','🦊','🐼','🐱','🐸','🐧','🦝','🐨','🐮','🐯','🐺'];
+const JP_NAMES=['小兔','小熊','小狐','貓熊','小貓','青蛙','企鵝','狸貓','無尾熊','小牛','老虎','大野狼'];
+let selectedAnimal='🐰'; // 全域選中的動物
+
+function renderAnimalOpts(containerId, current){
+  const el=$(containerId);
+  if(!el)return;
+  el.innerHTML=JP_AVATARS.map((a,i)=>
+    '<div class="animal-opt'+(a===current?' active':'')+'" data-animal="'+a+'" title="'+JP_NAMES[i]+'">'+a+'</div>'
+  ).join('');
+  el.querySelectorAll('.animal-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      el.querySelectorAll('.animal-opt').forEach(o=>o.classList.remove('active'));
+      opt.classList.add('active');
+      selectedAnimal=opt.dataset.animal;
+    });
+  });
+}
 function jpAvatar(m,sz=36){
   if(!m)return'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:var(--sakura-light);"></div>';
   if(m.avatar_url)return'<img src="'+m.avatar_url+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;">';
@@ -798,14 +847,15 @@ $('btn-new-trip').addEventListener('click',()=>{
   const t=today(),e=new Date(t+'T00:00:00');e.setDate(e.getDate()+7);
   $('nt-start').value=t;$('nt-end').value=e.toISOString().split('T')[0];
   $('nt-nick').value=CU.user_metadata?.name?.split(' ')[0]||'';
-  $('nt-emoji').value='😊';
+  selectedAnimal='🐰';
+  renderAnimalOpts('nt-animal-opts','🐰');
   openModal('modal-new-trip');
 });
 $('btn-create-trip').addEventListener('click',async()=>{
   const name=$('nt-name').value.trim();
   if(!name)return toast('請輸入旅程名稱');
   const nick=$('nt-nick').value.trim()||CU.user_metadata?.name||'旅客';
-  const emoji=$('nt-emoji').value||'😊';
+  const emoji=selectedAnimal||'🐰';
   const color=qs('#nt-colors .color-opt.active')?.dataset.color||'#3B82F6';
   const btn=$('btn-create-trip');
   btn.disabled=true;btn.textContent='建立中...';
@@ -834,13 +884,17 @@ $('btn-create-trip').addEventListener('click',async()=>{
 function qs(sel){return document.querySelector(sel);}
 
 // ── JOIN TRIP ──
-$('btn-join-trip').addEventListener('click',()=>openModal('modal-join-trip'));
+$('btn-join-trip').addEventListener('click',()=>{
+  selectedAnimal='🐰';
+  renderAnimalOpts('jt-animal-opts','🐰');
+  openModal('modal-join-trip');
+});
 $('btn-join-trip-confirm').addEventListener('click',async()=>{
   const code=$('jt-code').value.trim().toLowerCase();
   if(!code)return toast('請輸入邀請碼');
   const nick=$('jt-nick').value.trim();
   if(!nick)return toast('請輸入暱稱');
-  const emoji=$('jt-emoji').value||'😊';
+  const emoji=selectedAnimal||'🐰';
   const color=qs('#jt-colors .color-opt.active')?.dataset.color||'#EF4444';
   const btn=$('btn-join-trip-confirm');
   btn.disabled=true;btn.textContent='加入中...';
@@ -1172,32 +1226,78 @@ function renderSplitChips(elId,selected){
 }
 
 // ── GPS ──
+// 從 Nominatim 回應中取得最精確的地名
+function pickRegionName(addr){
+  // 優先順序：村/町 > 市區 > 郡 > 都道府縣
+  // 對應日本行政區層級
+  return addr.village||addr.town||addr.suburb||addr.city_district
+    ||addr.city||addr.county||addr.state_district||addr.state||'';
+}
+
 function autoDetectRegion(fieldId){
-  const s=schedRegion(today());
-  if(s){$(fieldId).value=s;return;}
-  if(!navigator.geolocation)return;
+  // 優先：GPS（反映實際位置）→ 失敗才用行程日程
+  if(!navigator.geolocation){
+    // 不支援 GPS，fallback 行程日程
+    const s=schedRegion(today());
+    if(s)$(fieldId).value=s;
+    return;
+  }
   navigator.geolocation.getCurrentPosition(async pos=>{
     try{
-      const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=zh-TW`,{headers:{'User-Agent':'Tabitoku/1.0'}});
-      const d=await res.json();const addr=d.address||{};
-      const r=addr.city||addr.town||addr.village||addr.county||addr.state||'';
-      if(r&&!$(fieldId).value)$(fieldId).value=r;
-    }catch(e){}
-  },()=>{},{timeout:6000,maximumAge:120000});
+      const{latitude:lat,longitude:lng}=pos.coords;
+      const res=await fetch(
+        'https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json&accept-language=ja&zoom=14',
+        {headers:{'User-Agent':'Tabitoku/1.0'}}
+      );
+      const d=await res.json();
+      const name=pickRegionName(d.address||{});
+      if(name&&!$(fieldId).value)$(fieldId).value=name;
+    }catch(e){
+      // GPS 抓地名失敗，用行程日程
+      const s=schedRegion(today());
+      if(s&&!$(fieldId).value)$(fieldId).value=s;
+    }
+  },()=>{
+    // GPS 定位失敗（拒絕授權等），用行程日程
+    const s=schedRegion(today());
+    if(s&&!$(fieldId).value)$(fieldId).value=s;
+  },{timeout:6000,maximumAge:120000});
 }
+
 async function detectRegion(fieldId){
-  const s=schedRegion(today());if(s){$(fieldId).value=s;return;}
-  if(!navigator.geolocation){toast('不支援定位');return;}
+  // 手動按 📍：GPS 優先，失敗才用行程日程
+  if(!navigator.geolocation){
+    const s=schedRegion(today());
+    if(s){$(fieldId).value=s;toast('📅 已帶入行程日程地區');}
+    else toast('不支援定位');
+    return;
+  }
   toast('定位中...',1500);
   navigator.geolocation.getCurrentPosition(async pos=>{
     try{
-      const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=zh-TW`,{headers:{'User-Agent':'Tabitoku/1.0'}});
-      const d=await res.json();const addr=d.address||{};
-      const r=addr.city||addr.town||addr.village||addr.county||addr.state||'';
-      $(fieldId).value=r||'';
-      if(!r)toast('無法取得地名');
-    }catch(e){toast('定位失敗');}
-  },e=>{toast(e.code===1?'請允許定位權限':'定位失敗');},{timeout:8000});
+      const{latitude:lat,longitude:lng}=pos.coords;
+      const res=await fetch(
+        'https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json&accept-language=ja&zoom=14',
+        {headers:{'User-Agent':'Tabitoku/1.0'}}
+      );
+      const d=await res.json();
+      const name=pickRegionName(d.address||{});
+      if(name){$(fieldId).value=name;toast('📍 '+name);}
+      else{
+        const s=schedRegion(today());
+        if(s){$(fieldId).value=s;toast('📅 '+s);}
+        else toast('無法取得地名');
+      }
+    }catch(e){
+      const s=schedRegion(today());
+      if(s){$(fieldId).value=s;toast('📅 '+s);}
+      else toast('定位失敗：'+e.message);
+    }
+  },e=>{
+    const s=schedRegion(today());
+    if(s){$(fieldId).value=s;toast('📅 已帶入行程日程地區');}
+    else toast(e.code===1?'請允許定位權限':'定位失敗');
+  },{timeout:10000,maximumAge:60000});
 }
 
 // ── STATS ──
@@ -1234,6 +1334,18 @@ function renderStats(){
 
 // ── SETTLE ──
 $('btn-recalc-settle').addEventListener('click',renderSettle);
+$('btn-save-avatar').addEventListener('click',async()=>{
+  const me=CT&&MEMS.find(m=>m.user_id===CU?.id);
+  if(!me){toast('請先進入旅程');return;}
+  const newEmoji=selectedAnimal||me.emoji;
+  const newColor=$('#user-colors .color-opt.active')?.dataset.color||me.color;
+  const{error}=await DB.from('trip_members').update({emoji:newEmoji,color:newColor}).eq('id',me.id);
+  if(error){toast('❌ '+error.message);return;}
+  me.emoji=newEmoji;me.color=newColor;
+  closeModal('modal-user');
+  renderHome();
+  toast('頭像已更新 ✓');
+});
 $('btn-add-sched-row').addEventListener('click',addSchedRow);
 function renderSettle(){
   if(!CT){return;}
@@ -1499,7 +1611,24 @@ $('user-av-trips').addEventListener('click',()=>{
   const u=CU;if(!u)return;
   const nm=u.user_metadata?.name||u.email||'';
   const av=u.user_metadata?.avatar_url;
-  $('user-profile').innerHTML=`${av?`<img src="${av}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;">`:''}<div><div style="font-size:16px;font-weight:700;">${nm}</div><div style="font-size:12px;color:var(--e);">${u.email||''}</div></div>`;
+  $('user-profile').innerHTML=(av?'<img src="'+av+'" style="width:52px;height:52px;border-radius:50%;object-fit:cover;">':'')+'<div><div style="font-size:16px;font-weight:800;">'+nm+'</div><div style="font-size:12px;color:var(--text2);">'+u.email+'</div></div>';
+  // 如果已在旅程中，顯示頭像編輯
+  const me=CT&&MEMS.find(m=>m.user_id===CU.id);
+  const memberEdit=$('user-member-edit');
+  if(me&&memberEdit){
+    memberEdit.style.display='block';
+    selectedAnimal=me.emoji||'🐰';
+    renderAnimalOpts('user-animal-opts',selectedAnimal);
+    // 設定顏色
+    const userColors=$('user-colors');
+    if(userColors){
+      userColors.querySelectorAll('.color-opt').forEach(o=>{
+        o.classList.toggle('active',o.dataset.color===me.color);
+      });
+    }
+  } else if(memberEdit){
+    memberEdit.style.display='none';
+  }
   openModal('modal-user');
 });
 
