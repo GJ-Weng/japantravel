@@ -619,7 +619,17 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
   <div id="user-profile" style="display:flex;align-items:center;gap:12px;padding:6px 0 16px;border-bottom:2px solid var(--sakura-light);margin-bottom:14px;"></div>
   <div id="user-member-edit" style="display:none;">
     <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">更改此旅程的頭像</p>
-    <div class="form-group"><label class="form-label">選擇角色</label>
+    <div class="form-group">
+      <label class="form-label">上傳個人照片</label>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="user-photo-preview" style="width:56px;height:56px;border-radius:50%;background:var(--sakura-light);border:2px dashed var(--sakura);display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;flex-shrink:0;cursor:pointer;position:relative;">
+          📷
+          <input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
+        </div>
+        <div style="flex:1;font-size:12px;color:var(--text2);line-height:1.6;">點左側圓圈上傳照片<br>會自動裁切成圓形</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">或選擇角色</label>
       <div id="user-animal-opts" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;"></div>
     </div>
     <div class="form-group"><label class="form-label">顏色</label>
@@ -758,6 +768,24 @@ function renderAnimalOpts(containerId, current){
     });
   });
 }
+async function uploadAvatarImg(file,memberId){
+  try{
+    // 壓縮並裁切成圓形 200x200
+    const dataUrl=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});
+    const img=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.src=dataUrl;});
+    const size=Math.min(img.width,img.height);
+    const canvas=document.createElement('canvas');canvas.width=200;canvas.height=200;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(img,(img.width-size)/2,(img.height-size)/2,size,size,0,0,200,200);
+    const blob=await new Promise(res=>canvas.toBlob(res,'image/jpeg',.85));
+    const path='avatars/'+memberId+'_'+Date.now()+'.jpg';
+    const{error}=await DB.storage.from('avatars').upload(path,blob,{contentType:'image/jpeg',upsert:true});
+    if(error)throw error;
+    const{data}=DB.storage.from('avatars').getPublicUrl(path);
+    return data.publicUrl;
+  }catch(e){toast('圖片上傳失敗：'+e.message);return null;}
+}
+
 function jpAvatar(m,sz=36){
   if(!m)return'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:var(--sakura-light);"></div>';
   if(m.avatar_url)return'<img src="'+m.avatar_url+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;">';
@@ -1350,6 +1378,12 @@ $('app-user-av').addEventListener('click',()=>{
     memberEdit.style.display='block';
     selectedAnimal=me.emoji||'🐰';
     renderAnimalOpts('user-animal-opts',selectedAnimal);
+    // 重置照片預覽
+    const photoPrev=$('user-photo-preview');
+    if(photoPrev){
+      const curAv=me.avatar_url?'<img src="'+me.avatar_url+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;"><input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">':'📷<input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">';
+      photoPrev.innerHTML=curAv;
+    }
     const userColors=$('user-colors');
     if(userColors){
       userColors.querySelectorAll('.color-opt').forEach(o=>{
@@ -1368,16 +1402,41 @@ $('app-user-av').addEventListener('click',()=>{
   }
   openModal('modal-user');
 });
+// 照片預覽
+document.addEventListener('change',e=>{
+  if(e.target.id==='user-avatar-file'){
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const prev=$('user-photo-preview');
+      if(prev)prev.innerHTML='<img src="'+ev.target.result+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;"><input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">';
+    };
+    reader.readAsDataURL(file);
+  }
+});
 $('btn-save-avatar').addEventListener('click',async()=>{
   const me=CT&&MEMS.find(m=>m.user_id===CU?.id);
   if(!me){toast('請先進入旅程');return;}
   const newEmoji=selectedAnimal||me.emoji;
-  const newColor=$('#user-colors .color-opt.active')?.dataset.color||me.color;
-  const{error}=await DB.from('trip_members').update({emoji:newEmoji,color:newColor}).eq('id',me.id);
+  // 找 user-colors 裡的 active
+  const activeColor=document.querySelector('#user-colors .color-opt.active');
+  const newColor=(activeColor&&activeColor.dataset.color)||me.color;
+  // 上傳頭像圖片（如果有選）
+  let avatarUrl=me.avatar_url||null;
+  const fileInput=$('user-avatar-file');
+  if(fileInput&&fileInput.files[0]){
+    avatarUrl=await uploadAvatarImg(fileInput.files[0],me.id);
+  }
+  const updateData={emoji:newEmoji,color:newColor};
+  if(avatarUrl!==null)updateData.avatar_url=avatarUrl;
+  const{error}=await DB.from('trip_members').update(updateData).eq('id',me.id);
   if(error){toast('❌ '+error.message);return;}
   me.emoji=newEmoji;me.color=newColor;
+  if(avatarUrl!==null)me.avatar_url=avatarUrl;
   closeModal('modal-user');
-  renderApp();
+  // 強制更新所有顯示
+  const appAv=$('app-user-av');
+  if(appAv)appAv.innerHTML=jpAvatar(me,34);
   renderHome();
   toast('頭像已更新 ✓');
 });
