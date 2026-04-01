@@ -724,7 +724,7 @@ $('btn-new-trip').addEventListener('click',()=>{
   $('nt-nick').value=CU.user_metadata?.name?.split(' ')[0]||'';
   $('nt-emoji').value='😊';
   openModal('modal-new-trip');
-};
+});
 $('btn-create-trip').addEventListener('click',async()=>{
   const name=$('nt-name').value.trim();
   if(!name)return toast('請輸入旅程名稱');
@@ -909,7 +909,7 @@ $('btn-see-all').addEventListener('click',()=>{
   document.querySelector('[data-view=records]').classList.add('active');
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   $('view-records').classList.add('active');renderRecords();
-};
+});
 function expCard(e){
   const m=mem(e.payer);const c=cat(e.cat);const r=CT?.exchange_rate||.22;
   const avEl=m?avHtml(m,38):`<div style="width:38px;height:38px;border-radius:50%;background:var(--c);display:flex;align-items:center;justify-content:center;font-size:19px;">${c.i}</div>`;
@@ -1208,7 +1208,7 @@ $('btn-members').addEventListener('click',()=>{
     $('members-invite').innerHTML=`<div style="background:var(--c);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;"><div><div style="font-size:11px;color:var(--e);margin-bottom:3px;">邀請碼</div><div style="font-size:22px;font-weight:900;letter-spacing:3px;">${code}</div></div><button onclick="copyInvite('${url}','${code}')" style="background:var(--a);color:var(--b);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;">分享</button></div>`;
   }
   openModal('modal-members');
-};
+});
 function copyInvite(url,code){
   if(navigator.share)navigator.share({title:`加入「${CT.name}」旅程`,text:`邀請碼：${code}`,url});
   else navigator.clipboard?.writeText(url).then(()=>toast('已複製邀請連結'));
@@ -1220,25 +1220,25 @@ function renderInviteCard(){
   const code=CT.invite_code;const url=`${location.origin}${location.pathname}?invite=${code}`;
   $('invite-card-wrap').innerHTML=`<div class="invite-card" style="margin:0 0 10px;"><div style="font-size:11px;opacity:.6;letter-spacing:.5px;margin-bottom:4px;">邀請親友加入此旅程</div><div class="invite-code">${code}</div><div style="font-size:11px;opacity:.6;word-break:break-all;margin-bottom:12px;">${url}</div><button class="invite-copy-btn" onclick="copyInvite('${url}','${code}')">複製連結 / 分享</button></div>`;
 }
-$('row-rate').addEventListener('click',()=>{$('rate-input').value=CT?.exchange_rate||.22;openModal('modal-rate');};
+$('row-rate').addEventListener('click',()=>{$('rate-input').value=CT?.exchange_rate||.22;openModal('modal-rate');});
 $('btn-auto-rate').addEventListener('click',fetchRate);
 $('btn-save-rate').addEventListener('click',async()=>{
   const rate=parseFloat($('rate-input').value)||.22;
   await DB.from('trips').update({exchange_rate:rate}).eq('id',CT.id);
   CT.exchange_rate=rate;$('rate-display').textContent=`¥1=NT$${rate}`;
   closeModal('modal-rate');renderHome();toast('匯率已更新');
-};
+});
 $('row-trip-edit').addEventListener('click',()=>{
   $('te-name').value=CT?.name||'';$('te-start').value=CT?.start_date||'';
   $('te-end').value=CT?.end_date||'';$('te-budget').value=CT?.budget||'';
   openModal('modal-trip-edit');
-};
+});
 $('btn-save-trip-edit').addEventListener('click',async()=>{
   const name=$('te-name').value||CT.name;
   await DB.from('trips').update({name,start_date:$('te-start').value,end_date:$('te-end').value,budget:parseInt($('te-budget').value)||CT.budget}).eq('id',CT.id);
   CT={...CT,name,start_date:$('te-start').value,end_date:$('te-end').value,budget:parseInt($('te-budget').value)||CT.budget};
   closeModal('modal-trip-edit');renderApp();toast('旅程資訊已更新');
-};
+});
 $('row-schedule').addEventListener('click',()=>toast('行程日程功能開發中'));
 $('row-export').addEventListener('click',exportCSV);
 $('row-clear').addEventListener('click',async()=>{
@@ -1246,7 +1246,7 @@ $('row-clear').addEventListener('click',async()=>{
   const{error}=await DB.from('tabikake_expenses').delete().eq('trip_id',CT.id);
   if(error)return toast('❌ '+error.message);
   EXPS=[];renderCurrentView();toast('已清除');
-};
+});
 function exportCSV(){
   const r=CT?.exchange_rate||.22;
   const rows=EXPS.map(e=>{const m=mem(e.payer);return[e.date,`"${e.shop}"`,e.amount,Math.round(e.amount*r),e.cat,e.payment,e.region||'',m?.display_name||'',`"${e.note||''}"`].join(',');});
@@ -1270,7 +1270,7 @@ $('file-gallery').onchange=e=>{if(e.target.files[0])processImage(e.target.files[
 $('btn-shutter').addEventListener('click',capturePhoto);
 $('btn-stop-cam').addEventListener('click',stopCamera);
 $('btn-back-scan').addEventListener('click',backToScanMain);
-$('btn-add-rc-item').addEventListener('click',()=>{if(rcData){rcData.items.push({name_ja:'新品項',name_zh:'新品項',price:0,qty:1});renderRcItems();}};
+$('btn-add-rc-item').addEventListener('click',()=>{if(rcData){rcData.items.push({name_ja:'新品項',name_zh:'新品項',price:0,qty:1});renderRcItems();}});
 $('btn-rc-gps').addEventListener('click',()=>detectRegion('rc-region'));
 $('btn-confirm-scan').addEventListener('click',confirmScan);
 
