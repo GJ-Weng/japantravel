@@ -99,6 +99,7 @@ html,body{height:100%;overflow:hidden;background:var(--c);color:var(--a);font-si
 
 .members-row{display:flex;gap:10px;padding:10px 12px 0;overflow-x:auto;scrollbar-width:none;}
 .members-row::-webkit-scrollbar{display:none;}
+
 .member-chip{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;cursor:pointer;}
 .member-av{width:36px;height:36px;border-radius:50%;background:var(--c);display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid transparent;overflow:hidden;flex-shrink:0;}
 .member-av img{width:100%;height:100%;object-fit:cover;}
@@ -276,6 +277,15 @@ html,body{height:100%;overflow:hidden;background:var(--c);color:var(--a);font-si
 #toast{position:fixed;bottom:106px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(20,20,20,.92);color:#fff;padding:9px 18px;border-radius:20px;font-size:12px;font-weight:600;z-index:9999;opacity:0;pointer-events:none;transition:all .22s;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 ::-webkit-scrollbar{display:none;}
+.cam-overlay{position:fixed;inset:0;z-index:500;background:#000;display:flex;flex-direction:column;}
+.cam-overlay.hidden{display:none!important;}
+.cam-video-wrap{flex:1;position:relative;overflow:hidden;}
+.cam-video-wrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.cam-controls{background:#000;padding:20px 24px calc(var(--sab,20px)+20px);display:flex;align-items:center;justify-content:space-between;}
+.cam-shutter{width:68px;height:68px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.4);cursor:pointer;flex-shrink:0;transition:transform .1s;}
+.cam-shutter:active{transform:scale(.88);}
+.cam-cancel{color:#fff;background:none;border:none;font-size:15px;font-weight:500;cursor:pointer;width:68px;text-align:left;}
+.cam-spacer{width:68px;}
 </style>
 </head>
 <body>
@@ -368,7 +378,6 @@ html,body{height:100%;overflow:hidden;background:var(--c);color:var(--a);font-si
         <p style="font-size:18px;font-weight:700;margin-bottom:4px;">掃描收據</p>
         <p style="font-size:13px;color:var(--e);margin-bottom:14px;">拍照或上傳圖片，AI 自動辨識</p>
         <div class="scan-preview" id="scan-preview">
-          <video id="scan-video" autoplay playsinline muted style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>
           <img id="scan-img" style="display:none;width:100%;height:100%;object-fit:contain;position:absolute;inset:0;">
           <div class="scan-placeholder" id="scan-placeholder" style="position:relative;z-index:1;"><div style="font-size:44px;margin-bottom:8px;">📄</div><div style="font-size:13px;">點擊下方拍照或選圖</div></div>
         </div>
@@ -376,18 +385,11 @@ html,body{height:100%;overflow:hidden;background:var(--c);color:var(--a);font-si
           <div class="dot-pulse"><span></span><span></span><span></span></div>
           <span style="font-size:13px;font-weight:600;">AI 辨識中...</span>
         </div>
-        <div id="shutter-wrap" style="display:none;" class="shutter-wrap">
-          <button class="shutter" id="btn-shutter" style="background:none;border:none;padding:0;cursor:pointer;">
-            <div style="width:60px;height:60px;border-radius:50%;background:var(--a);border:4px solid rgba(255,255,255,.6);box-shadow:0 3px 12px rgba(0,0,0,.3);"></div>
-          </button>
-          <button id="btn-stop-cam-inline" style="position:absolute;top:0;right:0;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;">取消</button>
-        </div>
-        <div class="scan-btns">
+        <div class="scan-btns" style="margin-top:12px;">
           <button class="btn-solid" id="btn-camera">📷 拍照辨識</button>
           <button class="btn-secondary" id="btn-gallery">🖼 選擇圖片</button>
         </div>
-        <input type="file" id="file-gallery" accept="image/*" capture="environment" style="display:none;">
-        <button class="btn-secondary" id="btn-stop-cam" style="display:none;margin-top:6px;">取消拍照</button>
+        <input type="file" id="file-gallery" accept="image/*" style="display:none;">
       </div>
       <div id="scan-confirm" style="display:none;">
         <div class="receipt-header">
@@ -553,6 +555,18 @@ html,body{height:100%;overflow:hidden;background:var(--c);color:var(--a);font-si
   <div id="user-profile" style="display:flex;align-items:center;gap:12px;padding:6px 0 16px;border-bottom:1px solid var(--d);margin-bottom:14px;"></div>
   <button class="btn-danger" id="btn-signout">登出</button>
 </div></div></div>
+
+<!-- 全螢幕相機 -->
+<div class="cam-overlay hidden" id="cam-overlay">
+  <div class="cam-video-wrap">
+    <video id="cam-video" autoplay playsinline muted></video>
+  </div>
+  <div class="cam-controls">
+    <button class="cam-cancel" id="cam-cancel">取消</button>
+    <button class="cam-shutter" id="cam-shutter"></button>
+    <div class="cam-spacer"></div>
+  </div>
+</div>
 
 <div id="toast"></div>
 
@@ -1272,9 +1286,8 @@ async function fetchRate(){
 $('btn-camera').addEventListener('click',startCamera);
 $('btn-gallery').addEventListener('click',()=>$('file-gallery').click());
 $('file-gallery').onchange=e=>{if(e.target.files[0])processImage(e.target.files[0]);e.target.value='';};
-$('btn-shutter').addEventListener('click',capturePhoto);
-$('btn-stop-cam').addEventListener('click',stopCamera);
-$('btn-stop-cam-inline').addEventListener('click',stopCamera);
+$('cam-shutter').addEventListener('click',capturePhoto);
+$('cam-cancel').addEventListener('click',stopCamera);
 $('btn-back-scan').addEventListener('click',backToScanMain);
 $('btn-add-rc-item').addEventListener('click',()=>{if(rcData){rcData.items.push({name_ja:'新品項',name_zh:'新品項',price:0,qty:1});renderRcItems();}});
 $('btn-rc-gps').addEventListener('click',()=>detectRegion('rc-region'));
@@ -1285,31 +1298,19 @@ async function startCamera(){
     camStream=await navigator.mediaDevices.getUserMedia({
       video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}
     });
-    const vid=$('scan-video');
-    vid.srcObject=camStream;vid.style.display='block';
-    $('scan-placeholder').style.display='none';
-    $('scan-img').style.display='none';
-    $('shutter-wrap').style.display='flex';
-    $('shutter-wrap').style.position='absolute';
-    $('shutter-wrap').style.bottom='16px';
-    $('shutter-wrap').style.left='50%';
-    $('shutter-wrap').style.transform='translateX(-50%)';
-    $('shutter-wrap').style.zIndex='10';
-    $('btn-camera').style.display='none';
-    $('btn-gallery').style.display='none';
-    $('btn-stop-cam').style.display='none';
-  }catch(e){toast('無法存取相機：'+e.message);}
+    $('cam-video').srcObject=camStream;
+    $('cam-overlay').classList.remove('hidden');
+  }catch(e){
+    toast('無法存取相機：'+e.message);
+  }
 }
 function stopCamera(){
   if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
-  $('scan-video').style.display='none';
-  $('scan-placeholder').style.display='';
-  $('shutter-wrap').style.display='none';
-  $('btn-camera').style.display='';
-  $('btn-gallery').style.display='';
+  $('cam-video').srcObject=null;
+  $('cam-overlay').classList.add('hidden');
 }
 function capturePhoto(){
-  const v=$('scan-video');
+  const v=$('cam-video');
   if(!v||!v.videoWidth){toast('相機尚未就緒');return;}
   const c=document.createElement('canvas');
   c.width=v.videoWidth;c.height=v.videoHeight;
@@ -1330,7 +1331,7 @@ async function processImage(file){
 async function analyzeReceipt(b64,mt){
   const prompt='分析這張日文收據，只回JSON不含markdown：{"shop_name_ja":"","shop_name_zh":"","total_amount":0,"category":"餐飲","payment_method":null,"items":[{"name_ja":"","name_zh":"","price":0,"qty":1}],"date":null}';
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${GM_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:mt,data:b64}},{text:prompt}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GM_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:mt,data:b64}},{text:prompt}]}]})});
     const d=await res.json();
     if(!res.ok)throw new Error(d.error?.message||`HTTP ${res.status}`);
     const text=d.candidates?.[0]?.content?.parts?.[0]?.text;
