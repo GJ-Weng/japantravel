@@ -596,8 +596,8 @@ async function boot(){
 }
 
 // ── AUTH ──
-$('btn-google-login').onclick=()=>DB.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});
-$('btn-signout').onclick=async()=>{await DB.auth.signOut();closeModal('modal-user');};
+$('btn-google-login').addEventListener('click',()=>DB.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}}));
+$('btn-signout').addEventListener('click',async()=>{await DB.auth.signOut();closeModal('modal-user');});
 
 // ── HELPERS ──
 function $(id){return document.getElementById(id);}
@@ -639,64 +639,124 @@ document.querySelectorAll('.modal-overlay').forEach(el=>{
 async function loadTrips(pendingInv){
   const el=$('trips-list');
   el.innerHTML='<div class="empty">載入中...</div>';
-  const {data:rows,error}=await DB.from('trip_members').select('trip_id').eq('user_id',CU.id);
-  if(error){el.innerHTML=`<div class="empty">錯誤：${error.message}</div>`;return;}
-  if(!rows?.length){el.innerHTML='<div class="empty">尚無旅程，建立一個吧！</div>';
-    if(pendingInv){localStorage.removeItem('tb_pending_invite');await handleInvite(pendingInv);}
+  
+  // 處理 pending invite
+  if(pendingInv){
+    localStorage.removeItem('tb_pending_invite');
+    await handleInvite(pendingInv);
     return;
   }
-  const ids=rows.map(r=>r.trip_id).filter(Boolean);
-  const{data:trips}=await DB.from('trips').select('*').in('id',ids).order('created_at',{ascending:false});
-  if(pendingInv){localStorage.removeItem('tb_pending_invite');await handleInvite(pendingInv);return;}
-  el.innerHTML=(trips||[]).map(t=>`
-    <div class="trip-card" data-id="${t.id}">
-      <div class="trip-card-icon">✈️</div>
-      <div class="trip-card-info">
-        <div class="trip-card-name">${t.name}</div>
-        <div class="trip-card-meta">${t.start_date||''}${t.end_date?' ~ '+t.end_date:''} · ${t.owner_id===CU.id?'建立者':'成員'}</div>
-      </div>
-      <div class="trip-card-arrow">›</div>
-    </div>`).join('');
-  $('trips-list').querySelectorAll('.trip-card').forEach(card=>{
-    card.addEventListener('click',()=>enterTrip(card.dataset.id));
-  });
+
+  try{
+    const{data:rows,error}=await DB.from('trip_members')
+      .select('trip_id')
+      .eq('user_id',CU.id);
+    
+    if(error)throw error;
+    
+    if(!rows||rows.length===0){
+      el.innerHTML='<div class="empty" style="padding:32px 0;">✈️<br><br>尚無旅程<br><span style="font-size:12px;">點上方按鈕建立第一個旅程</span></div>';
+      return;
+    }
+    
+    const ids=rows.map(r=>r.trip_id).filter(Boolean);
+    const{data:trips,error:e2}=await DB.from('trips')
+      .select('*')
+      .in('id',ids)
+      .order('created_at',{ascending:false});
+    
+    if(e2)throw e2;
+    
+    if(!trips||trips.length===0){
+      el.innerHTML='<div class="empty">尚無旅程</div>';
+      return;
+    }
+    
+    el.innerHTML=trips.map(t=>`
+      <div class="trip-card" data-id="${t.id}">
+        <div class="trip-card-icon">✈️</div>
+        <div class="trip-card-info">
+          <div class="trip-card-name">${t.name}</div>
+          <div class="trip-card-meta">${t.start_date||''}${t.end_date?' ~ '+t.end_date:''} · ${t.owner_id===CU.id?'建立者':'成員'}</div>
+        </div>
+        <div class="trip-card-arrow">›</div>
+      </div>`).join('');
+    
+    el.querySelectorAll('.trip-card').forEach(card=>{
+      card.addEventListener('click',()=>enterTrip(card.dataset.id));
+    });
+  }catch(err){
+    el.innerHTML=`<div class="empty" style="color:var(--red);">載入失敗<br><span style="font-size:11px;">${err.message}</span></div>`;
+  }
 }
 
 // ── NEW TRIP ──
-$('btn-new-trip').onclick=()=>{
+$('btn-new-trip').addEventListener('click',()=>{
   const t=today(),e=new Date(t+'T00:00:00');e.setDate(e.getDate()+7);
   $('nt-start').value=t;$('nt-end').value=e.toISOString().split('T')[0];
   $('nt-nick').value=CU.user_metadata?.name?.split(' ')[0]||'';
   $('nt-emoji').value='😊';
   openModal('modal-new-trip');
 };
-$('btn-create-trip').onclick=async()=>{
-  const name=$('nt-name').value.trim();if(!name)return toast('請輸入旅程名稱');
+$('btn-create-trip').addEventListener('click',async()=>{
+  const name=$('nt-name').value.trim();
+  if(!name)return toast('請輸入旅程名稱');
   const nick=$('nt-nick').value.trim()||CU.user_metadata?.name||'旅客';
   const emoji=$('nt-emoji').value||'😊';
   const color=qs('#nt-colors .color-opt.active')?.dataset.color||'#3B82F6';
-  $('btn-create-trip').disabled=true;$('btn-create-trip').textContent='建立中...';
-  const{data:trip,error}=await DB.from('trips').insert([{name,owner_id:CU.id,start_date:$('nt-start').value,end_date:$('nt-end').value,budget:parseInt($('nt-budget').value)||100000,exchange_rate:0.22}]).select().single();
-  if(error){toast('❌ '+error.message);$('btn-create-trip').disabled=false;$('btn-create-trip').textContent='建立旅程';return;}
-  await DB.from('trip_members').insert([{trip_id:trip.id,user_id:CU.id,display_name:nick,emoji,color}]);
-  closeModal('modal-new-trip');$('btn-create-trip').disabled=false;$('btn-create-trip').textContent='建立旅程';
-  await enterTrip(trip.id);
-};
+  const btn=$('btn-create-trip');
+  btn.disabled=true;btn.textContent='建立中...';
+  try{
+    const{data:trip,error}=await DB.from('trips').insert([{
+      name,owner_id:CU.id,
+      start_date:$('nt-start').value||null,
+      end_date:$('nt-end').value||null,
+      budget:parseInt($('nt-budget').value)||100000,
+      exchange_rate:0.22
+    }]).select().single();
+    if(error)throw error;
+    const{error:e2}=await DB.from('trip_members').insert([{
+      trip_id:trip.id,user_id:CU.id,
+      display_name:nick,emoji,color
+    }]);
+    if(e2)throw e2;
+    closeModal('modal-new-trip');
+    await enterTrip(trip.id);
+  }catch(err){
+    toast('❌ 建立失敗：'+err.message);
+  }finally{
+    btn.disabled=false;btn.textContent='建立旅程';
+  }
+});
 function qs(sel){return document.querySelector(sel);}
 
 // ── JOIN TRIP ──
-$('btn-join-trip').onclick=()=>openModal('modal-join-trip');
-$('btn-join-trip-confirm').onclick=async()=>{
-  const code=$('jt-code').value.trim().toLowerCase();if(!code)return toast('請輸入邀請碼');
-  const nick=$('jt-nick').value.trim();if(!nick)return toast('請輸入暱稱');
+$('btn-join-trip').addEventListener('click',()=>openModal('modal-join-trip'));
+$('btn-join-trip-confirm').addEventListener('click',async()=>{
+  const code=$('jt-code').value.trim().toLowerCase();
+  if(!code)return toast('請輸入邀請碼');
+  const nick=$('jt-nick').value.trim();
+  if(!nick)return toast('請輸入暱稱');
   const emoji=$('jt-emoji').value||'😊';
   const color=qs('#jt-colors .color-opt.active')?.dataset.color||'#EF4444';
-  const{data:trip}=await DB.from('trips').select().eq('invite_code',code).single();
-  if(!trip)return toast('找不到此邀請碼');
-  const{data:existing}=await DB.from('trip_members').select().eq('trip_id',trip.id).eq('user_id',CU.id).single();
-  if(!existing)await DB.from('trip_members').insert([{trip_id:trip.id,user_id:CU.id,display_name:nick,emoji,color}]);
-  closeModal('modal-join-trip');await enterTrip(trip.id);
-};
+  const btn=$('btn-join-trip-confirm');
+  btn.disabled=true;btn.textContent='加入中...';
+  try{
+    const{data:trip,error}=await DB.from('trips').select().eq('invite_code',code).single();
+    if(error||!trip)throw new Error('找不到此邀請碼');
+    const{data:existing}=await DB.from('trip_members').select().eq('trip_id',trip.id).eq('user_id',CU.id).single();
+    if(!existing){
+      const{error:e2}=await DB.from('trip_members').insert([{trip_id:trip.id,user_id:CU.id,display_name:nick,emoji,color}]);
+      if(e2)throw e2;
+    }
+    closeModal('modal-join-trip');
+    await enterTrip(trip.id);
+  }catch(err){
+    toast('❌ '+err.message);
+  }finally{
+    btn.disabled=false;btn.textContent='加入旅程';
+  }
+});
 async function handleInvite(code){
   const{data:trip}=await DB.from('trips').select().eq('invite_code',code).single();
   if(!trip){toast('邀請碼無效');return;}
@@ -747,7 +807,7 @@ function backToTrips(){
   Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});charts={};
   hide('scr-app');show('scr-trips');loadTrips();
 }
-$('btn-back').onclick=backToTrips;
+$('btn-back').addEventListener('click',backToTrips);
 
 function renderApp(){
   if(!CT)return;
@@ -817,7 +877,7 @@ function renderHome(){
   $('rec-total').textContent=`¥${allTotal.toLocaleString()}`;
   $('rec-total-sub').textContent=`NT$${Math.round(allTotal*r).toLocaleString()} · ${EXPS.length}筆`;
 }
-$('btn-see-all').onclick=()=>{
+$('btn-see-all').addEventListener('click',()=>{
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector('[data-view=records]').classList.add('active');
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -944,7 +1004,7 @@ $('btn-save-edit').addEventListener('click',async()=>{
 });
 
 // ── ADD EXPENSE ──
-$('btn-add-exp').onclick=openAddModal;
+$('btn-add-exp').addEventListener('click',openAddModal);
 function openAddModal(){
   activeCat='餐飲';splitMems=MEMS.map(m=>m.id);
   $('add-amount').value='';$('add-shop').value='';$('add-note').value='';
@@ -1070,7 +1130,7 @@ function renderStats(){
 }
 
 // ── SETTLE ──
-$('btn-recalc-settle').onclick=renderSettle;
+$('btn-recalc-settle').addEventListener('click',renderSettle);
 function renderSettle(){
   if(!CT){return;}
   const r=CT.exchange_rate||.22;
@@ -1110,7 +1170,7 @@ function renderSettle(){
 }
 
 // ── MEMBERS SHEET ──
-$('btn-members').onclick=()=>{
+$('btn-members').addEventListener('click',()=>{
   $('members-list').innerHTML=MEMS.map(m=>{
     const mt=EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0);
     const isme=m.user_id===CU?.id;
@@ -1133,28 +1193,28 @@ function renderInviteCard(){
   const code=CT.invite_code;const url=`${location.origin}${location.pathname}?invite=${code}`;
   $('invite-card-wrap').innerHTML=`<div class="invite-card" style="margin:0 0 10px;"><div style="font-size:11px;opacity:.6;letter-spacing:.5px;margin-bottom:4px;">邀請親友加入此旅程</div><div class="invite-code">${code}</div><div style="font-size:11px;opacity:.6;word-break:break-all;margin-bottom:12px;">${url}</div><button class="invite-copy-btn" onclick="copyInvite('${url}','${code}')">複製連結 / 分享</button></div>`;
 }
-$('row-rate').onclick=()=>{$('rate-input').value=CT?.exchange_rate||.22;openModal('modal-rate');};
-$('btn-auto-rate').onclick=fetchRate;
-$('btn-save-rate').onclick=async()=>{
+$('row-rate').addEventListener('click',()=>{$('rate-input').value=CT?.exchange_rate||.22;openModal('modal-rate');};
+$('btn-auto-rate').addEventListener('click',fetchRate);
+$('btn-save-rate').addEventListener('click',async()=>{
   const rate=parseFloat($('rate-input').value)||.22;
   await DB.from('trips').update({exchange_rate:rate}).eq('id',CT.id);
   CT.exchange_rate=rate;$('rate-display').textContent=`¥1=NT$${rate}`;
   closeModal('modal-rate');renderHome();toast('匯率已更新');
 };
-$('row-trip-edit').onclick=()=>{
+$('row-trip-edit').addEventListener('click',()=>{
   $('te-name').value=CT?.name||'';$('te-start').value=CT?.start_date||'';
   $('te-end').value=CT?.end_date||'';$('te-budget').value=CT?.budget||'';
   openModal('modal-trip-edit');
 };
-$('btn-save-trip-edit').onclick=async()=>{
+$('btn-save-trip-edit').addEventListener('click',async()=>{
   const name=$('te-name').value||CT.name;
   await DB.from('trips').update({name,start_date:$('te-start').value,end_date:$('te-end').value,budget:parseInt($('te-budget').value)||CT.budget}).eq('id',CT.id);
   CT={...CT,name,start_date:$('te-start').value,end_date:$('te-end').value,budget:parseInt($('te-budget').value)||CT.budget};
   closeModal('modal-trip-edit');renderApp();toast('旅程資訊已更新');
 };
-$('row-schedule').onclick=()=>toast('行程日程功能開發中');
-$('row-export').onclick=exportCSV;
-$('row-clear').onclick=async()=>{
+$('row-schedule').addEventListener('click',()=>toast('行程日程功能開發中'));
+$('row-export').addEventListener('click',exportCSV);
+$('row-clear').addEventListener('click',async()=>{
   if(!confirm(`確定清除「${CT?.name}」的所有消費記錄？`))return;
   const{error}=await DB.from('tabikake_expenses').delete().eq('trip_id',CT.id);
   if(error)return toast('❌ '+error.message);
@@ -1177,15 +1237,15 @@ async function fetchRate(){
 }
 
 // ── SCAN ──
-$('btn-camera').onclick=startCamera;
-$('btn-gallery').onclick=()=>$('file-gallery').click();
+$('btn-camera').addEventListener('click',startCamera);
+$('btn-gallery').addEventListener('click',()=>$('file-gallery').click());
 $('file-gallery').onchange=e=>{if(e.target.files[0])processImage(e.target.files[0]);e.target.value='';};
-$('btn-shutter').onclick=capturePhoto;
-$('btn-stop-cam').onclick=stopCamera;
-$('btn-back-scan').onclick=backToScanMain;
-$('btn-add-rc-item').onclick=()=>{if(rcData){rcData.items.push({name_ja:'新品項',name_zh:'新品項',price:0,qty:1});renderRcItems();}};
+$('btn-shutter').addEventListener('click',capturePhoto);
+$('btn-stop-cam').addEventListener('click',stopCamera);
+$('btn-back-scan').addEventListener('click',backToScanMain);
+$('btn-add-rc-item').addEventListener('click',()=>{if(rcData){rcData.items.push({name_ja:'新品項',name_zh:'新品項',price:0,qty:1});renderRcItems();}};
 $('btn-rc-gps').addEventListener('click',()=>detectRegion('rc-region'));
-$('btn-confirm-scan').onclick=confirmScan;
+$('btn-confirm-scan').addEventListener('click',confirmScan);
 
 async function startCamera(){
   try{
@@ -1267,11 +1327,13 @@ async function confirmScan(){
 }
 
 // ── USER PROFILE ──
-$('user-av-trips').onclick=()=>{
-  const u=CU;const nm=u?.user_metadata?.name||u?.email||'';const av=u?.user_metadata?.avatar_url;
-  $('user-profile').innerHTML=`${av?`<img src="${av}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;">`:''}<div><div style="font-size:16px;font-weight:700;">${nm}</div><div style="font-size:12px;color:var(--e);">${u?.email||''}</div></div>`;
+$('user-av-trips').addEventListener('click',()=>{
+  const u=CU;if(!u)return;
+  const nm=u.user_metadata?.name||u.email||'';
+  const av=u.user_metadata?.avatar_url;
+  $('user-profile').innerHTML=`${av?`<img src="${av}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;">`:''}<div><div style="font-size:16px;font-weight:700;">${nm}</div><div style="font-size:12px;color:var(--e);">${u.email||''}</div></div>`;
   openModal('modal-user');
-};
+});
 
 // BOOT
 boot();
