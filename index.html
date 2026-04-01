@@ -386,6 +386,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
       <div class="app-title" id="app-title">旅趣</div>
       <div class="app-sub" id="app-sub"></div>
     </div>
+    <div id="app-user-av" class="app-icon-btn" style="border-radius:50%;overflow:hidden;background:var(--sakura-light);font-size:18px;cursor:pointer;"></div>
     <button class="app-icon-btn" id="btn-members">👥</button>
     <button class="app-icon-btn app-plus" id="btn-add-exp">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
@@ -969,6 +970,11 @@ $('btn-back').addEventListener('click',backToTrips);
 function renderApp(){
   if(!CT)return;
   $('app-title').textContent=CT.name;
+  // 更新 topbar 個人頭像
+  const me=MEMS.find(m=>m.user_id===CU?.id);
+  const appAv=$('app-user-av');
+  if(appAv&&me){appAv.innerHTML=jpAvatar(me,34);}
+  else if(appAv){appAv.innerHTML='👤';}
   $('rate-display').textContent=`¥1=NT$${CT.exchange_rate}`;
   $('trip-display').textContent=CT.name;
   $('sched-display').textContent=`${SCHED.length}天`;
@@ -1334,6 +1340,34 @@ function renderStats(){
 
 // ── SETTLE ──
 $('btn-recalc-settle').addEventListener('click',renderSettle);
+$('app-user-av').addEventListener('click',()=>{
+  const u=CU;if(!u)return;
+  const nm=u.user_metadata?.name||u.email||'';
+  $('user-profile').innerHTML='<div style="font-size:16px;font-weight:800;">'+nm+'</div><div style="font-size:12px;color:var(--text2);margin-top:2px;">'+u.email+'</div>';
+  const me=MEMS.find(m=>m.user_id===CU.id);
+  const memberEdit=$('user-member-edit');
+  if(me&&memberEdit){
+    memberEdit.style.display='block';
+    selectedAnimal=me.emoji||'🐰';
+    renderAnimalOpts('user-animal-opts',selectedAnimal);
+    const userColors=$('user-colors');
+    if(userColors){
+      userColors.querySelectorAll('.color-opt').forEach(o=>{
+        o.classList.toggle('active',o.dataset.color===me.color);
+      });
+      // 重新綁定顏色點擊（因為 color-opts listener 在頁面載入時綁，user-colors 是動態的）
+      userColors.querySelectorAll('.color-opt').forEach(opt=>{
+        opt.addEventListener('click',()=>{
+          userColors.querySelectorAll('.color-opt').forEach(o=>o.classList.remove('active'));
+          opt.classList.add('active');
+        });
+      });
+    }
+  } else if(memberEdit){
+    memberEdit.style.display='none';
+  }
+  openModal('modal-user');
+});
 $('btn-save-avatar').addEventListener('click',async()=>{
   const me=CT&&MEMS.find(m=>m.user_id===CU?.id);
   if(!me){toast('請先進入旅程');return;}
@@ -1343,6 +1377,7 @@ $('btn-save-avatar').addEventListener('click',async()=>{
   if(error){toast('❌ '+error.message);return;}
   me.emoji=newEmoji;me.color=newColor;
   closeModal('modal-user');
+  renderApp();
   renderHome();
   toast('頭像已更新 ✓');
 });
