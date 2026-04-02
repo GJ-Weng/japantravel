@@ -219,8 +219,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .settle-hero::before{content:'🌸';position:absolute;right:20px;top:16px;font-size:48px;opacity:.15;}
 .settle-hero::after{content:'🌸';position:absolute;left:-10px;bottom:-10px;font-size:80px;opacity:.08;}
 .settle-body{padding:0 14px;margin-top:-20px;}
-.settle-txn{background:var(--washi);border:2px solid var(--border);border-radius:var(--rm);padding:16px;margin-bottom:10px;display:flex;align-items:center;box-shadow:var(--sh);}
-.settle-person{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.settle-txn{background:var(--washi);border:2px solid var(--border);border-radius:var(--rm);padding:16px 12px;margin-bottom:10px;display:flex;align-items:center;box-shadow:var(--sh);overflow:hidden;}
+.settle-person{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;}
 .settle-arrow-area{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .settle-line{height:2px;width:100%;background:var(--sakura-light);}
 
@@ -301,7 +301,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .detail-val{font-size:13px;font-weight:600;color:var(--ink);}
 
 /* ── BALANCE ── */
-.balance-card{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:var(--rm);margin-bottom:8px;border:2px solid;box-shadow:var(--sh);}
+.balance-card{display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:var(--rm);margin-bottom:8px;border:2px solid;box-shadow:var(--sh);overflow:hidden;width:100%;}
 .bal-pos{background:#F0FDF4;border-color:#BBF7D0;}
 .bal-neg{background:#FEF2F2;border-color:#FECACA;}
 .bal-zero{background:var(--cloud);border-color:var(--border);}
@@ -482,12 +482,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
         <div style="font-size:24px;font-weight:900;letter-spacing:-.5px;" id="settle-title">計算中...</div>
         <div style="font-size:12px;opacity:.7;margin-top:3px;" id="settle-sub"></div>
       </div>
-      <div class="settle-body">
-        <div class="card" style="margin-top:0;padding:14px;">
-          <div style="font-size:11px;color:var(--e);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;">各人餘額</div>
+      <div class="settle-body" style="padding:0 12px;">
+        <div class="card" style="margin-top:0;padding:14px 10px;">
+          <div style="font-size:13px;font-weight:800;margin-bottom:10px;color:var(--ink);">💰 誰多付、誰少付？</div>
           <div id="balance-list"></div>
         </div>
-        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">轉帳清單</div>
+        <div style="font-size:13px;font-weight:800;margin-bottom:8px;color:var(--ink);">🔄 要怎麼還錢？</div>
         <div id="settle-list"></div>
         <button class="btn-secondary" id="btn-recalc-settle" style="margin-top:4px;">🔄 重新計算</button>
       </div>
@@ -668,11 +668,15 @@ const SB_URL='https://dndevtahnvolknzrolnt.supabase.co';
 const SB_KEY='sb_publishable_Mb2f8OYKanhNkapOg4c7Ag_WRpGoXo3';
 const SCAN_ENDPOINT='https://dndevtahnvolknzrolnt.supabase.co/functions/v1/gemini-proxy';
 const CATS=[
-  {n:'餐飲',i:'🍜',c:'#F97316'},{n:'交通',i:'🚅',c:'#3B82F6'},
-  {n:'住宿',i:'🏨',c:'#A855F7'},{n:'購物',i:'🛍️',c:'#F97316'},
-  {n:'景點',i:'⛩️',c:'#14B8A6'},{n:'便利店',i:'🏪',c:'#22C55E'},
-  {n:'藥妝',i:'💊',c:'#EF4444'},{n:'伴手禮',i:'🎁',c:'#F59E0B'},
-  {n:'其他',i:'📌',c:'#6B7280'},
+  {n:'餐飲',i:'🍜',c:'#E8524A'},   // 紅
+  {n:'交通',i:'🚅',c:'#3B82F6'},   // 藍
+  {n:'住宿',i:'🏨',c:'#9333EA'},   // 紫
+  {n:'購物',i:'🛍️',c:'#F59E0B'},  // 黃
+  {n:'景點',i:'⛩️',c:'#14B8A6'},  // 青
+  {n:'便利店',i:'🏪',c:'#22C55E'}, // 綠
+  {n:'藥妝',i:'💊',c:'#EC4899'},   // 粉
+  {n:'伴手禮',i:'🎁',c:'#78716C'}, // 棕
+  {n:'其他',i:'📌',c:'#6B7280'},   // 灰
 ];
 const CAT_LABEL={餐飲:'店家名稱',交通:'交通方式',住宿:'住宿名稱',景點:'景點名稱',購物:'購買地點',便利店:'店家名稱',藥妝:'店家名稱',伴手禮:'購買地點',其他:'說明'};
 const CAT_PH={餐飲:'如：一蘭拉麵',交通:'如：新幹線、地下鐵',住宿:'如：APA Hotel',景點:'如：淺草寺',購物:'如：唐吉訶德',便利店:'如：7-11',藥妝:'如：マツキヨ',伴手禮:'如：機場免稅店',其他:'說明這筆消費'};
@@ -770,20 +774,15 @@ function renderAnimalOpts(containerId, current){
 }
 async function uploadAvatarImg(file,memberId){
   try{
-    // 壓縮並裁切成圓形 200x200
+    // 壓縮裁切成 120x120，存成 base64 data URL 直接放 DB
     const dataUrl=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});
-    const img=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.src=dataUrl;});
+    const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=dataUrl;});
     const size=Math.min(img.width,img.height);
-    const canvas=document.createElement('canvas');canvas.width=200;canvas.height=200;
+    const canvas=document.createElement('canvas');canvas.width=120;canvas.height=120;
     const ctx=canvas.getContext('2d');
-    ctx.drawImage(img,(img.width-size)/2,(img.height-size)/2,size,size,0,0,200,200);
-    const blob=await new Promise(res=>canvas.toBlob(res,'image/jpeg',.85));
-    const path='avatars/'+memberId+'_'+Date.now()+'.jpg';
-    const{error}=await DB.storage.from('avatars').upload(path,blob,{contentType:'image/jpeg',upsert:true});
-    if(error)throw error;
-    const{data}=DB.storage.from('avatars').getPublicUrl(path);
-    return data.publicUrl;
-  }catch(e){toast('圖片上傳失敗：'+e.message);return null;}
+    ctx.drawImage(img,(img.width-size)/2,(img.height-size)/2,size,size,0,0,120,120);
+    return canvas.toDataURL('image/jpeg',0.75);
+  }catch(e){toast('圖片處理失敗：'+e.message);return null;}
 }
 
 function jpAvatar(m,sz=36){
@@ -1474,7 +1473,7 @@ $('btn-save-avatar').addEventListener('click',async()=>{
 });
 $('btn-add-sched-row').addEventListener('click',addSchedRow);
 function renderSettle(){
-  if(!CT){return;}
+  if(!CT)return;
   const r=CT.exchange_rate||.22;
   const bal={};MEMS.forEach(m=>bal[m.id]=0);
   EXPS.forEach(e=>{
@@ -1486,30 +1485,63 @@ function renderSettle(){
   });
   const total=EXPS.reduce((s,e)=>s+e.amount,0);
   const pp=MEMS.length?Math.round(total/MEMS.length):0;
-  $('settle-title').textContent=`總支出 ¥${total.toLocaleString()}`;
-  $('settle-sub').textContent=`${MEMS.length}人 · 每人約 ¥${pp.toLocaleString()} (NT$${Math.round(pp*r).toLocaleString()})`;
-  // Balance list
+  $('settle-title').textContent='總支出 ¥'+total.toLocaleString();
+  $('settle-sub').textContent=MEMS.length+'人 · 每人平均 ¥'+pp.toLocaleString()+' (NT$'+Math.round(pp*r).toLocaleString()+')';
+
+  // 各人餘額 — 口語化
   $('balance-list').innerHTML=MEMS.map(m=>{
-    const b=bal[m.id]||0;const paid=EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0);
-    const cls=b>0.5?'bal-pos':b<-0.5?'bal-neg':'bal-zero';
-    const col=b>0.5?'var(--green)':b<-0.5?'var(--red)':'var(--e)';
-    const lbl=b>0.5?`+¥${Math.round(b).toLocaleString()}`:b<-0.5?`-¥${Math.round(Math.abs(b)).toLocaleString()}`:'✓';
-    return`<div class="balance-card ${cls}">${avHtml(m,38)}<div style="flex:1;margin-left:10px;"><div style="font-size:14px;font-weight:600;">${m.display_name}</div><div style="font-size:11px;color:var(--e);">付出¥${paid.toLocaleString()}</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:${col};">${lbl}</div><div style="font-size:10px;color:var(--e);">NT$${Math.round(Math.abs(b)*r).toLocaleString()}</div></div></div>`;
+    const b=Math.round(bal[m.id]||0);
+    const paid=Math.round(EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0));
+    const cls=b>0?'bal-pos':b<0?'bal-neg':'bal-zero';
+    const col=b>0?'var(--green)':b<0?'var(--red)':'var(--text2)';
+    let statusText,amtText;
+    if(b>0){statusText='別人要還你';amtText='+¥'+Math.abs(b).toLocaleString();}
+    else if(b<0){statusText='你還需要付';amtText='-¥'+Math.abs(b).toLocaleString();}
+    else{statusText='已結清 ✓';amtText='¥0';}
+    return'<div class="balance-card '+cls+'" style="padding:13px 14px;">'
+      +'<div style="flex-shrink:0;">'+avHtml(m,42)+'</div>'
+      +'<div style="flex:1;min-width:0;margin-left:11px;">'
+        +'<div style="font-size:14px;font-weight:700;margin-bottom:2px;">'+m.display_name+'</div>'
+        +'<div style="font-size:11px;color:var(--text2);">共付出 ¥'+paid.toLocaleString()+'</div>'
+        +'<div style="font-size:11px;color:'+col+';font-weight:600;margin-top:2px;">'+statusText+'</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0;">'
+        +'<div style="font-size:18px;font-weight:800;color:'+col+';">'+amtText+'</div>'
+        +'<div style="font-size:10px;color:var(--text2);margin-top:2px;">NT$'+Math.abs(Math.round(b*r)).toLocaleString()+'</div>'
+      +'</div>'
+    +'</div>';
   }).join('');
-  // Transactions
-  const pos=[],neg=[];const bal2={...bal};
-  MEMS.forEach(m=>{const b=Math.round(bal2[m.id]||0);if(b>0)pos.push({id:m.id,b});else if(b<0)neg.push({id:m.id,b:Math.abs(b)});});
+
+  // 轉帳清單
+  const pos=[],neg=[];const bal2={};
+  MEMS.forEach(m=>bal2[m.id]=Math.round(bal[m.id]||0));
+  MEMS.forEach(m=>{const b=bal2[m.id];if(b>0)pos.push({id:m.id,b});else if(b<0)neg.push({id:m.id,b:Math.abs(b)});});
   const txns=[];let pi=0,ni=0;
-  while(pi<pos.length&&ni<neg.length){const p=pos[pi],n=neg[ni];const amt=Math.min(p.b,n.b);if(amt>1)txns.push({from:n.id,to:p.id,jpy:amt,twd:Math.round(amt*r)});p.b-=amt;n.b-=amt;if(p.b<1)pi++;if(n.b<1)ni++;}
-  $('settle-list').innerHTML=!txns.length?'<div class="empty" style="padding:24px 0;"><div style="font-size:40px;margin-bottom:10px;">🌸</div><div style="font-size:15px;font-weight:700;">大家都結清了！</div><div style="font-size:12px;color:var(--text3);margin-top:4px;">旅行的帳目一清二楚 ✨</div></div>':txns.map((t,i)=>{
-    const fm=mem(t.from),tm=mem(t.to);
-    return`<div class="card settle-txn" style="padding:16px;">
-      <div class="settle-person">${avHtml(fm,40)}<div style="font-size:13px;font-weight:600;margin-top:5px;">${fm?.display_name||'?'}</div><div style="font-size:10px;color:var(--e);">付款</div></div>
-      <div class="settle-arrow-area"><div style="font-size:18px;font-weight:900;">¥${t.jpy.toLocaleString()}</div><div style="font-size:11px;color:var(--e);">NT$${t.twd.toLocaleString()}</div><div style="display:flex;align-items:center;width:100%;gap:4px;margin-top:4px;"><div class="settle-line"></div><div style="font-size:12px;">→</div><div class="settle-line"></div></div></div>
-      <div class="settle-person">${avHtml(tm,40)}<div style="font-size:13px;font-weight:600;margin-top:5px;">${tm?.display_name||'?'}</div><div style="font-size:10px;color:var(--e);">收款</div></div>
-    </div>`;
-  }).join('');
+  while(pi<pos.length&&ni<neg.length){
+    const p=pos[pi],n=neg[ni];const amt=Math.min(p.b,n.b);
+    if(amt>1)txns.push({from:n.id,to:p.id,jpy:amt,twd:Math.round(amt*r)});
+    p.b-=amt;n.b-=amt;if(p.b<1)pi++;if(n.b<1)ni++;
+  }
+  $('settle-list').innerHTML=!txns.length
+    ?'<div class="empty" style="padding:24px 0;"><div style="font-size:40px;margin-bottom:10px;">🌸</div><div style="font-size:15px;font-weight:700;">大家都結清了！</div><div style="font-size:12px;color:var(--text3);margin-top:4px;">旅行的帳目一清二楚 ✨</div></div>'
+    :txns.map(t=>{
+      const fm=MEMS.find(m=>m.id===t.from),tm=MEMS.find(m=>m.id===t.to);
+      return'<div class="settle-txn">'
+        +'<div class="settle-person">'+avHtml(fm,44)+'<div style="font-size:13px;font-weight:700;margin-top:6px;">'+(fm?.display_name||'?')+'</div><div style="font-size:11px;color:var(--text2);">付款方</div></div>'
+        +'<div class="settle-arrow-area">'
+          +'<div style="font-size:20px;font-weight:900;color:var(--ink);">¥'+t.jpy.toLocaleString()+'</div>'
+          +'<div style="font-size:11px;color:var(--text2);">NT$'+t.twd.toLocaleString()+'</div>'
+          +'<div style="display:flex;align-items:center;width:100%;gap:4px;margin-top:6px;">'
+            +'<div class="settle-line"></div>'
+            +'<div style="font-size:16px;color:var(--sakura);">→</div>'
+            +'<div class="settle-line"></div>'
+          +'</div>'
+        +'</div>'
+        +'<div class="settle-person">'+avHtml(tm,44)+'<div style="font-size:13px;font-weight:700;margin-top:6px;">'+(tm?.display_name||'?')+'</div><div style="font-size:11px;color:var(--text2);">收款方</div></div>'
+      +'</div>';
+    }).join('');
 }
+
 
 // ── MEMBERS SHEET ──
 $('btn-members').addEventListener('click',()=>{
