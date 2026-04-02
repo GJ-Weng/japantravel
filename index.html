@@ -215,10 +215,10 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 
 /* ── SETTLE ── */
 #view-settle{padding:0;}
-.settle-hero{background:linear-gradient(135deg,var(--ink) 0%,#4A2060 100%);color:var(--washi);padding:24px 16px 38px;position:relative;overflow:hidden;}
-.settle-hero::before{content:'🌸';position:absolute;right:20px;top:16px;font-size:48px;opacity:.15;}
-.settle-hero::after{content:'🌸';position:absolute;left:-10px;bottom:-10px;font-size:80px;opacity:.08;}
-.settle-body{padding:0 14px;margin-top:-20px;}
+/* settle-hero removed */
+
+
+/* settle-body removed */
 .settle-txn{background:var(--washi);border:2px solid var(--border);border-radius:var(--rm);padding:16px 12px;margin-bottom:10px;display:flex;align-items:center;box-shadow:var(--sh);overflow:hidden;}
 .settle-person{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;}
 .settle-arrow-area{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
@@ -477,19 +477,20 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
     </div>
     <!-- SETTLE -->
     <div class="view" id="view-settle">
-      <div class="settle-hero">
+      <div style="background:linear-gradient(135deg,var(--ink) 0%,#4A2060 100%);color:var(--washi);padding:20px 16px 24px;position:relative;overflow:hidden;">
         <div style="font-size:11px;opacity:.6;letter-spacing:.5px;margin-bottom:5px;">旅程結算</div>
         <div style="font-size:24px;font-weight:900;letter-spacing:-.5px;" id="settle-title">計算中...</div>
         <div style="font-size:12px;opacity:.7;margin-top:3px;" id="settle-sub"></div>
+        <div style="position:absolute;right:16px;top:16px;font-size:36px;opacity:.15;">🌸</div>
       </div>
-      <div class="settle-body" style="padding:0 12px;">
-        <div class="card" style="margin-top:0;padding:14px 10px;">
+      <div style="padding:12px 14px;">
+        <div class="card" style="padding:14px;">
           <div style="font-size:13px;font-weight:800;margin-bottom:10px;color:var(--ink);">💰 誰多付、誰少付？</div>
           <div id="balance-list"></div>
         </div>
-        <div style="font-size:13px;font-weight:800;margin-bottom:8px;color:var(--ink);">🔄 要怎麼還錢？</div>
+        <div style="font-size:13px;font-weight:800;margin:4px 0 8px;color:var(--ink);">🔄 要怎麼還錢？</div>
         <div id="settle-list"></div>
-        <button class="btn-secondary" id="btn-recalc-settle" style="margin-top:4px;margin-bottom:16px;">🔄 重新計算</button>
+        <button class="btn-secondary" id="btn-recalc-settle" style="margin-top:8px;">🔄 重新計算</button>
       </div>
     </div>
     <!-- SETTINGS -->
@@ -1430,49 +1431,41 @@ document.addEventListener('change',e=>{
 $('btn-save-avatar').addEventListener('click',async()=>{
   const me=CT&&MEMS.find(m=>m.user_id===CU?.id);
   if(!me){toast('請先進入旅程');return;}
-
   const btn=$('btn-save-avatar');
   btn.disabled=true;btn.textContent='儲存中...';
-
   try{
-    const newEmoji=selectedAnimal||me.emoji;
+    const newEmoji=selectedAnimal||me.emoji||'🐰';
     const activeColor=document.querySelector('#user-colors .color-opt.active');
-    const newColor=(activeColor&&activeColor.dataset.color)||me.color;
+    const newColor=(activeColor&&activeColor.dataset.color)||me.color||'#3B82F6';
 
-    // 上傳照片
-    let avatarUrl=me.avatar_url||null;
+    // 處理照片
+    let newAvatarUrl=me.avatar_url||null;
     const fileInput=$('user-avatar-file');
     if(fileInput&&fileInput.files&&fileInput.files[0]){
-      toast('上傳圖片中...',2000);
-      const uploaded=await uploadAvatarImg(fileInput.files[0],me.id);
-      if(uploaded)avatarUrl=uploaded;
+      btn.textContent='處理圖片...';
+      const b64=await uploadAvatarImg(fileInput.files[0],me.id);
+      if(b64)newAvatarUrl=b64;
     }
 
-    // 更新 DB：emoji、color、avatar_url 全部存進去
-    const updateData={emoji:newEmoji,color:newColor};
-    if(avatarUrl)updateData.avatar_url=avatarUrl;
-    const{data,error}=await DB.from('trip_members')
-      .update(updateData)
-      .eq('id',me.id)
-      .select()
-      .single();
+    // 存 DB
+    btn.textContent='儲存中...';
+    const payload={emoji:newEmoji,color:newColor,avatar_url:newAvatarUrl};
+    const{error}=await DB.from('trip_members').update(payload).eq('id',me.id);
+    if(error)throw new Error('DB錯誤: '+error.message);
 
-    if(error)throw error;
+    // 立刻更新 MEMS 本地物件
+    me.emoji=newEmoji;
+    me.color=newColor;
+    me.avatar_url=newAvatarUrl;
 
-    // 用 DB 回傳值更新本地
-    me.emoji=(data&&data.emoji)||newEmoji;
-    me.color=(data&&data.color)||newColor;
-    if(data&&data.avatar_url)me.avatar_url=data.avatar_url;
-    else if(avatarUrl)me.avatar_url=avatarUrl;
-
-    // 關閉 modal 並重繪
+    // 重繪
     closeModal('modal-user');
     const appAv=$('app-user-av');
     if(appAv)appAv.innerHTML=jpAvatar(me,34);
     renderHome();
     toast('🎉 頭像已更新！');
   }catch(err){
-    toast('❌ 更新失敗：'+err.message);
+    toast('❌ '+err.message);
   }finally{
     btn.disabled=false;btn.textContent='✓ 儲存頭像';
   }
