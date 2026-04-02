@@ -69,7 +69,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 
 /* ── TRIPS ── */
 #scr-trips{background:var(--washi);}
-.trips-body{padding:14px;overflow-y:auto;flex:1;}
+.trips-body{padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,20px));overflow-y:auto;flex:1;}
 .section-label{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;margin:4px 2px 10px;}
 
 .trip-card{background:var(--washi);border:2px solid var(--border);border-radius:var(--rm);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--sh);transition:transform .12s,box-shadow .12s,border-color .12s;}
@@ -105,10 +105,10 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .app-icon-btn:active{transform:scale(.88);}
 .app-plus{background:var(--sakura);color:var(--washi);box-shadow:0 3px 10px rgba(242,167,187,.5);}
 
-.app-content{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:88px;-webkit-overflow-scrolling:touch;}
+.app-content{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(88px + env(safe-area-inset-bottom,20px));-webkit-overflow-scrolling:touch;}
 
 /* ── NAVBAR ── */
-.navbar{position:absolute;bottom:0;left:0;right:0;background:rgba(253,248,240,.97);backdrop-filter:blur(20px);border-top:2px solid var(--sakura-light);display:flex;padding:6px 0 calc(var(--sab)+2px);}
+.navbar{position:absolute;bottom:0;left:0;right:0;background:rgba(253,248,240,.97);backdrop-filter:blur(20px);border-top:2px solid var(--sakura-light);display:flex;padding:6px env(safe-area-inset-right,0) calc(env(safe-area-inset-bottom,20px) + 6px) env(safe-area-inset-left,0);}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;color:var(--text3);padding:5px 2px;transition:color .15s;}
 .nav-btn svg{width:22px;height:22px;}
 .nav-btn span{font-size:9px;font-weight:600;letter-spacing:.3px;}
@@ -489,7 +489,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
         </div>
         <div style="font-size:13px;font-weight:800;margin-bottom:8px;color:var(--ink);">🔄 要怎麼還錢？</div>
         <div id="settle-list"></div>
-        <button class="btn-secondary" id="btn-recalc-settle" style="margin-top:4px;">🔄 重新計算</button>
+        <button class="btn-secondary" id="btn-recalc-settle" style="margin-top:4px;margin-bottom:16px;">🔄 重新計算</button>
       </div>
     </div>
     <!-- SETTINGS -->
@@ -774,21 +774,28 @@ function renderAnimalOpts(containerId, current){
 }
 async function uploadAvatarImg(file,memberId){
   try{
-    // 壓縮裁切成 120x120，存成 base64 data URL 直接放 DB
     const dataUrl=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});
     const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=dataUrl;});
     const size=Math.min(img.width,img.height);
-    const canvas=document.createElement('canvas');canvas.width=120;canvas.height=120;
+    const canvas=document.createElement('canvas');canvas.width=200;canvas.height=200;
     const ctx=canvas.getContext('2d');
-    ctx.drawImage(img,(img.width-size)/2,(img.height-size)/2,size,size,0,0,120,120);
-    return canvas.toDataURL('image/jpeg',0.75);
+    ctx.drawImage(img,(img.width-size)/2,(img.height-size)/2,size,size,0,0,200,200);
+    // 壓縮成 base64，直接存 DB avatar_url 欄位
+    return canvas.toDataURL('image/jpeg',0.8);
   }catch(e){toast('圖片處理失敗：'+e.message);return null;}
 }
 
+function getLocalAvatar(memberId){
+  // 從 localStorage 讀取本地儲存的頭像 base64
+  return localStorage.getItem('av_'+memberId)||null;
+}
+function setLocalAvatar(memberId,dataUrl){
+  try{localStorage.setItem('av_'+memberId,dataUrl);}catch(e){}
+}
 function jpAvatar(m,sz=36){
   if(!m)return'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:var(--sakura-light);"></div>';
+  // 優先：DB avatar_url（base64 或 URL）> 動物 emoji
   if(m.avatar_url)return'<img src="'+m.avatar_url+'" style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;object-fit:cover;">';
-  // 優先用 m.emoji（使用者選擇的），沒有才用預設
   const animal=m.emoji||'🐰';
   const fs=Math.round(sz*.55);
   return'<div style="width:'+sz+'px;height:'+sz+'px;border-radius:50%;background:'+m.color+'22;display:flex;align-items:center;justify-content:center;font-size:'+fs+'px;border:2px solid '+m.color+'44;">'+animal+'</div>';
@@ -1384,11 +1391,11 @@ $('app-user-av').addEventListener('click',()=>{
     memberEdit.style.display='block';
     selectedAnimal=me.emoji||'🐰';
     renderAnimalOpts('user-animal-opts',selectedAnimal);
-    // 重置照片預覽
+    // 重置照片預覽（顯示 DB 的 avatar_url）
     const photoPrev=$('user-photo-preview');
     if(photoPrev){
-      const curAv=me.avatar_url?'<img src="'+me.avatar_url+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;"><input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">':'📷<input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">';
-      photoPrev.innerHTML=curAv;
+      const imgHtml=me.avatar_url?'<img src="'+me.avatar_url+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;">':'📷';
+      photoPrev.innerHTML=imgHtml+'<input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">';
     }
     const userColors=$('user-colors');
     if(userColors){
@@ -1441,8 +1448,9 @@ $('btn-save-avatar').addEventListener('click',async()=>{
       if(uploaded)avatarUrl=uploaded;
     }
 
-    // 更新 DB
-    const updateData={emoji:newEmoji,color:newColor,avatar_url:avatarUrl};
+    // 更新 DB：emoji、color、avatar_url 全部存進去
+    const updateData={emoji:newEmoji,color:newColor};
+    if(avatarUrl)updateData.avatar_url=avatarUrl;
     const{data,error}=await DB.from('trip_members')
       .update(updateData)
       .eq('id',me.id)
@@ -1451,16 +1459,14 @@ $('btn-save-avatar').addEventListener('click',async()=>{
 
     if(error)throw error;
 
-    // 用 DB 回傳的資料更新本地（最可靠）
-    const updated=data||updateData;
-    me.emoji=updated.emoji||newEmoji;
-    me.color=updated.color||newColor;
-    me.avatar_url=updated.avatar_url||avatarUrl;
+    // 用 DB 回傳值更新本地
+    me.emoji=(data&&data.emoji)||newEmoji;
+    me.color=(data&&data.color)||newColor;
+    if(data&&data.avatar_url)me.avatar_url=data.avatar_url;
+    else if(avatarUrl)me.avatar_url=avatarUrl;
 
-    // 關閉 modal
+    // 關閉 modal 並重繪
     closeModal('modal-user');
-
-    // 強制重繪所有頭像
     const appAv=$('app-user-av');
     if(appAv)appAv.innerHTML=jpAvatar(me,34);
     renderHome();
