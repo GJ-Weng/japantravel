@@ -483,14 +483,14 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
         <div style="font-size:12px;opacity:.7;margin-top:3px;" id="settle-sub"></div>
         <div style="position:absolute;right:16px;top:16px;font-size:36px;opacity:.15;">🌸</div>
       </div>
-      <div style="padding:12px 14px;">
+      <div style="padding:12px 14px 24px 14px;">
         <div class="card" style="padding:14px;">
           <div style="font-size:13px;font-weight:800;margin-bottom:10px;color:var(--ink);">💰 誰多付、誰少付？</div>
           <div id="balance-list"></div>
         </div>
         <div style="font-size:13px;font-weight:800;margin:4px 0 8px;color:var(--ink);">🔄 要怎麼還錢？</div>
         <div id="settle-list"></div>
-        <button class="btn-secondary" id="btn-recalc-settle" style="margin-top:8px;">🔄 重新計算</button>
+        <button class="btn-secondary" id="btn-recalc-settle" style="margin-top:8px;position:relative;z-index:10;">🔄 重新計算</button>
       </div>
     </div>
     <!-- SETTINGS -->
@@ -684,7 +684,7 @@ const CAT_PH={餐飲:'如：一蘭拉麵',交通:'如：新幹線、地下鐵',�
 const PAY_COLORS={現金:'#22C55E',信用卡:'#3B82F6',Suica:'#14B8A6',PayPay:'#EF4444',其他:'#6B7280'};
 
 // ── STATE ──
-let DB,CU,CT,MEMS=[],EXPS=[],SCHED=[];
+let DB,CU,CT,MEMS=[],EXPS=[],SCHED=[],pendingAvatarB64=null;
 let activeCat='餐飲',activePayer=null,splitMems=[];
 let editingExpId=null,editingCat='餐飲';
 let camStream=null,rcData=null,statsFilter='all',recTab='day';
@@ -1392,11 +1392,13 @@ $('app-user-av').addEventListener('click',()=>{
     memberEdit.style.display='block';
     selectedAnimal=me.emoji||'🐰';
     renderAnimalOpts('user-animal-opts',selectedAnimal);
-    // 重置照片預覽（顯示 DB 的 avatar_url）
+    // 重置 pending + 照片預覽
+    pendingAvatarB64=null;
     const photoPrev=$('user-photo-preview');
     if(photoPrev){
-      const imgHtml=me.avatar_url?'<img src="'+me.avatar_url+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;">':'📷';
-      photoPrev.innerHTML=imgHtml+'<input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">';
+      const avSrc=me.avatar_url||null;
+      photoPrev.innerHTML=(avSrc?'<img src="'+avSrc+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;position:absolute;inset:0;">':'<span class="av-em" style="font-size:24px;">📷</span>')
+        +'<input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">';
     }
     const userColors=$('user-colors');
     if(userColors){
@@ -1416,16 +1418,23 @@ $('app-user-av').addEventListener('click',()=>{
   }
   openModal('modal-user');
 });
-// 照片預覽
+// 照片選取 — 存到 pendingAvatarB64，不重建 input（否則 files 會消失）
 document.addEventListener('change',e=>{
   if(e.target.id==='user-avatar-file'){
     const file=e.target.files[0];if(!file)return;
-    const reader=new FileReader();
-    reader.onload=ev=>{
+    uploadAvatarImg(file,'preview').then(b64=>{
+      if(!b64)return;
+      pendingAvatarB64=b64;
       const prev=$('user-photo-preview');
-      if(prev)prev.innerHTML='<img src="'+ev.target.result+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;"><input type="file" id="user-avatar-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;">';
-    };
-    reader.readAsDataURL(file);
+      if(prev){
+        // 只更新圖片預覽，保留原本的 input
+        let img=prev.querySelector('img');
+        if(!img){img=document.createElement('img');img.style.cssText='width:56px;height:56px;border-radius:50%;object-fit:cover;position:absolute;inset:0;';prev.appendChild(img);}
+        img.src=b64;
+        // 隱藏 emoji
+        const em=prev.querySelector('.av-em');if(em)em.style.display='none';
+      }
+    });
   }
 });
 $('btn-save-avatar').addEventListener('click',async()=>{
@@ -1438,14 +1447,9 @@ $('btn-save-avatar').addEventListener('click',async()=>{
     const activeColor=document.querySelector('#user-colors .color-opt.active');
     const newColor=(activeColor&&activeColor.dataset.color)||me.color||'#3B82F6';
 
-    // 處理照片
+    // 處理照片 — 用 pendingAvatarB64（選圖時已處理好）
     let newAvatarUrl=me.avatar_url||null;
-    const fileInput=$('user-avatar-file');
-    if(fileInput&&fileInput.files&&fileInput.files[0]){
-      btn.textContent='處理圖片...';
-      const b64=await uploadAvatarImg(fileInput.files[0],me.id);
-      if(b64)newAvatarUrl=b64;
-    }
+    if(pendingAvatarB64){newAvatarUrl=pendingAvatarB64;pendingAvatarB64=null;}
 
     // 存 DB
     btn.textContent='儲存中...';
