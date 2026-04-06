@@ -2030,19 +2030,74 @@ async function processImage(file){
 }
 
 // ── 各模式 prompt ──
-const RECEIPT_PROMPT=`你是一個日本收據辨識助手。請分析這張收據圖片並以JSON格式回傳，不要有其他文字。
-格式：{"shop_name_ja":"店名(日文)","shop_name_zh":"店名(中文)","date":"YYYY-MM-DD","total_amount":數字,"category":"類別(餐飲/交通/住宿/購物/景點/便利店/藥妝/伴手禮/其他)","items":[{"name_ja":"品項日文","name_zh":"品項中文","price":數字,"qty":數字}]}
-若看不清楚某欄位請用空字串或0代替。`;
+const RECEIPT_PROMPT=`請仔細分析這張日本收據圖片。
 
-const MENU_PROMPT=`你是一個日本料理翻譯助手。請分析這張菜單圖片（可能是手寫或印刷），以JSON格式回傳所有看得到的料理，不要有其他文字。
-格式：{"restaurant_name":"店名（若有）","cuisine_type":"料理類型（如：居酒屋/拉麵/壽司/定食等）","items":[{"name_ja":"日文名稱","name_zh":"中文翻譯","price":數字或0,"description":"30字內的料理說明（食材、口味、特色）","tags":["招牌","素食","辛辣"]（從這三個選填）}]}
-請盡量辨識所有品項，手寫也要盡力翻譯。`;
+翻譯規則：
+- shop_name_zh：將日文店名翻譯成繁體中文（例：マクドナルド→麥當勞、すき家→Sukiya牛丼）
+- name_zh：每個品項翻譯成台灣慣用繁體中文名稱
+- total_amount：使用含稅後最終合計金額，整數
+- category 從以下選一：餐飲、交通、住宿、購物、景點、便利店、藥妝、伴手禮、其他
+- payment_method：收據有顯示才填，否則填 null
+- date 格式 YYYY-MM-DD，無法辨識填 null
+- 所有金額為整數，無法辨識填 0
 
-const OMIKUJI_PROMPT=`你是一個日本神社籤詩解析助手。請分析這張籤詩圖片，以JSON格式回傳，不要有其他文字。
-格式：{"rank":"運勢等級（如：大吉/吉/中吉/小吉/末吉/凶/大凶）","rank_zh":"等級說明（如：非常好運/好運/中等好運）","rank_color":"顏色代碼（大吉:#F59E0B 吉:#7BA05B 中吉:#3D5A8A 小吉:#9333EA 末吉:#6B7280 凶:#E05A6B 大凶:#2D1B3D）","poem_ja":"籤詩原文（若有）","poem_zh":"籤詩中文翻譯","overall":"整體運勢說明（2-3句）","love":"感情運（1句）","work":"事業運（1句）","health":"健康運（1句）","money":"財運（1句）","advice":"建議（1-2句，正向鼓勵的語氣）"}`;
+Few-shot 範例：
+輸入：一蘭ラーメン收據，とんこつラーメン 980円、替え玉 130円，合計1110円
+輸出：{"shop_name_ja":"一蘭","shop_name_zh":"一蘭拉麵","total_amount":1110,"category":"餐飲","payment_method":null,"items":[{"name_ja":"とんこつラーメン","name_zh":"豚骨拉麵","price":980,"qty":1},{"name_ja":"替え玉","name_zh":"加麵","price":130,"qty":1}],"date":null}
 
-const DRUG_PROMPT=`你是一個日本藥妝產品辨識助手。請分析這張產品圖片，以JSON格式回傳，不要有其他文字。
-格式：{"product_name_ja":"產品日文名稱","product_name_zh":"產品中文名稱","brand":"品牌","category":"分類（藥品/保養品/化妝品/健康食品/零食/其他）","purpose":"主要用途（1-2句清楚說明這是做什麼用的）","how_to_use":"使用方式（1-2句）","main_ingredients":"主要成分或特色成分（列出2-4個重要成分）","suitable_for":"適合族群","warnings":"注意事項（若有特別需要注意的）","taiwan_equivalent":"台灣是否有類似產品（若有請說明）","buy_suggestion":"購買建議（值不值得買、適合帶回台灣嗎）"}`;
+只回傳 JSON，不含任何其他文字。`;
+
+const MENU_PROMPT=`請仔細分析這張日本菜單圖片，可能是手寫板、黑板、紙本菜單或電子菜單。
+
+步驟一：先判斷圖片中實際看到什麼。
+- 若看到食物名稱列表（無論印刷或手寫）→ 這是菜單，繼續步驟二
+- 若看到金額數字和品項 → 可能是收據，但仍以菜單格式回傳
+
+步驟二：逐一辨識每一道料理。
+翻譯規則：
+- name_zh：優先使用台灣常見譯名（例：唐揚げ→炸雞塊、枝豆→毛豆、刺身→生魚片、焼き鳥→烤雞串、もつ鍋→內臟火鍋）
+- 若無通用中文名，保留日文原名加括號說明（例：きんぴらごぼう（牛蒡金平炒））
+- description：說明主要食材與烹調方式，勿重複 name_zh 的內容，20字內
+- cuisine_type：根據圖片中看到的料理種類判斷，從以下選一填入：
+  居酒屋、串燒、拉麵、壽司、定食、燒肉、火鍋、咖哩、丼飯、天婦羅、蕎麥麵、烏龍麵、壽喜燒、海鮮、甜點、咖啡廳、其他
+- tags：只從「招牌」「素食」「辛辣」三個中選填，不確定就留空陣列
+- price：整數，看不到價格填 0
+
+Few-shot 範例：
+輸入：居酒屋手寫黑板菜單，寫著「枝豆 300円」「唐揚げ 500円」「刺身盛り合わせ 800円」
+輸出：{"restaurant_name":"","cuisine_type":"居酒屋","items":[{"name_ja":"枝豆","name_zh":"毛豆","price":300,"description":"鹽水煮毛豆，下酒必點","tags":["素食"]},{"name_ja":"唐揚げ","name_zh":"炸雞塊","price":500,"description":"日式炸雞，外酥內嫩","tags":["招牌"]},{"name_ja":"刺身盛り合わせ","name_zh":"生魚片拼盤","price":800,"description":"多種新鮮生魚片組合","tags":[]}]}
+
+只回傳 JSON，不含任何其他文字。`;
+
+const OMIKUJI_PROMPT=`請仔細分析這張日本神社籤詩圖片。
+
+辨識規則：
+- rank：從圖片中找到運勢等級文字，只填以下其中一個：大吉、吉、中吉、小吉、末吉、凶、大凶
+- rank_zh：對應說明，大吉→極好運、吉→好運、中吉→中等好運、小吉→小好運、末吉→普通、凶→注意、大凶→需謹慎
+- rank_color：對應顏色，大吉:#F59E0B、吉:#7BA05B、中吉:#3D5A8A、小吉:#9333EA、末吉:#6B7280、凶:#E05A6B、大凶:#2D1B3D
+- poem_ja：籤詩原文日文（若圖片有的話）
+- poem_zh：將籤詩翻譯成繁體中文，保留詩意
+- overall、love、work、health、money：根據籤詩內容解讀，各1-2句繁體中文
+- advice：正向鼓勵語氣的建議，1-2句
+
+只回傳 JSON，格式：{"rank":"","rank_zh":"","rank_color":"","poem_ja":"","poem_zh":"","overall":"","love":"","work":"","health":"","money":"","advice":""}，不含任何其他文字。`;
+
+const DRUG_PROMPT=`請仔細分析這張日本藥妝產品圖片。
+
+辨識規則：
+- product_name_ja：產品完整日文名稱（從包裝上直接讀取）
+- product_name_zh：翻譯成繁體中文商品名
+- brand：品牌名稱（從包裝讀取）
+- category：從以下選一：藥品、保養品、化妝品、健康食品、零食、其他
+- purpose：主要用途，用台灣人看得懂的說法，1-2句
+- how_to_use：使用方式，1-2句具體說明
+- main_ingredients：列出2-4個主要或特色成分，用繁體中文
+- suitable_for：適合哪些族群使用
+- warnings：重要注意事項（孕婦、過敏等），沒有特別注意事項填「無特殊禁忌」
+- taiwan_equivalent：台灣有無類似產品，有的話舉例說明
+- buy_suggestion：是否值得購買帶回台灣，給出明確建議
+
+只回傳 JSON，格式：{"product_name_ja":"","product_name_zh":"","brand":"","category":"","purpose":"","how_to_use":"","main_ingredients":"","suitable_for":"","warnings":"","taiwan_equivalent":"","buy_suggestion":""}，不含任何其他文字。`;
 
 async function callGroq(b64,mt,prompt){
   const res=await fetch(SCAN_ENDPOINT,{
