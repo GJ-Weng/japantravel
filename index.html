@@ -31,6 +31,14 @@
   --green:#7BA05B;
   --gold:#D4A853;
 
+  /* 短別名（向下相容）*/
+  --e:var(--text2);      /* 次要文字 */
+  --a:var(--ink);        /* 主色按鈕背景 */
+  --b:var(--washi);      /* 主色按鈕文字 */
+  --c:var(--cloud);      /* 淺底色 */
+  --d:var(--border);     /* 分隔線 */
+  --blue:var(--indigo);  /* 藍色別名 */
+
   --r:16px;--rs:12px;--rm:20px;
   --font:'Noto Sans TC',-apple-system,sans-serif;
   --sat:env(safe-area-inset-top,44px);
@@ -56,6 +64,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 /* ── AUTH ── */
 #scr-auth{align-items:center;justify-content:center;padding:40px 28px;text-align:center;background:var(--cream);}
 .auth-logo{font-size:52px;font-weight:900;letter-spacing:-2px;color:var(--ink);margin-bottom:0;}
+.auth-sub{font-size:13px;letter-spacing:4px;color:var(--sakura);margin-bottom:24px;font-weight:500;}
+.auth-icon{font-size:64px;margin-bottom:16px;display:block;}
 .auth-ja{font-size:13px;letter-spacing:4px;color:var(--sakura);margin-bottom:32px;font-weight:500;}
 .auth-deco{font-size:64px;margin-bottom:20px;}
 .google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:280px;padding:14px 20px;border:2px solid var(--border);border-radius:var(--rm);background:var(--washi);font-size:14px;font-weight:600;cursor:pointer;box-shadow:var(--sh);color:var(--text);}
@@ -310,7 +320,31 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .card{background:var(--washi);border:2px solid var(--border);border-radius:var(--rm);padding:14px;margin-bottom:10px;box-shadow:var(--sh);}
 .empty{text-align:center;padding:40px 14px;color:var(--text3);}
 
-/* ── CAMERA OVERLAY ── */
+/* ── SCAN MODE TABS ── */
+.scan-mode-btn{padding:7px 14px;border-radius:20px;border:2px solid var(--border);background:var(--washi);font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.scan-mode-btn.active{background:var(--ink);border-color:var(--ink);color:var(--washi);}
+/* ── MENU ITEM CARD ── */
+.menu-item-card{padding:12px 16px;border-bottom:1px solid var(--border);}
+.menu-item-card:last-child{border-bottom:none;}
+.menu-item-ja{font-size:13px;font-weight:700;color:var(--ink);}
+.menu-item-zh{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:3px;}
+.menu-item-desc{font-size:11px;color:var(--text2);line-height:1.5;margin-top:3px;}
+.menu-item-price{font-size:14px;font-weight:800;color:var(--sakura);margin-top:4px;}
+.menu-item-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;}
+.menu-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+.menu-tag-rec{background:#FFF3E0;color:#E65100;}
+.menu-tag-veg{background:#E8F5E9;color:#2E7D32;}
+.menu-tag-spicy{background:#FCE4EC;color:#C62828;}
+/* ── OMIKUJI CARD ── */
+.omikuji-rank{text-align:center;padding:20px 0 14px;}
+.omikuji-rank-text{font-size:42px;font-weight:900;letter-spacing:-1px;}
+.omikuji-section{background:var(--cloud);border-radius:var(--rs);padding:12px 14px;margin-bottom:10px;}
+.omikuji-section-title{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;}
+.omikuji-section-body{font-size:13px;color:var(--ink);line-height:1.7;}
+/* ── DRUG CARD ── */
+.drug-card{background:var(--cloud);border-radius:var(--rs);padding:12px 14px;margin-bottom:10px;}
+.drug-card-title{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin-bottom:5px;}
+.drug-card-body{font-size:13px;color:var(--ink);line-height:1.7;}
 .cam-overlay{position:fixed;inset:0;z-index:500;background:#000;display:flex;flex-direction:column;}
 .cam-overlay.hidden{display:none!important;}
 .cam-video-wrap{flex:1;position:relative;overflow:hidden;}
@@ -398,10 +432,21 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">今日支出</div><div class="stat-value" id="stat-today">¥0</div><div class="stat-sub" id="stat-today-twd">NT$0</div></div>
         <div class="stat-card"><div class="stat-label">旅程累計</div><div class="stat-value" id="stat-total">¥0</div><div class="stat-sub" id="stat-total-twd">NT$0</div></div>
-        <div class="stat-card"><div class="stat-label">預算進度</div><div class="stat-value" id="stat-pct">0%</div><div class="progress-bar"><div class="progress-fill" id="stat-bar" style="width:0%"></div></div></div>
-        <div class="stat-card"><div class="stat-label">旅程天數</div><div class="stat-value" id="stat-day">Day 1</div><div class="stat-sub" id="stat-day-sub">共0天</div></div>
+        <div class="stat-card"><div class="stat-label">預算進度</div><div class="stat-value" id="stat-pct">0%</div><div class="progress-bar"><div class="progress-fill" id="stat-bar" style="width:0%"></div></div><div class="stat-sub" id="stat-budget-remain" style="margin-top:5px;"></div></div>
+        <div class="stat-card"><div class="stat-label">旅程天數</div><div class="stat-value" id="stat-day">Day 1</div><div class="stat-sub" id="stat-day-sub">共0天</div><div class="stat-sub" id="stat-daily-suggest" style="margin-top:3px;font-size:10px;color:var(--matcha);font-weight:700;"></div></div>
       </div>
       <div class="members-row" id="members-row"></div>
+      <!-- 行程日程引導提示（未設定時顯示） -->
+      <div id="sched-prompt" style="display:none;margin:10px 14px 0;">
+        <div style="background:linear-gradient(135deg,#FFF8E8,#FDF0D5);border:2px solid var(--gold);border-radius:var(--rm);padding:12px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;" id="btn-sched-prompt">
+          <div style="font-size:26px;flex-shrink:0;">🗓</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--ink);">設定行程日程</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px;">設定每天地區，記帳時自動帶入，省去重複輸入</div>
+          </div>
+          <div style="color:var(--gold);font-size:18px;font-weight:700;">›</div>
+        </div>
+      </div>
       <div class="section-header"><h3>今日花費</h3><button class="section-more" id="btn-see-all">查看全部</button></div>
       <div class="list-wrap" id="home-today"></div>
       <div class="section-header" id="recent-header" style="display:none;"><h3>最近消費</h3></div>
@@ -427,29 +472,53 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
       </div>
     </div>
     <!-- SCAN -->
-    <div class="view" id="view-scan">
-      <div id="scan-main" class="scan-wrap">
-        <p style="font-size:18px;font-weight:700;margin-bottom:4px;">掃描收據</p>
-        <p style="font-size:13px;color:var(--e);margin-bottom:14px;">拍照或上傳圖片，AI 自動辨識</p>
+    <div class="view" id="view-scan" style="padding:0;">
+      <!-- 模式切換列 -->
+      <div style="padding:12px 14px 0;background:var(--washi);border-bottom:2px solid var(--sakura-light);">
+        <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:12px;">
+          <button class="scan-mode-btn active" data-mode="receipt" style="flex-shrink:0;">📄 收據記帳</button>
+          <button class="scan-mode-btn" data-mode="menu" style="flex-shrink:0;">📋 菜單翻譯</button>
+          <button class="scan-mode-btn" data-mode="omikuji" style="flex-shrink:0;">🎋 籤詩解析</button>
+          <button class="scan-mode-btn" data-mode="drugstore" style="flex-shrink:0;">💊 藥妝辨識</button>
+        </div>
+      </div>
+
+      <!-- 主掃描區 -->
+      <div id="scan-main" class="scan-wrap" style="padding-top:14px;">
+        <!-- 模式說明 -->
+        <div id="scan-mode-hint" style="margin-bottom:14px;">
+          <p style="font-size:17px;font-weight:800;margin-bottom:3px;" id="scan-mode-title">📄 收據記帳</p>
+          <p style="font-size:12px;color:var(--e);" id="scan-mode-desc">拍下收據，AI 自動辨識品項與金額並記帳</p>
+        </div>
         <div class="scan-preview" id="scan-preview">
           <img id="scan-img" style="display:none;width:100%;height:100%;object-fit:contain;position:absolute;inset:0;">
-          <div class="scan-placeholder" id="scan-placeholder" style="position:relative;z-index:1;"><div style="font-size:44px;margin-bottom:8px;">🌸</div><div style="font-size:14px;font-weight:600;">拍下收據</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">AI 自動辨識日文內容</div></div>
+          <div class="scan-placeholder" id="scan-placeholder" style="position:relative;z-index:1;">
+            <div style="font-size:44px;margin-bottom:8px;" id="scan-placeholder-icon">🧾</div>
+            <div style="font-size:14px;font-weight:600;" id="scan-placeholder-text">拍下收據</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;" id="scan-placeholder-sub">AI 自動辨識日文金額</div>
+          </div>
         </div>
         <div class="scan-ai-bar" id="scan-ai-bar" style="display:none;">
           <div class="dot-pulse"><span></span><span></span><span></span></div>
-          <span style="font-size:13px;font-weight:600;">AI 辨識中...</span>
+          <span style="font-size:13px;font-weight:600;" id="scan-ai-msg">AI 辨識中...</span>
         </div>
         <div class="scan-btns" style="margin-top:12px;">
-          <button class="btn-solid" id="btn-camera">📷 拍照辨識</button>
-          <button class="btn-secondary" id="btn-gallery">🗂 選擇圖片</button>
+          <button class="btn-solid" id="btn-camera">📷 拍照</button>
+          <button class="btn-secondary" id="btn-gallery">🗂 相簿</button>
         </div>
         <input type="file" id="file-gallery" accept="image/*" style="display:none;">
       </div>
+
+      <!-- ── 收據確認頁 ── -->
       <div id="scan-confirm" style="display:none;">
         <div class="receipt-header">
           <button style="font-size:13px;color:var(--e);background:none;border:none;cursor:pointer;margin-bottom:8px;" id="btn-back-scan">← 返回</button>
-          <p style="font-size:18px;font-weight:700;margin-bottom:3px;">確認收據</p>
+          <p style="font-size:18px;font-weight:700;margin-bottom:8px;">確認收據</p>
           <div id="rc-shop-wrap"></div>
+          <div style="margin-top:10px;">
+            <label class="form-label">店家名稱</label>
+            <input class="form-input" id="rc-shop-name" placeholder="店名">
+          </div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px 6px;">
           <span style="font-size:13px;font-weight:700;">品項明細</span>
@@ -466,13 +535,57 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
         </div>
         <button class="receipt-confirm-btn" id="btn-confirm-scan">確認儲存</button>
       </div>
+
+      <!-- ── 菜單翻譯結果頁 ── -->
+      <div id="scan-menu-result" style="display:none;">
+        <div style="padding:14px 16px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;">
+          <button style="font-size:13px;color:var(--e);background:none;border:none;cursor:pointer;" id="btn-back-menu">← 返回</button>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;" id="menu-restaurant-name">菜單</div>
+            <div style="font-size:11px;color:var(--e);" id="menu-restaurant-type"></div>
+          </div>
+          <button id="btn-share-menu" style="background:var(--sakura-light);border:none;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;color:#C25B7A;cursor:pointer;">分享</button>
+        </div>
+        <div id="menu-items-wrap" style="padding:8px 0 80px;"></div>
+      </div>
+
+      <!-- ── 籤詩結果頁 ── -->
+      <div id="scan-omikuji-result" style="display:none;">
+        <div style="padding:14px 16px 10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;">
+          <button style="font-size:13px;color:var(--e);background:none;border:none;cursor:pointer;" id="btn-back-omikuji">← 返回</button>
+          <div style="font-size:16px;font-weight:800;">籤詩解析</div>
+          <div style="flex:1;"></div>
+          <button id="btn-share-omikuji" style="background:var(--matcha-light);border:none;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;color:var(--matcha);cursor:pointer;">分享</button>
+        </div>
+        <div id="omikuji-result-wrap" style="padding:16px;padding-bottom:80px;"></div>
+      </div>
+
+      <!-- ── 藥妝結果頁 ── -->
+      <div id="scan-drug-result" style="display:none;">
+        <div style="padding:14px 16px 10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;">
+          <button style="font-size:13px;color:var(--e);background:none;border:none;cursor:pointer;" id="btn-back-drug">← 返回</button>
+          <div style="font-size:16px;font-weight:800;">藥妝辨識</div>
+          <div style="flex:1;"></div>
+          <button id="btn-share-drug" style="background:#FEF0F2;border:none;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;color:var(--red);cursor:pointer;">分享</button>
+        </div>
+        <div id="drug-result-wrap" style="padding:16px;padding-bottom:80px;"></div>
+      </div>
     </div>
     <!-- STATS -->
     <div class="view" id="view-stats">
-      <div class="filter-row"><button class="filter-chip active" data-filter="all">全部</button><button class="filter-chip" data-filter="day">今日</button></div>
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all">全部</button>
+        <button class="filter-chip" data-filter="day">今日</button>
+        <button class="filter-chip" data-filter="member">成員</button>
+      </div>
+      <!-- 成員篩選列（預設隱藏） -->
+      <div id="stats-member-row" style="display:none;padding:0 14px 8px;overflow-x:auto;white-space:nowrap;">
+        <div id="stats-member-chips" style="display:inline-flex;gap:7px;"></div>
+      </div>
       <div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:12px;">分類支出</div><div style="display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;"><div class="donut-wrap"><canvas id="chart-donut"></canvas></div><div id="cat-legend" style="display:flex;flex-direction:column;gap:6px;"></div></div></div>
       <div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:12px;">支付方式</div><div id="pay-bars" style="display:flex;flex-direction:column;gap:9px;"></div></div>
       <div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:6px;">每日趨勢</div><div style="position:relative;height:150px;"><canvas id="chart-trend"></canvas></div></div>
+      <div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:10px;">地區花費</div><div id="region-bars" style="display:flex;flex-direction:column;gap:9px;"></div></div>
       <div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:10px;">前十名</div><div id="top10"></div></div>
     </div>
     <!-- SETTLE -->
@@ -482,15 +595,20 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
         <div style="font-size:24px;font-weight:900;letter-spacing:-.5px;" id="settle-title">計算中...</div>
         <div style="font-size:12px;opacity:.7;margin-top:3px;" id="settle-sub"></div>
         <div style="position:absolute;right:16px;top:16px;font-size:36px;opacity:.15;">🌸</div>
+        <button id="btn-share-settle" style="margin-top:14px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);color:#fff;border-radius:20px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          分享結算結果
+        </button>
       </div>
-      <div style="padding:12px 14px 24px 14px;">
+      <div style="padding:12px 14px 32px 14px;">
         <div class="card" style="padding:14px;">
           <div style="font-size:13px;font-weight:800;margin-bottom:10px;color:var(--ink);">💰 誰多付、誰少付？</div>
           <div id="balance-list"></div>
         </div>
         <div style="font-size:13px;font-weight:800;margin:4px 0 8px;color:var(--ink);">🔄 要怎麼還錢？</div>
         <div id="settle-list"></div>
-        <button class="btn-secondary" id="btn-recalc-settle" style="margin-top:8px;position:relative;z-index:10;">🔄 重新計算</button>
+        <div style="height:16px;"></div>
+        <button class="btn-secondary" id="btn-recalc-settle">🔄 重新計算</button>
       </div>
     </div>
     <!-- SETTINGS -->
@@ -505,8 +623,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
       <div class="settings-group">
         <div class="settings-row" id="row-export"><div class="settings-icon" style="background:var(--matcha-light);">📤</div><div class="settings-label">匯出 CSV</div><div class="settings-arrow">›</div></div>
         <div class="settings-row" id="row-clear"><div class="settings-icon" style="background:#FFF0F0;">🗑</div><div class="settings-label" style="color:var(--red);">清除此旅程記錄</div><div class="settings-arrow">›</div></div>
+        <div class="settings-row" id="row-delete-trip"><div class="settings-icon" style="background:#FFF0F0;">💥</div><div class="settings-label" style="color:var(--red);">刪除整個旅程</div><div class="settings-value" style="color:var(--text3);font-size:10px;">無法復原</div><div class="settings-arrow">›</div></div>
       </div>
-      <div style="font-size:11px;color:var(--e);text-align:center;padding:8px;line-height:1.7;">旅趣 Tabitoku v5.0<br>Gemini AI · Supabase · 多人共享</div>
+      <div style="font-size:11px;color:var(--e);text-align:center;padding:8px;line-height:1.7;">旅趣 Tabitoku v5.1<br>Groq AI · Supabase · 多人共享</div>
     </div>
   </div>
   <div class="navbar">
@@ -859,17 +978,41 @@ async function loadTrips(pendingInv){
     }
     
     el.innerHTML=trips.map(t=>`
-      <div class="trip-card" data-id="${t.id}">
+      <div class="trip-card" data-id="${t.id}" data-owner="${t.owner_id}">
         <div class="trip-card-icon">✈️</div>
         <div class="trip-card-info">
           <div class="trip-card-name">${t.name}</div>
           <div class="trip-card-meta">${t.start_date||''}${t.end_date?' ~ '+t.end_date:''} · ${t.owner_id===CU.id?'建立者':'成員'}</div>
         </div>
+        ${t.owner_id===CU.id?`<button class="trip-delete-btn" data-id="${t.id}" title="刪除旅程" style="width:30px;height:30px;border-radius:8px;border:none;background:#FEF0F2;color:var(--red);font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">🗑</button>`:''}
         <div class="trip-card-arrow">›</div>
       </div>`).join('');
     
     el.querySelectorAll('.trip-card').forEach(card=>{
-      card.addEventListener('click',()=>enterTrip(card.dataset.id));
+      card.addEventListener('click',(e)=>{
+        if(e.target.closest('.trip-delete-btn'))return;
+        enterTrip(card.dataset.id);
+      });
+    });
+    el.querySelectorAll('.trip-delete-btn').forEach(btn=>{
+      btn.addEventListener('click',async(e)=>{
+        e.stopPropagation();
+        const tid=btn.dataset.id;
+        const trip=trips.find(t=>t.id===tid);
+        if(!confirm(`確定刪除「${trip?.name}」？\n所有記錄和成員資料都會一併刪除，無法復原。`))return;
+        btn.textContent='⏳';btn.disabled=true;
+        try{
+          await DB.from('tabikake_expenses').delete().eq('trip_id',tid);
+          await DB.from('trip_members').delete().eq('trip_id',tid);
+          await DB.from('trips').delete().eq('id',tid);
+          localStorage.removeItem('sched_'+tid);
+          toast('✅ 旅程已刪除');
+          loadTrips();
+        }catch(err){
+          toast('❌ 刪除失敗：'+err.message);
+          btn.textContent='🗑';btn.disabled=false;
+        }
+      });
     });
   }catch(err){
     el.innerHTML=`<div class="empty" style="color:var(--red);">載入失敗<br><span style="font-size:11px;">${err.message}</span></div>`;
@@ -1054,11 +1197,38 @@ function renderHome(){
   $('stat-pct').textContent=pct+'%';
   const bar=$('stat-bar');bar.style.width=pct+'%';
   bar.className='progress-fill'+(pct>=90?' danger':pct>=70?' warn':'');
+  // 剩餘預算
+  const remain=budget-allTotal;
+  const remainEl=$('stat-budget-remain');
+  if(remainEl){
+    if(remain>=0){
+      remainEl.textContent=`剩 ¥${remain.toLocaleString()}`;
+      remainEl.style.color='var(--matcha)';
+    } else {
+      remainEl.textContent=`超支 ¥${Math.abs(remain).toLocaleString()}`;
+      remainEl.style.color='var(--red)';
+    }
+  }
   if(CT.start_date&&CT.end_date){
     const st=new Date(CT.start_date+'T00:00:00'),en=new Date(CT.end_date+'T00:00:00');
     const dn=Math.max(1,Math.floor((new Date()-st)/86400000)+1);
     const td=Math.round((en-st)/86400000)+1;
-    $('stat-day').textContent=`Day ${dn}`;$('stat-day-sub').textContent=`共${td}天`;
+    const daysLeft=Math.max(0,td-dn+1);
+    $('stat-day').textContent=`Day ${dn}`;
+    $('stat-day-sub').textContent=`共${td}天・剩${daysLeft}天`;
+    // 每日建議預算
+    const dailySuggestEl=$('stat-daily-suggest');
+    if(dailySuggestEl){
+      if(daysLeft>0&&remain>0){
+        const dailySuggest=Math.round(remain/daysLeft);
+        dailySuggestEl.textContent=`每日可用 ¥${dailySuggest.toLocaleString()}`;
+      } else if(daysLeft===0){
+        dailySuggestEl.textContent='最後一天！';
+        dailySuggestEl.style.color='var(--gold)';
+      } else {
+        dailySuggestEl.textContent='';
+      }
+    }
   }
   $('members-row').innerHTML=MEMS.map(m=>{
     const mt=EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0);
@@ -1076,6 +1246,10 @@ function renderHome(){
       +'<div class="member-amt">¥'+(mt/1000).toFixed(1)+'k</div></div>';
   }).join('');
   $('home-today').innerHTML=todExps.length?todExps.slice(0,5).map(expCard).join(''):'<div class="empty" style="padding:20px 0;"><div style="font-size:32px;margin-bottom:8px;">🌸</div><div style="font-size:13px;">今日尚無支出</div><div style="font-size:11px;color:var(--text3);margin-top:3px;">旅行中的每筆花費都值得記錄</div></div>';
+  // 行程日程提示：尚未設定任何地區時才顯示
+  const schedSet=SCHED.some(s=>s.region);
+  const schedPrompt=$('sched-prompt');
+  if(schedPrompt)schedPrompt.style.display=schedSet?'none':'block';
   const rec=EXPS.filter(e=>e.date!==tod).slice(0,5);
   $('recent-header').style.display=rec.length?'':'none';
   $('home-recent').innerHTML=rec.map(expCard).join('');
@@ -1217,6 +1391,7 @@ function openAddModal(){
   $('add-region').value=schedRegion(today());
   $('add-exp-title').textContent='新增消費';
   $('add-shop-label').textContent=CAT_LABEL[activeCat]||'店家名稱';
+  $('add-shop').placeholder=CAT_PH[activeCat]||'';
   renderPayerChips('add-payer-chips',activePayer);
   renderCatChips('add-cat-chips',activeCat,(n)=>{activeCat=n;$('add-shop-label').textContent=CAT_LABEL[n]||'名稱';$('add-shop').placeholder=CAT_PH[n]||'';});
   renderSplitChips('add-split-chips',splitMems);
@@ -1349,16 +1524,47 @@ async function detectRegion(fieldId){
 }
 
 // ── STATS ──
+let statsFilterMember=null; // 成員篩選 id
+
 document.querySelectorAll('.filter-chip').forEach(chip=>{
   chip.addEventListener('click',()=>{
     document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');statsFilter=chip.dataset.filter;renderStats();
+    chip.classList.add('active');
+    statsFilter=chip.dataset.filter;
+    // 成員列顯示/隱藏
+    const memberRow=$('stats-member-row');
+    if(statsFilter==='member'){
+      memberRow.style.display='block';
+      statsFilterMember=statsFilterMember||MEMS[0]?.id||null;
+      renderStatsMemberChips();
+    } else {
+      memberRow.style.display='none';
+      statsFilterMember=null;
+    }
+    renderStats();
   });
 });
+
+function renderStatsMemberChips(){
+  const el=$('stats-member-chips');
+  if(!el||!MEMS.length)return;
+  el.innerHTML=MEMS.map(m=>`<div class="filter-chip${m.id===statsFilterMember?' active':''}" data-mid="${m.id}" style="display:inline-flex;align-items:center;gap:5px;flex-shrink:0;">${avHtml(m,18)}${m.display_name}</div>`).join('');
+  el.querySelectorAll('.filter-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      statsFilterMember=chip.dataset.mid;
+      renderStatsMemberChips();
+      renderStats();
+    });
+  });
+}
+
 function renderStats(){
   const tod=today();
-  const exps=statsFilter==='day'?EXPS.filter(e=>e.date===tod):EXPS;
+  let exps=EXPS;
+  if(statsFilter==='day') exps=EXPS.filter(e=>e.date===tod);
+  else if(statsFilter==='member'&&statsFilterMember) exps=EXPS.filter(e=>e.payer===statsFilterMember);
   const total=exps.reduce((s,e)=>s+e.amount,0)||1;
+
   // Donut
   const catTotals={};CATS.forEach(c=>catTotals[c.n]=0);
   exps.forEach(e=>catTotals[e.cat]=(catTotals[e.cat]||0)+e.amount);
@@ -1366,15 +1572,27 @@ function renderStats(){
   if(charts.donut)charts.donut.destroy();
   charts.donut=new Chart($('chart-donut'),{type:'doughnut',data:{labels:catEntries.map(([k])=>k),datasets:[{data:catEntries.map(([,v])=>v),backgroundColor:catEntries.map(([k])=>cat(k).c),borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'66%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`¥${ctx.raw.toLocaleString()}`}}}}});
   $('cat-legend').innerHTML=catEntries.slice(0,6).map(([k,v])=>`<div class="legend-item"><div class="legend-dot" style="background:${cat(k).c};"></div><span style="font-size:12px;flex:1;">${k}</span><span style="font-size:11px;color:var(--e);">${Math.round(v/total*100)}%</span><span style="font-size:12px;font-weight:700;min-width:55px;text-align:right;">¥${(v/1000).toFixed(1)}k</span></div>`).join('');
+
   // Pay bars
   const payT={};exps.forEach(e=>payT[e.payment]=(payT[e.payment]||0)+e.amount);
   const payE=Object.entries(payT).sort((a,b)=>b[1]-a[1]);const maxP=payE[0]?.[1]||1;
   $('pay-bars').innerHTML=payE.map(([k,v])=>`<div class="pay-bar"><span style="font-size:12px;width:52px;flex-shrink:0;color:var(--e);">${k}</span><div class="pay-bar-track"><div class="pay-bar-fill" style="width:${Math.round(v/maxP*100)}%;background:${PAY_COLORS[k]||'#6B7280'};"></div></div><span style="font-size:12px;font-weight:700;min-width:55px;text-align:right;">¥${(v/1000).toFixed(1)}k</span></div>`).join('');
+
   // Trend
   const byDay={};exps.forEach(e=>byDay[e.date]=(byDay[e.date]||0)+e.amount);
   const dk=Object.keys(byDay).sort();
   if(charts.trend)charts.trend.destroy();
-  charts.trend=new Chart($('chart-trend'),{type:'bar',data:{labels:dk.map(d=>{const dt=new Date(d+'T00:00:00');return`${dt.getMonth()+1}/${dt.getDate()}`;}),datasets:[{data:dk.map(d=>byDay[d]),backgroundColor:'rgba(26,26,26,.1)',borderColor:'rgba(26,26,26,.8)',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`¥${ctx.raw.toLocaleString()}`}}},scales:{x:{ticks:{color:'var(--e)',font:{size:10}},grid:{display:false}},y:{ticks:{color:'var(--e)',font:{size:10},callback:v=>'¥'+v.toLocaleString()},grid:{color:'rgba(0,0,0,.05)'}}}}});
+  charts.trend=new Chart($('chart-trend'),{type:'bar',data:{labels:dk.map(d=>{const dt=new Date(d+'T00:00:00');return`${dt.getMonth()+1}/${dt.getDate()}`;}),datasets:[{data:dk.map(d=>byDay[d]),backgroundColor:'rgba(242,167,187,.35)',borderColor:'var(--sakura)',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`¥${ctx.raw.toLocaleString()}`}}},scales:{x:{ticks:{color:'#8B7355',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#8B7355',font:{size:10},callback:v=>'¥'+v.toLocaleString()},grid:{color:'rgba(0,0,0,.05)'}}}}});
+
+  // 地區花費
+  const regionT={};exps.forEach(e=>{if(e.region)regionT[e.region]=(regionT[e.region]||0)+e.amount;});
+  const regionE=Object.entries(regionT).sort((a,b)=>b[1]-a[1]);
+  const maxR=regionE[0]?.[1]||1;
+  const regionColors=['#F2A7BB','#7BA05B','#3D5A8A','#D4A853','#E05A6B','#9333EA','#14B8A6','#F97316'];
+  $('region-bars').innerHTML=regionE.length
+    ? regionE.map(([k,v],i)=>`<div class="pay-bar"><span style="font-size:12px;width:60px;flex-shrink:0;color:var(--e);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${k}</span><div class="pay-bar-track"><div class="pay-bar-fill" style="width:${Math.round(v/maxR*100)}%;background:${regionColors[i%regionColors.length]};"></div></div><span style="font-size:12px;font-weight:700;min-width:55px;text-align:right;">¥${(v/1000).toFixed(1)}k</span></div>`).join('')
+    : '<div style="font-size:12px;color:var(--text3);text-align:center;padding:12px 0;">尚無地區資料<br><span style="font-size:11px;">記帳時填入地區即可統計</span></div>';
+
   // Top 10
   const sorted=[...exps].sort((a,b)=>b.amount-a.amount).slice(0,10);const maxA=sorted[0]?.amount||1;
   $('top10').innerHTML=sorted.map((e,i)=>`<div class="top10-item"><div class="top10-rank">${i+1}</div><div style="flex:1;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.shop}</div><div class="top10-bar"><div class="top10-bar-fill" style="width:${Math.round(e.amount/maxA*100)}%;"></div></div><div style="font-size:13px;font-weight:700;min-width:58px;text-align:right;">¥${e.amount.toLocaleString()}</div></div>`).join('');
@@ -1382,6 +1600,40 @@ function renderStats(){
 
 // ── SETTLE ──
 $('btn-recalc-settle').addEventListener('click',renderSettle);
+$('btn-share-settle').addEventListener('click',()=>{
+  if(!CT||!MEMS.length)return;
+  const total=EXPS.reduce((s,e)=>s+e.amount,0);
+  const r=CT.exchange_rate||.22;
+  const pp=MEMS.length?Math.round(total/MEMS.length):0;
+  // 計算各人餘額
+  const bal={};MEMS.forEach(m=>bal[m.id]=0);
+  EXPS.forEach(e=>{
+    const splits=(e.split_members?.length?e.split_members:MEMS.map(m=>m.id)).filter(id=>MEMS.find(m=>m.id===id));
+    if(!splits.length)return;
+    const share=e.amount/splits.length;
+    if(bal[e.payer]!==undefined)bal[e.payer]+=e.amount;
+    splits.forEach(id=>{if(bal[id]!==undefined)bal[id]-=share;});
+  });
+  // 轉帳清單
+  const pos=[],neg=[];const bal2={};
+  MEMS.forEach(m=>bal2[m.id]=Math.round(bal[m.id]||0));
+  MEMS.forEach(m=>{const b=bal2[m.id];if(b>0)pos.push({id:m.id,b});else if(b<0)neg.push({id:m.id,b:Math.abs(b)});});
+  const txns=[];let pi=0,ni=0;
+  while(pi<pos.length&&ni<neg.length){
+    const p=pos[pi],n=neg[ni];const amt=Math.min(p.b,n.b);
+    if(amt>1)txns.push({from:n.id,to:p.id,jpy:amt});
+    p.b-=amt;n.b-=amt;if(p.b<1)pi++;if(n.b<1)ni++;
+  }
+  const txnText=txns.length
+    ? txns.map(t=>`・${MEMS.find(m=>m.id===t.from)?.display_name} → ${MEMS.find(m=>m.id===t.to)?.display_name}：¥${t.jpy.toLocaleString()}（NT$${Math.round(t.jpy*r).toLocaleString()}）`).join('\n')
+    : '・大家都結清了！';
+  const text=`🌸 ${CT.name} 結算報告\n\n💴 總支出：¥${total.toLocaleString()}（NT$${Math.round(total*r).toLocaleString()}）\n👥 每人平均：¥${pp.toLocaleString()}（NT$${Math.round(pp*r).toLocaleString()}）\n\n🔄 還款清單：\n${txnText}\n\n— by 旅趣 Tabitoku`;
+  if(navigator.share){
+    navigator.share({title:`${CT.name} 結算`,text});
+  } else {
+    navigator.clipboard?.writeText(text).then(()=>toast('✅ 已複製結算結果'));
+  }
+});
 $('app-user-av').addEventListener('click',()=>{
   const u=CU;if(!u)return;
   const nm=u.user_metadata?.name||u.email||'';
@@ -1597,6 +1849,33 @@ $('row-clear').addEventListener('click',async()=>{
   if(error)return toast('❌ '+error.message);
   EXPS=[];renderCurrentView();toast('已清除');
 });
+$('row-delete-trip').addEventListener('click',async()=>{
+  if(CT?.owner_id!==CU?.id)return toast('只有建立者可以刪除旅程');
+  if(!confirm(`確定刪除「${CT?.name}」整個旅程？\n所有記錄、成員資料都會一併刪除，無法復原。`))return;
+  if(!confirm('再次確認：此操作無法復原，確定要刪除嗎？'))return;
+  try{
+    await DB.from('tabikake_expenses').delete().eq('trip_id',CT.id);
+    await DB.from('trip_members').delete().eq('trip_id',CT.id);
+    await DB.from('trips').delete().eq('id',CT.id);
+    localStorage.removeItem('sched_'+CT.id);
+    toast('✅ 旅程已刪除');
+    backToTrips();
+  }catch(err){toast('❌ 刪除失敗：'+err.message);}
+});
+
+// 行程日程首頁提示
+const schedPrompt=$('sched-prompt');
+if(schedPrompt){
+  $('btn-sched-prompt').addEventListener('click',()=>{
+    // 切換到設定頁並開啟日程 modal
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-view=settings]').classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    $('view-settings').classList.add('active');
+    renderInviteCard();
+    setTimeout(()=>openScheduleModal(),150);
+  });
+}
 function openScheduleModal(){
   // 如果 SCHED 是空的，或第一筆日期跟旅程出發日不符（舊時區 bug），重新產生
   if(CT?.start_date && CT?.end_date && (SCHED.length===0 || SCHED[0]?.date!==CT.start_date)){
@@ -1652,10 +1931,14 @@ function addSchedRow(){
 
 function exportCSV(){
   const r=CT?.exchange_rate||.22;
-  const rows=EXPS.map(e=>{const m=mem(e.payer);return[e.date,`"${e.shop}"`,e.amount,Math.round(e.amount*r),e.cat,e.payment,e.region||'',m?.display_name||'',`"${e.note||''}"`].join(',');});
-  const csv='\uFEFF日期,店家,JPY,TWD,類別,支付,地區,消費者,備註\n'+rows.join('\n');
+  const rows=EXPS.map(e=>{
+    const m=mem(e.payer);
+    const splitNames=(e.split_members||[]).map(id=>mem(id)?.display_name||'').filter(Boolean).join('|');
+    return[e.date,`"${e.shop}"`,e.amount,Math.round(e.amount*r),e.cat,e.payment,e.region||'',m?.display_name||'',`"${splitNames}"`,`"${e.note||''}"`].join(',');
+  });
+  const csv='\uFEFF日期,店家,JPY,TWD,類別,支付,地區,消費者,分攤成員,備註\n'+rows.join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
-  a.download=`${CT?.name||'旅趣'}.csv`;a.click();toast('已匯出');
+  a.download=`${CT?.name||'旅趣'}_${today()}.csv`;a.click();toast('✅ 已匯出 CSV');
 }
 async function fetchRate(){
   try{const res=await fetch('https://api.frankfurter.app/latest?from=JPY&to=TWD');
@@ -1667,12 +1950,42 @@ async function fetchRate(){
 }
 
 // ── SCAN ──
+let scanMode='receipt'; // receipt | menu | omikuji | drugstore
+
+// 模式說明設定
+const SCAN_MODES={
+  receipt:{title:'📄 收據記帳',desc:'拍下收據，AI 自動辨識品項與金額並記帳',icon:'🧾',text:'拍下收據',sub:'AI 自動辨識日文金額',aiMsg:'辨識收據中...'},
+  menu:   {title:'📋 菜單翻譯',desc:'拍下日文菜單，AI 翻譯每道料理並說明食材',icon:'🍜',text:'拍下菜單',sub:'手寫菜單也能辨識',aiMsg:'翻譯菜單中...'},
+  omikuji:{title:'🎋 籤詩解析',desc:'拍下御神籤，AI 翻譯運勢與籤詩內容',icon:'🎋',text:'拍下籤詩',sub:'大吉・中吉・小吉 通通解析',aiMsg:'解析籤詩中...'},
+  drugstore:{title:'💊 藥妝辨識',desc:'拍下藥妝產品，AI 說明用途、成分與使用方式',icon:'💊',text:'拍下產品',sub:'藥品・保養・零食 通通認識',aiMsg:'辨識藥妝中...'}
+};
+
+// 模式切換
+document.querySelectorAll('.scan-mode-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.scan-mode-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    scanMode=btn.dataset.mode;
+    const m=SCAN_MODES[scanMode];
+    $('scan-mode-title').textContent=m.title;
+    $('scan-mode-desc').textContent=m.desc;
+    $('scan-placeholder-icon').textContent=m.icon;
+    $('scan-placeholder-text').textContent=m.text;
+    $('scan-placeholder-sub').textContent=m.sub;
+    // 回到主掃描頁
+    backToScanMain();
+  });
+});
+
 $('btn-camera').addEventListener('click',startCamera);
 $('btn-gallery').addEventListener('click',()=>$('file-gallery').click());
 $('file-gallery').onchange=e=>{if(e.target.files[0])processImage(e.target.files[0]);e.target.value='';};
 $('cam-shutter').addEventListener('click',capturePhoto);
 $('cam-cancel').addEventListener('click',stopCamera);
 $('btn-back-scan').addEventListener('click',backToScanMain);
+$('btn-back-menu').addEventListener('click',backToScanMain);
+$('btn-back-omikuji').addEventListener('click',backToScanMain);
+$('btn-back-drug').addEventListener('click',backToScanMain);
 $('btn-add-rc-item').addEventListener('click',()=>{if(rcData){rcData.items.push({name_ja:'新品項',name_zh:'新品項',price:0,qty:1});renderRcItems();}});
 $('btn-rc-gps').addEventListener('click',()=>detectRegion('rc-region'));
 $('btn-confirm-scan').addEventListener('click',confirmScan);
@@ -1707,40 +2020,203 @@ async function processImage(file){
   reader.onload=e=>{$('scan-img').src=e.target.result;$('scan-img').style.display='block';$('scan-placeholder').style.display='none';};
   reader.readAsDataURL(file);
   $('scan-ai-bar').style.display='flex';
-  // Convert to base64
+  $('scan-ai-msg').textContent=SCAN_MODES[scanMode]?.aiMsg||'AI 辨識中...';
   const b64=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.readAsDataURL(file);});
   const mt=file.type||'image/jpeg';
-  await analyzeReceipt(b64,mt);
+  if(scanMode==='receipt') await analyzeReceipt(b64,mt);
+  else if(scanMode==='menu') await analyzeMenu(b64,mt);
+  else if(scanMode==='omikuji') await analyzeOmikuji(b64,mt);
+  else if(scanMode==='drugstore') await analyzeDrug(b64,mt);
 }
+
+// ── 各模式 prompt ──
+const RECEIPT_PROMPT=`你是一個日本收據辨識助手。請分析這張收據圖片並以JSON格式回傳，不要有其他文字。
+格式：{"shop_name_ja":"店名(日文)","shop_name_zh":"店名(中文)","date":"YYYY-MM-DD","total_amount":數字,"category":"類別(餐飲/交通/住宿/購物/景點/便利店/藥妝/伴手禮/其他)","items":[{"name_ja":"品項日文","name_zh":"品項中文","price":數字,"qty":數字}]}
+若看不清楚某欄位請用空字串或0代替。`;
+
+const MENU_PROMPT=`你是一個日本料理翻譯助手。請分析這張菜單圖片（可能是手寫或印刷），以JSON格式回傳所有看得到的料理，不要有其他文字。
+格式：{"restaurant_name":"店名（若有）","cuisine_type":"料理類型（如：居酒屋/拉麵/壽司/定食等）","items":[{"name_ja":"日文名稱","name_zh":"中文翻譯","price":數字或0,"description":"30字內的料理說明（食材、口味、特色）","tags":["招牌","素食","辛辣"]（從這三個選填）}]}
+請盡量辨識所有品項，手寫也要盡力翻譯。`;
+
+const OMIKUJI_PROMPT=`你是一個日本神社籤詩解析助手。請分析這張籤詩圖片，以JSON格式回傳，不要有其他文字。
+格式：{"rank":"運勢等級（如：大吉/吉/中吉/小吉/末吉/凶/大凶）","rank_zh":"等級說明（如：非常好運/好運/中等好運）","rank_color":"顏色代碼（大吉:#F59E0B 吉:#7BA05B 中吉:#3D5A8A 小吉:#9333EA 末吉:#6B7280 凶:#E05A6B 大凶:#2D1B3D）","poem_ja":"籤詩原文（若有）","poem_zh":"籤詩中文翻譯","overall":"整體運勢說明（2-3句）","love":"感情運（1句）","work":"事業運（1句）","health":"健康運（1句）","money":"財運（1句）","advice":"建議（1-2句，正向鼓勵的語氣）"}`;
+
+const DRUG_PROMPT=`你是一個日本藥妝產品辨識助手。請分析這張產品圖片，以JSON格式回傳，不要有其他文字。
+格式：{"product_name_ja":"產品日文名稱","product_name_zh":"產品中文名稱","brand":"品牌","category":"分類（藥品/保養品/化妝品/健康食品/零食/其他）","purpose":"主要用途（1-2句清楚說明這是做什麼用的）","how_to_use":"使用方式（1-2句）","main_ingredients":"主要成分或特色成分（列出2-4個重要成分）","suitable_for":"適合族群","warnings":"注意事項（若有特別需要注意的）","taiwan_equivalent":"台灣是否有類似產品（若有請說明）","buy_suggestion":"購買建議（值不值得買、適合帶回台灣嗎）"}`;
+
+async function callGroq(b64,mt,prompt){
+  const res=await fetch(SCAN_ENDPOINT,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY},
+    body:JSON.stringify({imageBase64:b64,mimeType:mt,prompt})
+  });
+  const d=await res.json();
+  if(!res.ok)throw new Error(d.error?.message||'HTTP '+res.status);
+  const text=d.choices?.[0]?.message?.content;
+  if(!text)throw new Error('回傳空白');
+  return JSON.parse(text.replace(/```json|```/g,'').trim());
+}
+
 async function analyzeReceipt(b64,mt){
   try{
-    const res=await fetch(SCAN_ENDPOINT,{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization':'Bearer '+SB_KEY,
-        'apikey':SB_KEY
-      },
-      body:JSON.stringify({imageBase64:b64,mimeType:mt})
-    });
-    const d=await res.json();
-    if(!res.ok)throw new Error(d.error?.message||'HTTP '+res.status);
-    const text=d.choices?.[0]?.message?.content;
-    if(!text)throw new Error('回傳空白');
-    const clean=text.replace(/```json|```/g,'').trim();
-    const json=JSON.parse(clean);
+    const json=await callGroq(b64,mt,RECEIPT_PROMPT);
     showScanConfirm(json);
   }catch(e){
     $('scan-ai-bar').style.display='none';
     toast('辨識失敗：'+e.message);
   }
 }
+
+async function analyzeMenu(b64,mt){
+  try{
+    const json=await callGroq(b64,mt,MENU_PROMPT);
+    showMenuResult(json);
+  }catch(e){
+    $('scan-ai-bar').style.display='none';
+    toast('菜單辨識失敗：'+e.message);
+  }
+}
+
+async function analyzeOmikuji(b64,mt){
+  try{
+    const json=await callGroq(b64,mt,OMIKUJI_PROMPT);
+    showOmikujiResult(json);
+  }catch(e){
+    $('scan-ai-bar').style.display='none';
+    toast('籤詩辨識失敗：'+e.message);
+  }
+}
+
+async function analyzeDrug(b64,mt){
+  try{
+    const json=await callGroq(b64,mt,DRUG_PROMPT);
+    showDrugResult(json);
+  }catch(e){
+    $('scan-ai-bar').style.display='none';
+    toast('藥妝辨識失敗：'+e.message);
+  }
+}
+
+// ── 顯示各模式結果 ──
+function showMenuResult(data){
+  $('scan-ai-bar').style.display='none';
+  $('scan-main').style.display='none';
+  $('scan-menu-result').style.display='block';
+  $('menu-restaurant-name').textContent=data.restaurant_name||'菜單翻譯';
+  $('menu-restaurant-type').textContent=data.cuisine_type||'';
+  const items=data.items||[];
+  $('menu-items-wrap').innerHTML=items.length
+    ? items.map(it=>{
+        const tags=(it.tags||[]).map(t=>{
+          const cls=t==='招牌'?'menu-tag-rec':t==='素食'?'menu-tag-veg':'menu-tag-spicy';
+          return`<span class="menu-tag ${cls}">${t==='招牌'?'⭐ 招牌':t==='素食'?'🌿 素食':'🌶 辛辣'}</span>`;
+        }).join('');
+        return`<div class="menu-item-card">
+          <div class="menu-item-zh">${it.name_zh||it.name_ja}</div>
+          <div class="menu-item-ja" style="color:var(--text2);font-weight:400;">${it.name_ja}</div>
+          ${it.description?`<div class="menu-item-desc">${it.description}</div>`:''}
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;">
+            <div class="menu-item-tags">${tags}</div>
+            ${it.price?`<div class="menu-item-price">¥${it.price.toLocaleString()}</div>`:''}
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="empty">無法辨識菜單內容</div>';
+  // 分享
+  $('btn-share-menu').onclick=()=>{
+    const text=`📋 ${data.restaurant_name||'菜單'} (${data.cuisine_type||''})\n\n`+
+      items.map(it=>`・${it.name_zh||it.name_ja}${it.price?` ¥${it.price}`:''}${it.description?' — '+it.description:''}`).join('\n')+
+      '\n\n— by 旅趣 Tabitoku';
+    if(navigator.share)navigator.share({title:'菜單翻譯',text});
+    else navigator.clipboard?.writeText(text).then(()=>toast('✅ 已複製菜單'));
+  };
+}
+
+function showOmikujiResult(data){
+  $('scan-ai-bar').style.display='none';
+  $('scan-main').style.display='none';
+  $('scan-omikuji-result').style.display='block';
+  const color=data.rank_color||'var(--gold)';
+  $('omikuji-result-wrap').innerHTML=`
+    <div class="omikuji-rank">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:6px;letter-spacing:2px;">今日運勢</div>
+      <div class="omikuji-rank-text" style="color:${color};">${data.rank||'？'}</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px;">${data.rank_zh||''}</div>
+    </div>
+    ${data.poem_zh?`<div class="omikuji-section" style="border-left:3px solid ${color};background:${color}18;">
+      <div class="omikuji-section-title">籤詩</div>
+      ${data.poem_ja?`<div style="font-size:12px;color:var(--text2);margin-bottom:6px;">${data.poem_ja}</div>`:''}
+      <div class="omikuji-section-body" style="font-weight:600;">${data.poem_zh}</div>
+    </div>`:''}
+    <div class="omikuji-section">
+      <div class="omikuji-section-title">整體運勢</div>
+      <div class="omikuji-section-body">${data.overall||''}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px;">
+      ${[['💕 感情運',data.love],['💼 事業運',data.work],['💪 健康運',data.health],['💴 財運',data.money]].map(([t,v])=>
+        v?`<div class="omikuji-section" style="margin-bottom:0;"><div class="omikuji-section-title">${t}</div><div style="font-size:12px;color:var(--ink);line-height:1.6;">${v}</div></div>`:''
+      ).join('')}
+    </div>
+    ${data.advice?`<div class="omikuji-section" style="border-left:3px solid var(--matcha);background:var(--matcha-light);">
+      <div class="omikuji-section-title">神社建議</div>
+      <div class="omikuji-section-body">${data.advice}</div>
+    </div>`:''}`;
+  // 分享
+  $('btn-share-omikuji').onclick=()=>{
+    const text=`🎋 籤詩結果：${data.rank} (${data.rank_zh})\n\n${data.poem_zh||''}\n\n整體：${data.overall||''}\n💕 感情：${data.love||''}\n💼 事業：${data.work||''}\n💴 財運：${data.money||''}\n\n建議：${data.advice||''}\n\n— by 旅趣 Tabitoku`;
+    if(navigator.share)navigator.share({title:'籤詩結果',text});
+    else navigator.clipboard?.writeText(text).then(()=>toast('✅ 已複製籤詩'));
+  };
+}
+
+function showDrugResult(data){
+  $('scan-ai-bar').style.display='none';
+  $('scan-main').style.display='none';
+  $('scan-drug-result').style.display='block';
+  const catColor={藥品:'#EF4444',保養品:'#EC4899',化妝品:'#A855F7',健康食品:'#22C55E',零食:'#F97316',其他:'#6B7280'};
+  const color=catColor[data.category]||'#6B7280';
+  $('drug-result-wrap').innerHTML=`
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;padding:14px;background:var(--cloud);border-radius:var(--rm);">
+      <div style="width:46px;height:46px;border-radius:12px;background:${color}20;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">💊</div>
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--ink);">${data.product_name_zh||data.product_name_ja||'未知產品'}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">${data.product_name_ja||''}</div>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          ${data.brand?`<span style="font-size:10px;padding:2px 8px;background:${color}20;color:${color};border-radius:10px;font-weight:700;">${data.brand}</span>`:''}
+          ${data.category?`<span style="font-size:10px;padding:2px 8px;background:var(--washi);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-weight:600;">${data.category}</span>`:''}
+        </div>
+      </div>
+    </div>
+    ${[
+      ['🎯 主要用途',data.purpose],
+      ['📖 使用方式',data.how_to_use],
+      ['🧪 主要成分',data.main_ingredients],
+      ['👥 適合族群',data.suitable_for],
+      ['⚠️ 注意事項',data.warnings],
+      ['🇹🇼 台灣對應',data.taiwan_equivalent],
+      ['🛒 購買建議',data.buy_suggestion]
+    ].filter(([,v])=>v).map(([t,v])=>`
+      <div class="drug-card">
+        <div class="drug-card-title">${t}</div>
+        <div class="drug-card-body">${v}</div>
+      </div>`).join('')}`;
+  // 分享
+  $('btn-share-drug').onclick=()=>{
+    const text=`💊 ${data.product_name_zh||data.product_name_ja}\n品牌：${data.brand||'不明'} | ${data.category||''}\n\n用途：${data.purpose||''}\n使用：${data.how_to_use||''}\n成分：${data.main_ingredients||''}\n\n${data.taiwan_equivalent?'🇹🇼 '+data.taiwan_equivalent+'\n':''}${data.buy_suggestion?'💡 '+data.buy_suggestion:''}\n\n— by 旅趣 Tabitoku`;
+    if(navigator.share)navigator.share({title:'藥妝辨識',text});
+    else navigator.clipboard?.writeText(text).then(()=>toast('✅ 已複製藥妝資訊'));
+  };
+}
+
 function showScanConfirm(data){
   $('scan-ai-bar').style.display='none';
   rcData=data;
   $('scan-main').style.display='none';
   $('scan-confirm').style.display='block';
-  $('rc-shop-wrap').innerHTML=`<div style="font-size:16px;font-weight:700;">${data.shop_name_zh||data.shop_name_ja||'未知'}</div><div style="font-size:12px;color:var(--e);">${data.shop_name_ja||''} ${data.date||''}</div>`;
+  const shopNameZh=data.shop_name_zh||data.shop_name_ja||'未知';
+  const shopNameJa=data.shop_name_ja||'';
+  $('rc-shop-wrap').innerHTML=`<div style="font-size:12px;color:var(--e);">${shopNameJa} ${data.date||''}</div>`;
+  $('rc-shop-name').value=shopNameZh;
   $('rc-cat').innerHTML=CATS.map(c=>`<option${c.n===(data.category||'其他')?' selected':''}>${c.n}</option>`).join('');
   $('rc-region').value=schedRegion(data.date||today());
   if(!$('rc-region').value)autoDetectRegion('rc-region');
@@ -1751,14 +2227,19 @@ function renderRcItems(){
   $('rc-items').innerHTML=(rcData?.items||[]).map((it,i)=>`<div class="receipt-item"><div class="receipt-item-num">${i+1}</div><div class="receipt-item-info"><div style="font-size:13px;font-weight:600;">${it.name_zh||it.name_ja}</div><div style="font-size:11px;color:var(--e);">${it.name_ja} · ${it.qty}x ¥${it.price}</div></div><div style="font-size:14px;font-weight:700;">¥${it.price}</div><button onclick="rcData.items.splice(${i},1);renderRcItems();" style="background:none;border:none;color:var(--e);cursor:pointer;font-size:16px;padding:4px;">×</button></div>`).join('');
   $('btn-confirm-scan').textContent=`確認儲存（${rcData?.items?.length||0}筆）`;
 }
-function backToScanMain(){$('scan-confirm').style.display='none';$('scan-main').style.display='block';$('scan-img').style.display='none';$('scan-placeholder').style.display='';}
+function backToScanMain(){
+  ['scan-confirm','scan-menu-result','scan-omikuji-result','scan-drug-result'].forEach(id=>$(id).style.display='none');
+  $('scan-main').style.display='block';
+  $('scan-img').style.display='none';
+  $('scan-placeholder').style.display='';
+}
 async function confirmScan(){
   if(!rcData)return;
   const date=rcData.date||today();
   const amount=rcData.total_amount||(rcData.items||[]).reduce((s,i)=>s+i.price*(i.qty||1),0);
   const payer=activePayer||MEMS[0]?.id;
   if(!payer)return toast('尚無成員');
-  const{error}=await DB.from('tabikake_expenses').insert([{shop:$('rc-shop-wrap').querySelector('div').textContent,amount,cat:$('rc-cat').value,payment:$('rc-pay').value||'現金',region:$('rc-region').value||'',note:'',payer,date,trip_id:CT.id,trip_name:CT.name,items:rcData.items||[],split_members:MEMS.map(m=>m.id)}]);
+  const{error}=await DB.from('tabikake_expenses').insert([{shop:$('rc-shop-name').value||$('rc-shop-wrap').querySelector('div')?.textContent||'未知',amount,cat:$('rc-cat').value,payment:$('rc-pay').value||'現金',region:$('rc-region').value||'',note:'',payer,date,trip_id:CT.id,trip_name:CT.name,items:rcData.items||[],split_members:MEMS.map(m=>m.id)}]);
   if(error){toast('❌ '+error.message);return;}
   const{data:fresh}=await DB.from('tabikake_expenses').select().eq('trip_id',CT.id).order('date',{ascending:false}).order('created_at',{ascending:false});
   EXPS=mapExps(fresh||[]);
