@@ -379,6 +379,83 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .animal-opt:active{transform:scale(.88);}
 .animal-opt.active{border-color:var(--sakura);background:var(--sakura-light);transform:scale(1.1);box-shadow:0 2px 8px rgba(242,167,187,.4);}
 ::-webkit-scrollbar{display:none;}
+
+/* ── iPad responsive (768px+) ── */
+@media (min-width: 768px) {
+  html, body { font-size: 17px; }
+
+  /* 內容最大寬度置中 */
+  .screen { max-width: 600px; margin: 0 auto; box-shadow: 0 0 40px rgba(45,27,61,.12); }
+
+  /* topbar */
+  .topbar { padding-top: calc(var(--sat) + 10px); padding-bottom: 16px; }
+  .app-topbar { padding-top: calc(var(--sat) + 10px); padding-bottom: 14px; }
+  .topbar-title { font-size: 20px; }
+  .app-title { font-size: 17px; }
+
+  /* navbar */
+  .navbar { padding-top: 10px; padding-bottom: calc(env(safe-area-inset-bottom) + 14px); }
+  .nav-btn span { font-size: 11px; }
+  .nav-btn svg { width: 26px; height: 26px; }
+  .nav-scan { width: 58px; height: 58px; margin-top: -18px; }
+
+  /* stat cards */
+  .stats-grid { gap: 12px; padding: 16px 16px 0; }
+  .stat-card { padding: 16px 18px; }
+  .stat-value { font-size: 24px; }
+  .stat-label { font-size: 12px; }
+
+  /* expense items */
+  .exp-item { padding: 14px 18px; margin-bottom: 10px; }
+  .exp-name { font-size: 16px; }
+  .exp-jpy { font-size: 16px; }
+  .exp-av { width: 46px; height: 46px; font-size: 22px; }
+
+  /* trip cards */
+  .trip-card { padding: 16px 20px; margin-bottom: 12px; }
+  .trip-card-icon { width: 50px; height: 50px; font-size: 26px; }
+  .trip-card-name { font-size: 17px; }
+
+  /* buttons */
+  .btn-solid, .btn-primary { padding: 16px; font-size: 16px; }
+  .btn-outline, .btn-secondary, .btn-danger { padding: 15px; font-size: 16px; }
+
+  /* scan */
+  .scan-wrap { padding: 18px; }
+  .scan-mode-btn { padding: 9px 18px; font-size: 13px; }
+
+  /* modal */
+  .modal-sheet { max-width: 600px; border-radius: 24px 24px 0 0; }
+
+  /* members */
+  .member-av { width: 44px; height: 44px; font-size: 22px; }
+  .member-name { font-size: 12px; }
+
+  /* form */
+  .form-input, .form-select { font-size: 16px; padding: 12px 14px; }
+  .form-label { font-size: 12px; }
+
+  /* cards */
+  .card { padding: 16px; margin-bottom: 12px; }
+
+  /* section headers */
+  .section-header { padding: 18px 16px 10px; }
+  .list-wrap { padding: 0 16px; }
+
+  /* settings */
+  .settings-row { padding: 16px 18px; }
+  .settings-label { font-size: 16px; }
+
+  /* receipt */
+  .receipt-item { padding: 12px 20px; }
+  .receipt-confirm-btn { margin: 16px 20px; padding: 16px; font-size: 16px; }
+
+  /* app content padding */
+  .app-content { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+
+  /* trips body */
+  .trips-body { padding: 18px; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+}
 </style>
 </head>
 <body>
