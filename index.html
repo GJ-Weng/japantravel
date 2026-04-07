@@ -1151,7 +1151,7 @@ async function enterTrip(id){
   }).subscribe();
   fetchRate();
 }
-function mapExps(rows){return rows.map(r=>({id:r.id,shop:r.shop,amount:r.amount,cat:r.cat,payment:r.payment,region:r.region,note:r.note,payer:r.payer,date:r.date,items:r.items||[],split_members:r.split_members||[]}));}
+function mapExps(rows){return rows.map(r=>({id:r.id,shop:r.shop,amount:r.amount,cat:r.cat,payment:r.payment,region:r.region,note:r.note,payer:r.payer,date:r.date,items:r.items||[],split_members:r.split_members||[],receipt_url:r.receipt_url||null}));}
 function backToTrips(){
   DB.removeAllChannels();
   CT=null;EXPS=[];MEMS=[];SCHED=[];editingExpId=null;
