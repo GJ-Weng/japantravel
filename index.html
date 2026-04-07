@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="旅趣">
@@ -201,7 +201,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .scan-preview img{width:100%;height:100%;object-fit:contain;position:absolute;inset:0;}
 .scan-placeholder{text-align:center;color:#998;position:relative;z-index:1;}
 .scan-ai-bar{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--sakura-light);border:2px solid var(--sakura);border-radius:var(--rm);margin-bottom:12px;}
-.scan-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px;}
+.scan-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+.scan-btns .btn-solid{padding:15px 10px;font-size:15px;border-radius:var(--rm);box-shadow:0 4px 16px rgba(45,27,61,.28);letter-spacing:.3px;}
+.scan-btns .btn-secondary{padding:14px 10px;font-size:15px;border-radius:var(--rm);border-width:2.5px;font-weight:700;}
 .receipt-header{padding:14px 16px;border-bottom:2px solid var(--border);}
 .receipt-item{display:flex;align-items:center;gap:9px;padding:10px 16px;border-bottom:1px solid var(--border);}
 .receipt-item-num{width:22px;height:22px;border-radius:50%;background:var(--sakura-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--sakura);flex-shrink:0;}
@@ -353,11 +355,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .cam-overlay.hidden{display:none!important;}
 .cam-video-wrap{flex:1;position:relative;overflow:hidden;}
 .cam-video-wrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.cam-controls{background:rgba(0,0,0,.85);padding:20px 28px calc(var(--sab,20px)+20px);display:flex;align-items:center;justify-content:space-between;}
-.cam-shutter{width:70px;height:70px;border-radius:50%;background:#fff;border:5px solid rgba(255,255,255,.4);cursor:pointer;flex-shrink:0;transition:transform .1s,box-shadow .1s;box-shadow:0 0 0 2px rgba(255,255,255,.2);}
+.cam-controls{background:rgba(0,0,0,.9);padding:16px 28px;padding-bottom:max(calc(env(safe-area-inset-bottom) + 20px), 36px);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.cam-shutter{width:72px;height:72px;border-radius:50%;background:#fff;border:5px solid rgba(255,255,255,.45);cursor:pointer;flex-shrink:0;transition:transform .1s,box-shadow .1s;box-shadow:0 0 0 3px rgba(255,255,255,.25);}
 .cam-shutter:active{transform:scale(.88);}
-.cam-cancel{color:#fff;background:none;border:none;font-size:15px;font-weight:700;cursor:pointer;width:70px;text-align:left;}
-.cam-spacer{width:70px;}
+.cam-cancel{color:#fff;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4);border-radius:22px;font-size:15px;font-weight:700;cursor:pointer;width:72px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cam-cancel:active{background:rgba(255,255,255,.28);}
+.cam-spacer{width:72px;}
 
 /* ── TOAST ── */
 #toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(45,27,61,.92);color:var(--washi);padding:10px 20px;border-radius:24px;font-size:12px;font-weight:700;z-index:9999;opacity:0;pointer-events:none;transition:all .22s;white-space:nowrap;}
@@ -2020,12 +2023,12 @@ function capturePhoto(){
   c.toBlob(blob=>{if(blob)processImage(blob);else toast('拍照失敗');},'image/jpeg',.88);
 }
 async function processImage(file){
-  const reader=new FileReader();
-  reader.onload=e=>{$('scan-img').src=e.target.result;$('scan-img').style.display='block';$('scan-placeholder').style.display='none';};
-  reader.readAsDataURL(file);
+  // 只用一個 FileReader，避免兩次讀取造成不一致
+  const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});
+  $('scan-img').src=dataUrl;$('scan-img').style.display='block';$('scan-placeholder').style.display='none';
   $('scan-ai-bar').style.display='flex';
   $('scan-ai-msg').textContent=SCAN_MODES[scanMode]?.aiMsg||'AI 辨識中...';
-  const b64=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.readAsDataURL(file);});
+  const b64=dataUrl.split(',')[1];
   const mt=file.type||'image/jpeg';
   if(scanMode==='receipt') await analyzeReceipt(b64,mt);
   else if(scanMode==='menu') await analyzeMenu(b64,mt);
