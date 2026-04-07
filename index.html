@@ -522,6 +522,10 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
           <button style="font-size:13px;color:var(--e);background:none;border:none;cursor:pointer;margin-bottom:8px;" id="btn-back-scan">← 返回</button>
           <p style="font-size:18px;font-weight:700;margin-bottom:8px;">確認收據</p>
           <div id="rc-shop-wrap"></div>
+          <div id="rc-ocr-wrap" style="display:none;margin-top:8px;">
+            <button onclick="const el=$('rc-ocr-text');const btn=this;if(el.style.display==='none'){el.style.display='block';btn.textContent='▲ 收起 OCR 原文';}else{el.style.display='none';btn.textContent='📄 查看 OCR 原文';}" style="font-size:11px;color:var(--indigo);background:none;border:none;cursor:pointer;padding:0;font-weight:700;">📄 查看 OCR 原文</button>
+            <pre id="rc-ocr-text" style="display:none;margin-top:6px;font-size:10px;color:var(--text2);background:var(--cloud);border:1px solid var(--border);border-radius:8px;padding:10px;white-space:pre-wrap;line-height:1.7;max-height:160px;overflow-y:auto;font-family:monospace;"></pre>
+          </div>
           <div style="margin-top:10px;">
             <label class="form-label">店家名稱</label>
             <input class="form-input" id="rc-shop-name" placeholder="店名">
@@ -2284,9 +2288,31 @@ function showScanConfirm(data){
   if(!$('rc-region').value)autoDetectRegion('rc-region');
   renderRcItems();
   renderPayerChips('rc-payer-chips',activePayer);
+  // OCR 原文顯示
+  if(data._ocr){
+    $('rc-ocr-wrap').style.display='block';
+    $('rc-ocr-text').textContent=data._ocr;
+  }else{
+    $('rc-ocr-wrap').style.display='none';
+  }
 }
 function renderRcItems(){
-  $('rc-items').innerHTML=(rcData?.items||[]).map((it,i)=>`<div class="receipt-item"><div class="receipt-item-num">${i+1}</div><div class="receipt-item-info"><div style="font-size:13px;font-weight:600;">${it.name_zh||it.name_ja}</div><div style="font-size:11px;color:var(--e);">${it.name_ja} · ${it.qty}x ¥${it.price}</div></div><div style="font-size:14px;font-weight:700;">¥${it.price}</div><button onclick="rcData.items.splice(${i},1);renderRcItems();" style="background:none;border:none;color:var(--e);cursor:pointer;font-size:16px;padding:4px;">×</button></div>`).join('');
+  $('rc-items').innerHTML=(rcData?.items||[]).map((it,i)=>`
+    <div class="receipt-item">
+      <div class="receipt-item-num">${i+1}</div>
+      <div class="receipt-item-info" style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;">${it.name_ja||''}</div>
+        <input
+          style="font-size:12px;color:var(--text2);background:none;border:none;border-bottom:1.5px dashed var(--border);width:100%;outline:none;padding:2px 0;font-family:var(--font);"
+          value="${(it.name_zh||it.name_ja).replace(/"/g,'&quot;')}"
+          onchange="rcData.items[${i}].name_zh=this.value"
+          placeholder="點擊編輯中文譯名"
+        >
+        <div style="font-size:10px;color:var(--text3);margin-top:2px;">${it.qty}x</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;flex-shrink:0;color:${it.price<0?'var(--red)':'var(--ink)'};">¥${it.price}</div>
+      <button onclick="rcData.items.splice(${i},1);renderRcItems();" style="background:none;border:none;color:var(--e);cursor:pointer;font-size:16px;padding:4px 6px;">×</button>
+    </div>`).join('');
   $('btn-confirm-scan').textContent=`確認儲存（${rcData?.items?.length||0}筆）`;
 }
 function backToScanMain(){
