@@ -1369,8 +1369,21 @@ $('btn-edit-exp').addEventListener('click',()=>{
 $('btn-delete-exp').addEventListener('click',async()=>{
   if(!editingExpId)return;
   if(!confirm('確定刪除？'))return;
+  // 先找到這筆記錄的 receipt_url
+  const expToDelete=EXPS.find(x=>x.id===editingExpId);
   const{error}=await DB.from('tabikake_expenses').delete().eq('id',editingExpId);
   if(error){toast('❌ '+error.message);return;}
+  // 連帶刪除 Storage 圖片
+  if(expToDelete?.receipt_url){
+    try{
+      // 從 public URL 解析出檔案路徑
+      const url=new URL(expToDelete.receipt_url);
+      const pathParts=url.pathname.split('/receipts/');
+      if(pathParts[1]){
+        await DB.storage.from('receipts').remove([decodeURIComponent(pathParts[1])]);
+      }
+    }catch(e){console.warn('圖片刪除失敗',e);}
+  }
   EXPS=EXPS.filter(x=>x.id!==editingExpId);
   editingExpId=null;
   closeModal('modal-detail');
