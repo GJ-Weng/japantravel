@@ -2376,8 +2376,8 @@ async function confirmScan(){
       const fname=`${uid}/${CT.id}_${Date.now()}.jpg`;
       const{error:upErr}=await DB.storage.from('receipts').upload(fname,blob,{contentType:'image/jpeg',upsert:false});
       if(!upErr){
-        const{data:urlData}=await DB.storage.from('receipts').createSignedUrl(fname,60*60*24*365);
-        receiptUrl=urlData?.signedUrl||null;
+        const{data:urlData}=DB.storage.from('receipts').getPublicUrl(fname);
+        receiptUrl=urlData?.publicUrl||null;
       }
     }
   }catch(e){console.warn('收據上傳失敗',e);}
