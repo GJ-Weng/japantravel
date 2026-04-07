@@ -538,6 +538,13 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
         <div class="receipt-items" id="rc-items"></div>
         <div style="padding:12px 16px;">
           <div class="form-group"><label class="form-label">消費者</label><div class="payer-chips" id="rc-payer-chips"></div></div>
+          <div class="form-group">
+            <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;">
+              分攤成員
+              <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;">點擊取消勾選不參與分攤</span>
+            </label>
+            <div class="split-chips" id="rc-split-chips"></div>
+          </div>
           <div class="form-row">
             <div class="form-group" style="margin-bottom:0;"><label class="form-label">類別</label><select class="form-select" id="rc-cat"></select></div>
             <div class="form-group" style="margin-bottom:0;"><label class="form-label">支付</label><select class="form-select" id="rc-pay"><option>現金</option><option>信用卡</option><option>Suica</option><option>PayPay</option><option>其他</option></select></div>
@@ -1341,7 +1348,14 @@ function openDetail(id){
       ${e.note?`<div class="detail-row"><span class="detail-key">備註</span><span class="detail-val">${e.note}</span></div>`:''}
       ${splitMembersHtml?`<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:7px;"><span class="detail-key">分攤</span><div style="display:flex;gap:4px;flex-wrap:wrap;">${splitMembersHtml}</div></div>`:''}
     </div>
-    ${e.items?.length?`<div style="margin-top:12px;font-size:11px;color:var(--e);font-weight:700;margin-bottom:6px;">品項明細</div><div class="detail-rows">${e.items.map(it=>`<div class="detail-row"><span class="detail-key">${it.name_zh||it.name_ja||''}</span><span class="detail-val">¥${it.price}</span></div>`).join('')}</div>`:''}`;
+    ${e.items?.length?`<div style="margin-top:12px;font-size:11px;color:var(--e);font-weight:700;margin-bottom:6px;">品項明細</div><div class="detail-rows">${e.items.map(it=>`<div class="detail-row"><span class="detail-key">${it.name_zh||it.name_ja||''}</span><span class="detail-val">¥${it.price}</span></div>`).join('')}</div>`:''}
+    ${e.receipt_url?`
+    <div style="margin-top:14px;">
+      <div style="font-size:11px;color:var(--e);font-weight:700;margin-bottom:8px;">📄 收據圖片</div>
+      <img src="${e.receipt_url}" style="width:100%;border-radius:var(--rs);border:2px solid var(--border);cursor:pointer;object-fit:contain;max-height:320px;background:#1a0a2e;"
+        onclick="window.open('${e.receipt_url}','_blank')" title="點擊放大">
+      <div style="font-size:10px;color:var(--text3);margin-top:4px;text-align:center;">點擊可放大查看</div>
+    </div>`:''}`;
   openModal('modal-detail');
 }
 // 編輯按鈕 — 直接用 addEventListener，不用 onclick
@@ -2288,12 +2302,35 @@ function showScanConfirm(data){
   if(!$('rc-region').value)autoDetectRegion('rc-region');
   renderRcItems();
   renderPayerChips('rc-payer-chips',activePayer);
+  renderSplitChips();
   // OCR 原文顯示
   if(data._ocr){
     $('rc-ocr-wrap').style.display='block';
     $('rc-ocr-text').textContent=data._ocr;
   }else{
     $('rc-ocr-wrap').style.display='none';
+  }
+}
+
+// 分攤成員選擇器（可勾選/取消）
+let rcSplitMembers=[];
+function renderSplitChips(){
+  rcSplitMembers=MEMS.map(m=>m.id); // 預設全選
+  $('rc-split-chips').innerHTML=MEMS.map(m=>`
+    <div class="split-chip active" id="split-chip-${m.id}" onclick="toggleSplitMember('${m.id}')">
+      <div class="split-chip-av">${m.avatar_url?`<img src="${m.avatar_url}">`:(m.emoji||'👤')}</div>
+      <span>${m.display_name||'成員'}</span>
+    </div>`).join('');
+}
+function toggleSplitMember(id){
+  const chip=$('split-chip-'+id);
+  if(rcSplitMembers.includes(id)){
+    if(rcSplitMembers.length<=1){toast('至少保留一位分攤成員');return;}
+    rcSplitMembers=rcSplitMembers.filter(x=>x!==id);
+    chip.classList.remove('active');
+  }else{
+    rcSplitMembers.push(id);
+    chip.classList.add('active');
   }
 }
 function renderRcItems(){
@@ -2327,13 +2364,45 @@ async function confirmScan(){
   const amount=rcData.total_amount||(rcData.items||[]).reduce((s,i)=>s+i.price*(i.qty||1),0);
   const payer=activePayer||MEMS[0]?.id;
   if(!payer)return toast('尚無成員');
-  const{error}=await DB.from('tabikake_expenses').insert([{shop:$('rc-shop-name').value||$('rc-shop-wrap').querySelector('div')?.textContent||'未知',amount,cat:$('rc-cat').value,payment:$('rc-pay').value||'現金',region:$('rc-region').value||'',note:'',payer,date,trip_id:CT.id,trip_name:CT.name,items:rcData.items||[],split_members:MEMS.map(m=>m.id)}]);
+  const splitMembers=(rcSplitMembers&&rcSplitMembers.length>0)?rcSplitMembers:MEMS.map(m=>m.id);
+
+  // 上傳收據圖片到 Supabase Storage
+  let receiptUrl=null;
+  try{
+    const imgEl=$('scan-img');
+    if(imgEl&&imgEl.src&&imgEl.src.startsWith('data:')){
+      const blob=await(await fetch(imgEl.src)).blob();
+      const uid=CU?.id||'anon';
+      const fname=`${uid}/${CT.id}_${Date.now()}.jpg`;
+      const{error:upErr}=await DB.storage.from('receipts').upload(fname,blob,{contentType:'image/jpeg',upsert:false});
+      if(!upErr){
+        const{data:urlData}=await DB.storage.from('receipts').createSignedUrl(fname,60*60*24*365);
+        receiptUrl=urlData?.signedUrl||null;
+      }
+    }
+  }catch(e){console.warn('收據上傳失敗',e);}
+
+  const{error}=await DB.from('tabikake_expenses').insert([{
+    shop:$('rc-shop-name').value||'未知',
+    amount,
+    cat:$('rc-cat').value,
+    payment:$('rc-pay').value||'現金',
+    region:$('rc-region').value||'',
+    note:'',
+    payer,
+    date,
+    trip_id:CT.id,
+    trip_name:CT.name,
+    items:rcData.items||[],
+    split_members:splitMembers,
+    receipt_url:receiptUrl
+  }]);
   if(error){toast('❌ '+error.message);return;}
   const{data:fresh}=await DB.from('tabikake_expenses').select().eq('trip_id',CT.id).order('date',{ascending:false}).order('created_at',{ascending:false});
   EXPS=mapExps(fresh||[]);
   backToScanMain();
   document.querySelector('[data-view=home]').click();
-  toast('✅ 收據已儲存');
+  toast(receiptUrl?'✅ 收據已儲存並備份圖片':'✅ 收據已儲存');
 }
 
 // ── USER PROFILE ──
