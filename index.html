@@ -2384,23 +2384,15 @@ function showMenuResult(data){
     : '<div class="empty">無法辨識菜單內容</div>';
   $('btn-share-menu').onclick=()=>{
     const allSecs=data.sections||(data.items?[{title_zh:'',items:data.items}]:[]);
-    const text=`📋 ${data.restaurant_name||'菜單'} (${data.cuisine_type||''})
-
-`+
+    const text=`📋 ${data.restaurant_name||'菜單'} (${data.cuisine_type||''})\n\n`+
       allSecs.map(sec=>{
-        const title=sec.title_zh?`【${sec.title_zh}】
-`:'';
+        const title=sec.title_zh?`【${sec.title_zh}】\n`:'';
         const items=(sec.items||[]).map(it=>{
           const ps=(it.prices||[]).filter(p=>p.amount>0).map(p=>`${p.label?p.label+' ':''}¥${p.amount}`).join('/');
           return`・${it.name_zh||it.name_ja}${ps?' '+ps:''}${it.description?' — '+it.description:''}`;
-        }).join('
-');
+        }).join('\n');
         return title+items;
-      }).join('
-
-')+'
-
-— by 旅趣 Tabitoku';
+      }).join('\n\n')+'\n\n— by 旅趣 Tabitoku';
     if(navigator.share)navigator.share({title:'菜單翻譯',text});
     else navigator.clipboard?.writeText(text).then(()=>toast('✅ 已複製菜單'));
   };
