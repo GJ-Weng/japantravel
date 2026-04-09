@@ -2187,7 +2187,7 @@ async function compressImage(file, mode){
             // 先轉灰階（收據不需要顏色）
             const gray=d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114;
             // 再拉高對比度（係數1.5，應對熱感紙褪色）
-            const contrast=Math.min(255,Math.max(0,(gray-128)*1.5+128));
+            const contrast=Math.min(255,Math.max(0,(gray-128)*2.0+128));
             d[i]=d[i+1]=d[i+2]=contrast;
           }
           ctx.putImageData(imageData,0,0);
