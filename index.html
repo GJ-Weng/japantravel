@@ -565,7 +565,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
           <button class="scan-mode-btn active" data-mode="receipt" style="flex-shrink:0;">📄 收據記帳</button>
           <button class="scan-mode-btn" data-mode="menu" style="flex-shrink:0;">📋 菜單翻譯</button>
           <button class="scan-mode-btn" data-mode="omikuji" style="flex-shrink:0;">🎋 籤詩解析</button>
-          <button class="scan-mode-btn" data-mode="drugstore" style="flex-shrink:0;">💊 藥妝辨識</button>
+          <button class="scan-mode-btn" data-mode="drugstore" style="flex-shrink:0;">🛍️ 商品辨識</button>
         </div>
       </div>
 
@@ -661,7 +661,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
       <div id="scan-drug-result" style="display:none;">
         <div style="padding:14px 16px 10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;">
           <button style="font-size:13px;color:var(--e);background:none;border:none;cursor:pointer;" id="btn-back-drug">← 返回</button>
-          <div style="font-size:16px;font-weight:800;">藥妝辨識</div>
+          <div style="font-size:16px;font-weight:800;">商品辨識</div>
           <div style="flex:1;"></div>
           <button id="btn-share-drug" style="background:#FEF0F2;border:none;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;color:var(--red);cursor:pointer;">分享</button>
         </div>
@@ -2106,7 +2106,7 @@ const SCAN_MODES={
   receipt:{title:'📄 收據記帳',desc:'拍下收據，AI 自動辨識品項與金額並記帳',icon:'🧾',text:'拍下收據',sub:'AI 自動辨識日文金額',aiMsg:'辨識收據中...'},
   menu:   {title:'📋 菜單翻譯',desc:'拍下日文菜單，AI 翻譯每道料理並說明食材',icon:'🍜',text:'拍下菜單',sub:'手寫菜單也能辨識',aiMsg:'翻譯菜單中...'},
   omikuji:{title:'🎋 籤詩解析',desc:'拍下御神籤，AI 翻譯運勢與籤詩內容',icon:'🎋',text:'拍下籤詩',sub:'大吉・中吉・小吉 通通解析',aiMsg:'解析籤詩中...'},
-  drugstore:{title:'💊 藥妝辨識',desc:'拍下藥妝產品，AI 說明用途、成分與使用方式',icon:'💊',text:'拍下產品',sub:'藥品・保養・零食 通通認識',aiMsg:'辨識藥妝中...'}
+  drugstore:{title:'🛍️ 商品辨識',desc:'拍下任何日本商品包裝，AI 說明用途、成分與使用方式',icon:'🛍️',text:'拍下商品包裝',sub:'藥妝・零食・飲料・保養品 通通認識',aiMsg:'辨識商品中...'}
 };
 
 // 模式切換
@@ -2292,20 +2292,20 @@ const OMIKUJI_PROMPT=`請仔細分析這張日本神社籤詩圖片。
 
 只回傳 JSON，格式：{"rank":"","rank_zh":"","rank_color":"","poem_ja":"","poem_zh":"","overall":"","love":"","work":"","health":"","money":"","advice":""}，不含任何其他文字。`;
 
-const DRUG_PROMPT=`請仔細分析這張日本藥妝產品圖片。
+const DRUG_PROMPT=`請仔細分析這張日本商品包裝圖片，可能是藥品、保養品、化妝品、健康食品、零食、飲料或其他商品。
 
 辨識規則：
 - product_name_ja：產品完整日文名稱（從包裝上直接讀取）
 - product_name_zh：翻譯成繁體中文商品名
 - brand：品牌名稱（從包裝讀取）
-- category：從以下選一：藥品、保養品、化妝品、健康食品、零食、其他
+- category：從以下選一：藥品、保養品、化妝品、健康食品、零食、飲料、其他
 - purpose：主要用途，用台灣人看得懂的說法，1-2句
-- how_to_use：使用方式，1-2句具體說明
+- how_to_use：使用方式，1-2句具體說明（零食/飲料可填「直接食用」）
 - main_ingredients：列出2-4個主要或特色成分，用繁體中文
 - suitable_for：適合哪些族群使用
-- warnings：重要注意事項（孕婦、過敏等），沒有特別注意事項填「無特殊禁忌」
-- taiwan_equivalent：台灣有無類似產品，有的話舉例說明
-- buy_suggestion：是否值得購買帶回台灣，給出明確建議
+- warnings：重要注意事項（孕婦、過敏、藥物交互作用等），沒有特別注意事項填「無特殊禁忌」
+- taiwan_equivalent：台灣有無類似產品，有的話舉例說明，不確定請填「不確定」
+- buy_suggestion：根據商品特色給出參考建議，語氣為「僅供參考」，說明台灣是否容易買到或有無獨特性
 
 只回傳 JSON，格式：{"product_name_ja":"","product_name_zh":"","brand":"","category":"","purpose":"","how_to_use":"","main_ingredients":"","suitable_for":"","warnings":"","taiwan_equivalent":"","buy_suggestion":""}，不含任何其他文字。`;
 
@@ -2318,7 +2318,7 @@ async function callGroq(b64,mt,prompt){
     const res=await fetch(SCAN_ENDPOINT,{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY},
-      body:JSON.stringify({imageBase64:b64,mimeType:mt,prompt}),
+      body:JSON.stringify({imageBase64:b64,mimeType:mt,prompt,mode:scanMode}),
       signal:_groqController.signal
     });
     clearTimeout(tid);
@@ -2378,7 +2378,7 @@ async function analyzeDrug(b64,mt){
     showDrugResult(json);
   }catch(e){
     $('scan-ai-bar').style.display='none';
-    toast('藥妝辨識失敗：'+e.message);
+    toast('商品辨識失敗：'+e.message);
   }
 }
 
@@ -2479,17 +2479,34 @@ function showDrugResult(data){
       ['👥 適合族群',data.suitable_for],
       ['⚠️ 注意事項',data.warnings],
       ['🇹🇼 台灣對應',data.taiwan_equivalent],
-      ['🛒 購買建議',data.buy_suggestion]
     ].filter(([,v])=>v).map(([t,v])=>`
       <div class="drug-card">
         <div class="drug-card-title">${t}</div>
         <div class="drug-card-body">${v}</div>
-      </div>`).join('')}`;
+      </div>`).join('')}
+    ${data.buy_suggestion?`
+      <div class="drug-card" style="border:2px solid var(--gold);background:#FFFBF0;">
+        <div class="drug-card-title">🛒 AI 參考建議</div>
+        <div class="drug-card-body">${data.buy_suggestion}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;">⚠️ 僅供參考，實際價值因人而異，建議搜尋確認後再決定</div>
+      </div>`:''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px;">
+      <a href="https://www.google.com/search?q=${encodeURIComponent((data.product_name_zh||data.product_name_ja||'')+'日本商品 評價 台灣')}" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 8px;background:var(--washi);border:2px solid var(--border);border-radius:var(--rm);font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;transition:border-color .12s;"
+        onmouseover="this.style.borderColor='var(--sakura)'" onmouseout="this.style.borderColor='var(--border)'">
+        🔍 中文評價
+      </a>
+      <a href="https://www.google.co.jp/search?q=${encodeURIComponent(data.product_name_ja||data.product_name_zh||'')}&hl=ja" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 8px;background:var(--washi);border:2px solid var(--border);border-radius:var(--rm);font-size:12px;font-weight:700;color:var(--ink);text-decoration:none;transition:border-color .12s;"
+        onmouseover="this.style.borderColor='var(--indigo)'" onmouseout="this.style.borderColor='var(--border)'">
+        🔍 日文官方頁
+      </a>
+    </div>`;
   // 分享
   $('btn-share-drug').onclick=()=>{
     const text=`💊 ${data.product_name_zh||data.product_name_ja}\n品牌：${data.brand||'不明'} | ${data.category||''}\n\n用途：${data.purpose||''}\n使用：${data.how_to_use||''}\n成分：${data.main_ingredients||''}\n\n${data.taiwan_equivalent?'🇹🇼 '+data.taiwan_equivalent+'\n':''}${data.buy_suggestion?'💡 '+data.buy_suggestion:''}\n\n— by 旅趣 Tabitoku`;
-    if(navigator.share)navigator.share({title:'藥妝辨識',text});
-    else navigator.clipboard?.writeText(text).then(()=>toast('✅ 已複製藥妝資訊'));
+    if(navigator.share)navigator.share({title:'商品辨識',text});
+    else navigator.clipboard?.writeText(text).then(()=>toast('✅ 已複製商品資訊'));
   };
 }
 
