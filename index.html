@@ -363,7 +363,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 
 /* ── TOAST ── */
 /* ── OFFLINE BANNER ── */
-#offline-banner{position:fixed;top:0;left:0;right:0;z-index:9999;background:#2D1B3D;color:#FDF8F0;text-align:center;font-size:13px;font-weight:600;padding:10px 16px;display:none;transition:opacity .3s;}
+#offline-banner{position:fixed;top:0;left:0;right:0;z-index:9999;background:#2D1B3D;color:#FDF8F0;text-align:center;font-size:13px;font-weight:600;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;display:none;transition:opacity .3s;}
 #offline-banner.show{display:block;}
 #toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(45,27,61,.92);color:var(--washi);padding:10px 20px;border-radius:24px;font-size:12px;font-weight:700;z-index:9999;opacity:0;pointer-events:none;transition:all .22s;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -2229,86 +2229,6 @@ async function processImage(file){
 }
 
 // ── 各模式 prompt ──
-const RECEIPT_PROMPT=`請仔細分析這張日本收據圖片。
-
-翻譯規則：
-- shop_name_zh：將日文店名翻譯成繁體中文（例：マクドナルド→麥當勞、すき家→Sukiya牛丼）
-- name_zh：每個品項翻譯成台灣慣用繁體中文名稱
-- total_amount：使用含稅後最終合計金額，整數
-- category 從以下選一：餐飲、交通、住宿、購物、景點、便利店、藥妝、伴手禮、其他
-- payment_method：收據有顯示才填，否則填 null
-- date 格式 YYYY-MM-DD，無法辨識填 null
-- 所有金額為整數，無法辨識填 0
-
-日本收據格式說明（幫助正確讀取金額）：
-- 「小計」是未稅金額，「合計」「お会計」「お支払い」才是含稅總額，請以後者為 total_amount
-- 消費稅行（8%外食稅、10%一般稅）、サービス料、割引 等行不要列為 items
-- IC カード・交通系 IC 收據：從「ご利用金額」讀取 total_amount
-- 若同一品項有多個，使用 qty 欄位，price 填單價
-
-容錯規則：
-- 金額模糊無法確認時，price 填 0，絕對不要猜測數字
-- 店名只能辨識部分時，填可辨識的部分，不要補全
-- 圖片模糊導致整張無法辨識時，回傳 {"error":"圖片模糊，請重新拍攝"}
-
-Few-shot 範例：
-輸入：一蘭ラーメン收據，とんこつラーメン 980円、替え玉 130円，消費税 100円，合計1110円
-輸出：{"shop_name_ja":"一蘭","shop_name_zh":"一蘭拉麵","total_amount":1110,"category":"餐飲","payment_method":null,"items":[{"name_ja":"とんこつラーメン","name_zh":"豚骨拉麵","price":980,"qty":1},{"name_ja":"替え玉","name_zh":"加麵","price":130,"qty":1}],"date":null}
-
-只回傳 JSON，不含任何其他文字。`;
-
-const MENU_PROMPT=`請仔細分析這張日本菜單圖片，可能是手寫板、黑板、紙本菜單或電子菜單。
-
-步驟一：先判斷圖片中實際看到什麼。
-- 若看到食物名稱列表（無論印刷或手寫）→ 這是菜單，繼續步驟二
-- 若看到金額數字和品項 → 可能是收據，但仍以菜單格式回傳
-
-步驟二：逐一辨識每一道料理。
-翻譯規則：
-- name_zh：優先使用台灣常見譯名（例：唐揚げ→炸雞塊、枝豆→毛豆、刺身→生魚片、焼き鳥→烤雞串、もつ鍋→內臟火鍋）
-- 若無通用中文名，保留日文原名加括號說明（例：きんぴらごぼう（牛蒡金平炒））
-- description：說明主要食材與烹調方式，勿重複 name_zh 的內容，20字內
-- cuisine_type：根據圖片中看到的料理種類判斷，從以下選一填入：
-  居酒屋、串燒、拉麵、壽司、定食、燒肉、火鍋、咖哩、丼飯、天婦羅、蕎麥麵、烏龍麵、壽喜燒、海鮮、甜點、咖啡廳、其他
-- tags：只從「招牌」「素食」「辛辣」三個中選填，不確定就留空陣列
-- price：整數，看不到價格填 0
-
-Few-shot 範例：
-輸入：居酒屋手寫黑板菜單，寫著「枝豆 300円」「唐揚げ 500円」「刺身盛り合わせ 800円」
-輸出：{"restaurant_name":"","cuisine_type":"居酒屋","items":[{"name_ja":"枝豆","name_zh":"毛豆","price":300,"description":"鹽水煮毛豆，下酒必點","tags":["素食"]},{"name_ja":"唐揚げ","name_zh":"炸雞塊","price":500,"description":"日式炸雞，外酥內嫩","tags":["招牌"]},{"name_ja":"刺身盛り合わせ","name_zh":"生魚片拼盤","price":800,"description":"多種新鮮生魚片組合","tags":[]}]}
-
-只回傳 JSON，不含任何其他文字。`;
-
-const OMIKUJI_PROMPT=`請仔細分析這張日本神社籤詩圖片。
-
-辨識規則：
-- rank：從圖片中找到運勢等級文字，只填以下其中一個：大吉、吉、中吉、小吉、末吉、凶、大凶
-- rank_zh：對應說明，大吉→極好運、吉→好運、中吉→中等好運、小吉→小好運、末吉→普通、凶→注意、大凶→需謹慎
-- rank_color：對應顏色，大吉:#F59E0B、吉:#7BA05B、中吉:#3D5A8A、小吉:#9333EA、末吉:#6B7280、凶:#E05A6B、大凶:#2D1B3D
-- poem_ja：籤詩原文日文（若圖片有的話）
-- poem_zh：將籤詩翻譯成繁體中文，保留詩意
-- overall、love、work、health、money：根據籤詩內容解讀，各1-2句繁體中文
-- advice：正向鼓勵語氣的建議，1-2句
-
-只回傳 JSON，格式：{"rank":"","rank_zh":"","rank_color":"","poem_ja":"","poem_zh":"","overall":"","love":"","work":"","health":"","money":"","advice":""}，不含任何其他文字。`;
-
-const DRUG_PROMPT=`請仔細分析這張日本商品包裝圖片，可能是藥品、保養品、化妝品、健康食品、零食、飲料或其他商品。
-
-辨識規則：
-- product_name_ja：產品完整日文名稱（從包裝上直接讀取）
-- product_name_zh：翻譯成繁體中文商品名
-- brand：品牌名稱（從包裝讀取）
-- category：從以下選一：藥品、保養品、化妝品、健康食品、零食、飲料、其他
-- purpose：主要用途，用台灣人看得懂的說法，1-2句
-- how_to_use：使用方式，1-2句具體說明（零食/飲料可填「直接食用」）
-- main_ingredients：列出2-4個主要或特色成分，用繁體中文
-- suitable_for：適合哪些族群使用
-- warnings：重要注意事項（孕婦、過敏、藥物交互作用等），沒有特別注意事項填「無特殊禁忌」
-- taiwan_equivalent：台灣有無類似產品，有的話舉例說明，不確定請填「不確定」
-- buy_suggestion：根據商品特色給出參考建議，語氣為「僅供參考」，說明台灣是否容易買到或有無獨特性
-
-只回傳 JSON，格式：{"product_name_ja":"","product_name_zh":"","brand":"","category":"","purpose":"","how_to_use":"","main_ingredients":"","suitable_for":"","warnings":"","taiwan_equivalent":"","buy_suggestion":""}，不含任何其他文字。`;
-
 let _groqController=null;
 async function callGroq(b64,mt,prompt){
   if(_groqController){try{_groqController.abort();}catch(e){}}
@@ -2338,7 +2258,7 @@ async function callGroq(b64,mt,prompt){
 
 async function analyzeReceipt(b64,mt){
   try{
-    const json=await callGroq(b64,mt,RECEIPT_PROMPT);
+    const json=await callGroq(b64,mt,'');
     // AI 回傳模糊錯誤訊息時，提示用戶重拍
     if(json.error){
       $('scan-ai-bar').style.display='none';
@@ -2354,7 +2274,7 @@ async function analyzeReceipt(b64,mt){
 
 async function analyzeMenu(b64,mt){
   try{
-    const json=await callGroq(b64,mt,MENU_PROMPT);
+    const json=await callGroq(b64,mt,'');
     showMenuResult(json);
   }catch(e){
     $('scan-ai-bar').style.display='none';
@@ -2364,7 +2284,7 @@ async function analyzeMenu(b64,mt){
 
 async function analyzeOmikuji(b64,mt){
   try{
-    const json=await callGroq(b64,mt,OMIKUJI_PROMPT);
+    const json=await callGroq(b64,mt,'');
     showOmikujiResult(json);
   }catch(e){
     $('scan-ai-bar').style.display='none';
@@ -2374,7 +2294,7 @@ async function analyzeOmikuji(b64,mt){
 
 async function analyzeDrug(b64,mt){
   try{
-    const json=await callGroq(b64,mt,DRUG_PROMPT);
+    const json=await callGroq(b64,mt,'');
     showDrugResult(json);
   }catch(e){
     $('scan-ai-bar').style.display='none';
