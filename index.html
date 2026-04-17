@@ -356,6 +356,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .dict-item:last-child{border-bottom:none;}
 .dict-ja{font-size:16px;font-weight:800;color:var(--ink);min-width:120px;}
 .dict-kana{font-size:11px;color:var(--text2);margin-top:2px;font-weight:400;}
+.dict-romaji{font-size:10px;color:var(--text3);margin-top:1px;letter-spacing:.3px;font-style:italic;}
+.dict-speak{width:30px;height:30px;border-radius:50%;border:none;background:var(--sakura-light);color:#C25B7A;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s,background .1s;}
+.dict-speak:active{transform:scale(.88);background:var(--sakura);}
+.dict-speak.speaking{background:var(--sakura);animation:pulse .6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
 .dict-right{flex:1;}
 .dict-zh{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px;}
 .dict-desc{font-size:11px;color:var(--text3);line-height:1.5;}
@@ -2710,293 +2715,291 @@ $('user-av-trips').addEventListener('click',()=>{
 
 // ── 字典資料 ──
 const DICT = [
-  // ── 居酒屋（50品）──
-  {ja:'枝豆',kana:'えだまめ',zh:'毛豆',desc:'鹽水煮毛豆，下酒必點',cat:'izakaya'},
-  {ja:'唐揚げ',kana:'からあげ',zh:'炸雞塊',desc:'日式醬油醃漬炸雞，外酥內嫩',cat:'izakaya'},
-  {ja:'餃子',kana:'ぎょうざ',zh:'煎餃',desc:'鍋貼式煎餃，底部酥脆',cat:'izakaya'},
-  {ja:'冷奴',kana:'ひややっこ',zh:'冷豆腐',desc:'冰涼豆腐佐醬油薑末',cat:'izakaya'},
-  {ja:'だし巻き卵',kana:'だしまきたまご',zh:'玉子燒',desc:'高湯蛋卷，口感嫩滑',cat:'izakaya'},
-  {ja:'刺身盛り合わせ',kana:'さしみもりあわせ',zh:'生魚片拼盤',desc:'多種新鮮生魚片組合',cat:'izakaya'},
-  {ja:'もつ鍋',kana:'もつなべ',zh:'內臟火鍋',desc:'豬/牛內臟配蔬菜的鍋物',cat:'izakaya'},
-  {ja:'肉じゃが',kana:'にくじゃが',zh:'馬鈴薯燉肉',desc:'日式家常燉菜，甜鹹醬汁',cat:'izakaya'},
-  {ja:'漬物',kana:'つけもの',zh:'醃漬小菜',desc:'各式日式醃菜拼盤',cat:'izakaya'},
-  {ja:'山芋',kana:'やまいも',zh:'山藥',desc:'生食或烤，黏滑口感',cat:'izakaya'},
-  {ja:'たこわさ',kana:'たこわさ',zh:'章魚山葵',desc:'生章魚拌山葵，下酒小菜',cat:'izakaya'},
-  {ja:'砂肝',kana:'すなぎも',zh:'雞胗',desc:'雞胗串燒，口感有嚼勁',cat:'izakaya'},
-  {ja:'なんこつ',kana:'なんこつ',zh:'軟骨',desc:'雞軟骨串燒，脆嫩',cat:'izakaya'},
-  {ja:'ねぎ間',kana:'ねぎま',zh:'蔥雞串',desc:'雞肉與蔥交替串燒',cat:'izakaya'},
-  {ja:'とろろ',kana:'とろろ',zh:'山藥泥',desc:'磨碎的山藥，黏稠順口',cat:'izakaya'},
-  {ja:'あさり酒蒸し',kana:'あさりさかむし',zh:'酒蒸蛤蜊',desc:'清酒蒸蛤蜊，鮮甜湯汁',cat:'izakaya'},
-  {ja:'湯豆腐',kana:'ゆどうふ',zh:'湯豆腐',desc:'昆布湯底燙豆腐',cat:'izakaya'},
-  {ja:'ポテトサラダ',kana:'ぽてとさらだ',zh:'馬鈴薯沙拉',desc:'日式馬鈴薯沙拉，偏甜',cat:'izakaya'},
-  {ja:'鰹のたたき',kana:'かつおのたたき',zh:'柴魚韃靼',desc:'表面略烤的生鰹魚佐薑蒜',cat:'izakaya'},
-  {ja:'揚げ出し豆腐',kana:'あげだしどうふ',zh:'炸豆腐',desc:'裹薄粉油炸後淋高湯醬汁',cat:'izakaya'},
-  {ja:'海老フライ',kana:'えびふらい',zh:'炸蝦',desc:'裹麵包粉油炸大蝦',cat:'izakaya'},
-  {ja:'コロッケ',kana:'ころっけ',zh:'可樂餅',desc:'馬鈴薯泥炸餅，外酥內軟',cat:'izakaya'},
-  {ja:'アジフライ',kana:'あじふらい',zh:'炸竹莢魚',desc:'裹粉油炸竹莢魚，配塔塔醬',cat:'izakaya'},
-  {ja:'鮭とば',kana:'さけとば',zh:'煙燻鮭魚乾',desc:'北海道特產，鹽漬風乾鮭魚',cat:'izakaya'},
-  {ja:'塩辛',kana:'しおから',zh:'鹹魷魚',desc:'魷魚內臟鹽漬，濃郁下酒菜',cat:'izakaya'},
-  {ja:'明太子',kana:'めんたいこ',zh:'明太子',desc:'辣味鱈魚卵，九州特產',cat:'izakaya'},
-  {ja:'タコ刺し',kana:'たこさし',zh:'生章魚片',desc:'薄切生章魚，口感Q彈',cat:'izakaya'},
-  {ja:'ホタルイカ',kana:'ほたるいか',zh:'螢火魷',desc:'小型魷魚，春季限定珍味',cat:'izakaya'},
-  {ja:'厚焼き玉子',kana:'あつやきたまご',zh:'厚切玉子燒',desc:'較厚的甜味蛋卷',cat:'izakaya'},
-  {ja:'ニラ玉',kana:'にらたま',zh:'韭菜炒蛋',desc:'韭菜炒雞蛋，簡單美味',cat:'izakaya'},
-  {ja:'ごぼう天',kana:'ごぼうてん',zh:'牛蒡天婦羅',desc:'牛蒡裹粉炸物',cat:'izakaya'},
-  {ja:'蓮根のきんぴら',kana:'れんこんのきんぴら',zh:'蓮藕金平炒',desc:'蓮藕甜辣炒物',cat:'izakaya'},
-  {ja:'じゃがバター',kana:'じゃがばたー',zh:'奶油烤馬鈴薯',desc:'整顆烤馬鈴薯配奶油',cat:'izakaya'},
-  {ja:'もろきゅう',kana:'もろきゅう',zh:'小黃瓜味噌棒',desc:'黃瓜沾味噌，清爽前菜',cat:'izakaya'},
-  {ja:'オクラ',kana:'おくら',zh:'秋葵',desc:'秋葵小菜，黏稠口感',cat:'izakaya'},
-  {ja:'鶏わさ',kana:'とりわさ',zh:'雞肉山葵',desc:'半生雞胸肉佐山葵醬油',cat:'izakaya'},
-  {ja:'いぶりがっこ',kana:'いぶりがっこ',zh:'燻製蘿蔔',desc:'秋田特產煙燻白蘿蔔',cat:'izakaya'},
-  {ja:'マカロニサラダ',kana:'まかろにさらだ',zh:'通心粉沙拉',desc:'日式通心粉沙拉',cat:'izakaya'},
-  {ja:'ピクルス',kana:'ぴくるす',zh:'西式醃菜',desc:'醋漬蔬菜，清爽開胃',cat:'izakaya'},
-  {ja:'チーズ',kana:'ちーず',zh:'起司',desc:'通常為奶油起司或加工起司',cat:'izakaya'},
-  {ja:'納豆',kana:'なっとう',zh:'納豆',desc:'發酵大豆，黏稠特殊風味',cat:'izakaya'},
-  {ja:'鶏刺し',kana:'とりさし',zh:'雞肉生魚片',desc:'九州特有生雞肉，需新鮮食材',cat:'izakaya'},
-  {ja:'馬刺し',kana:'ばさし',zh:'生馬肉片',desc:'生食馬肉，熊本名物',cat:'izakaya'},
-  {ja:'豆腐サラダ',kana:'とうふさらだ',zh:'豆腐沙拉',desc:'嫩豆腐配蔬菜沙拉',cat:'izakaya'},
-  {ja:'海藻サラダ',kana:'かいそうさらだ',zh:'海藻沙拉',desc:'各式海藻沙拉',cat:'izakaya'},
-  {ja:'シーザーサラダ',kana:'しーざーさらだ',zh:'凱薩沙拉',desc:'日式凱薩沙拉',cat:'izakaya'},
-  {ja:'牛すじ煮込み',kana:'ぎゅうすじにこみ',zh:'燉牛筋',desc:'長時間燉煮的牛筋，入口即化',cat:'izakaya'},
-  {ja:'どて煮',kana:'どてに',zh:'名古屋味噌燉肉',desc:'八丁味噌燉豬內臟或牛筋',cat:'izakaya'},
-  {ja:'串カツ',kana:'くしかつ',zh:'串炸',desc:'大阪名物，各式食材串炸',cat:'izakaya'},
-  {ja:'おでん',kana:'おでん',zh:'關東煮',desc:'各式食材在柴魚昆布湯中慢燉',cat:'izakaya'},
-  {ja:'鍋',kana:'なべ',zh:'火鍋',desc:'日式各類火鍋料理統稱',cat:'izakaya'},
+  // ── 居酒屋 ──
+  {ja:'枝豆',kana:'えだまめ',romaji:'edamame',zh:'毛豆',desc:'鹽水煮毛豆，下酒必點',cat:'izakaya'},
+  {ja:'唐揚げ',kana:'からあげ',romaji:'karaage',zh:'炸雞塊',desc:'日式醬油醃漬炸雞，外酥內嫩',cat:'izakaya'},
+  {ja:'餃子',kana:'ぎょうざ',romaji:'gyōza',zh:'煎餃',desc:'鍋貼式煎餃，底部酥脆',cat:'izakaya'},
+  {ja:'冷奴',kana:'ひややっこ',romaji:'hiyayakko',zh:'冷豆腐',desc:'冰涼豆腐佐醬油薑末',cat:'izakaya'},
+  {ja:'だし巻き卵',kana:'だしまきたまご',romaji:'dashimaki tamago',zh:'玉子燒',desc:'高湯蛋卷，口感嫩滑',cat:'izakaya'},
+  {ja:'刺身盛り合わせ',kana:'さしみもりあわせ',romaji:'sashimi moriawase',zh:'生魚片拼盤',desc:'多種新鮮生魚片組合',cat:'izakaya'},
+  {ja:'もつ鍋',kana:'もつなべ',romaji:'motsu nabe',zh:'內臟火鍋',desc:'豬/牛內臟配蔬菜的鍋物',cat:'izakaya'},
+  {ja:'肉じゃが',kana:'にくじゃが',romaji:'nikujaga',zh:'馬鈴薯燉肉',desc:'日式家常燉菜，甜鹹醬汁',cat:'izakaya'},
+  {ja:'漬物',kana:'つけもの',romaji:'tsukemono',zh:'醃漬小菜',desc:'各式日式醃菜拼盤',cat:'izakaya'},
+  {ja:'山芋',kana:'やまいも',romaji:'yamaimo',zh:'山藥',desc:'生食或烤，黏滑口感',cat:'izakaya'},
+  {ja:'たこわさ',kana:'たこわさ',romaji:'tako wasa',zh:'章魚山葵',desc:'生章魚拌山葵，下酒小菜',cat:'izakaya'},
+  {ja:'砂肝',kana:'すなぎも',romaji:'sunagimo',zh:'雞胗',desc:'雞胗串燒，口感有嚼勁',cat:'izakaya'},
+  {ja:'なんこつ',kana:'なんこつ',romaji:'nankotsu',zh:'軟骨',desc:'雞軟骨串燒，脆嫩',cat:'izakaya'},
+  {ja:'ねぎ間',kana:'ねぎま',romaji:'negima',zh:'蔥雞串',desc:'雞肉與蔥交替串燒',cat:'izakaya'},
+  {ja:'とろろ',kana:'とろろ',romaji:'tororo',zh:'山藥泥',desc:'磨碎的山藥，黏稠順口',cat:'izakaya'},
+  {ja:'あさり酒蒸し',kana:'あさりさかむし',romaji:'asari sakamushi',zh:'酒蒸蛤蜊',desc:'清酒蒸蛤蜊，鮮甜湯汁',cat:'izakaya'},
+  {ja:'湯豆腐',kana:'ゆどうふ',romaji:'yudōfu',zh:'湯豆腐',desc:'昆布湯底燙豆腐',cat:'izakaya'},
+  {ja:'ポテトサラダ',kana:'ぽてとさらだ',romaji:'poteto sarada',zh:'馬鈴薯沙拉',desc:'日式馬鈴薯沙拉，偏甜',cat:'izakaya'},
+  {ja:'鰹のたたき',kana:'かつおのたたき',romaji:'katsuo no tataki',zh:'柴魚韃靼',desc:'表面略烤的生鰹魚佐薑蒜',cat:'izakaya'},
+  {ja:'揚げ出し豆腐',kana:'あげだしどうふ',romaji:'agedashi dōfu',zh:'炸豆腐',desc:'裹薄粉油炸後淋高湯醬汁',cat:'izakaya'},
+  {ja:'海老フライ',kana:'えびふらい',romaji:'ebi furai',zh:'炸蝦',desc:'裹麵包粉油炸大蝦',cat:'izakaya'},
+  {ja:'コロッケ',kana:'ころっけ',romaji:'korokke',zh:'可樂餅',desc:'馬鈴薯泥炸餅，外酥內軟',cat:'izakaya'},
+  {ja:'アジフライ',kana:'あじふらい',romaji:'aji furai',zh:'炸竹莢魚',desc:'裹粉油炸竹莢魚，配塔塔醬',cat:'izakaya'},
+  {ja:'明太子',kana:'めんたいこ',romaji:'mentaiko',zh:'明太子',desc:'辣味鱈魚卵，九州特產',cat:'izakaya'},
+  {ja:'塩辛',kana:'しおから',romaji:'shiokara',zh:'鹹魷魚',desc:'魷魚內臟鹽漬，濃郁下酒菜',cat:'izakaya'},
+  {ja:'タコ刺し',kana:'たこさし',romaji:'tako sashi',zh:'生章魚片',desc:'薄切生章魚，口感Q彈',cat:'izakaya'},
+  {ja:'ホタルイカ',kana:'ほたるいか',romaji:'hotaru ika',zh:'螢火魷',desc:'小型魷魚，春季限定珍味',cat:'izakaya'},
+  {ja:'厚焼き玉子',kana:'あつやきたまご',romaji:'atsuyaki tamago',zh:'厚切玉子燒',desc:'較厚的甜味蛋卷',cat:'izakaya'},
+  {ja:'ニラ玉',kana:'にらたま',romaji:'nira tama',zh:'韭菜炒蛋',desc:'韭菜炒雞蛋，簡單美味',cat:'izakaya'},
+  {ja:'じゃがバター',kana:'じゃがばたー',romaji:'jaga batā',zh:'奶油烤馬鈴薯',desc:'整顆烤馬鈴薯配奶油',cat:'izakaya'},
+  {ja:'もろきゅう',kana:'もろきゅう',romaji:'morokyū',zh:'小黃瓜味噌棒',desc:'黃瓜沾味噌，清爽前菜',cat:'izakaya'},
+  {ja:'牛すじ煮込み',kana:'ぎゅうすじにこみ',romaji:'gyūsuji nikomi',zh:'燉牛筋',desc:'長時間燉煮的牛筋，入口即化',cat:'izakaya'},
+  {ja:'どて煮',kana:'どてに',romaji:'doteni',zh:'名古屋味噌燉肉',desc:'八丁味噌燉豬內臟或牛筋',cat:'izakaya'},
+  {ja:'串カツ',kana:'くしかつ',romaji:'kushikatsu',zh:'串炸',desc:'大阪名物，各式食材串炸',cat:'izakaya'},
+  {ja:'おでん',kana:'おでん',romaji:'oden',zh:'關東煮',desc:'各式食材在柴魚昆布湯中慢燉',cat:'izakaya'},
+  {ja:'鍋',kana:'なべ',romaji:'nabe',zh:'火鍋',desc:'日式各類火鍋料理統稱',cat:'izakaya'},
+  {ja:'鶏わさ',kana:'とりわさ',romaji:'toriwasa',zh:'雞肉山葵',desc:'半生雞胸肉佐山葵醬油',cat:'izakaya'},
+  {ja:'いぶりがっこ',kana:'いぶりがっこ',romaji:'iburi gakko',zh:'燻製蘿蔔',desc:'秋田特產煙燻白蘿蔔',cat:'izakaya'},
+  {ja:'馬刺し',kana:'ばさし',romaji:'basashi',zh:'生馬肉片',desc:'生食馬肉，熊本名物',cat:'izakaya'},
+  {ja:'鶏刺し',kana:'とりさし',romaji:'torisashi',zh:'生雞肉片',desc:'九州特有生雞肉，需非常新鮮',cat:'izakaya'},
+  {ja:'豆腐サラダ',kana:'とうふさらだ',romaji:'tōfu sarada',zh:'豆腐沙拉',desc:'嫩豆腐配蔬菜沙拉',cat:'izakaya'},
+  {ja:'海藻サラダ',kana:'かいそうさらだ',romaji:'kaisō sarada',zh:'海藻沙拉',desc:'各式海藻沙拉',cat:'izakaya'},
+  {ja:'チーズ豆腐',kana:'ちーずとうふ',romaji:'chīzu tōfu',zh:'起司豆腐',desc:'豆腐配起司的創意小菜',cat:'izakaya'},
+  {ja:'アボカドサラダ',kana:'あぼかどさらだ',romaji:'abokado sarada',zh:'酪梨沙拉',desc:'酪梨配蔬菜沙拉',cat:'izakaya'},
+  {ja:'おにぎり',kana:'おにぎり',romaji:'onigiri',zh:'飯糰',desc:'居酒屋收尾常點，各種口味',cat:'izakaya'},
+  {ja:'お茶漬け',kana:'おちゃづけ',romaji:'ochazuke',zh:'茶泡飯',desc:'在白飯上澆熱茶，清爽收尾',cat:'izakaya'},
+  {ja:'雑炊',kana:'ぞうすい',romaji:'zōsui',zh:'雜炊粥',desc:'鍋物結束後加入白飯煮粥',cat:'izakaya'},
+  {ja:'うどん',kana:'うどん',romaji:'udon',zh:'烏龍麵',desc:'居酒屋收尾的烏龍麵',cat:'izakaya'},
+  {ja:'焼きおにぎり',kana:'やきおにぎり',romaji:'yaki onigiri',zh:'烤飯糰',desc:'烤過的醬油風味飯糰',cat:'izakaya'},
+  {ja:'〆',kana:'しめ',romaji:'shime',zh:'收尾料理',desc:'宴會最後點的碳水收尾料理',cat:'izakaya'},
 
-  // ── 壽司（55品）──
-  {ja:'マグロ',kana:'まぐろ',zh:'鮪魚（赤身）',desc:'鮪魚紅肉部位，清爽不油膩',cat:'sushi'},
-  {ja:'大トロ',kana:'おおとろ',zh:'大腹鮪魚',desc:'鮪魚最肥美腹部，入口即化',cat:'sushi'},
-  {ja:'中トロ',kana:'ちゅうとろ',zh:'中腹鮪魚',desc:'鮪魚中等油脂，均衡好吃',cat:'sushi'},
-  {ja:'サーモン',kana:'さーもん',zh:'鮭魚',desc:'挪威鮭魚，油脂豐富橙紅色',cat:'sushi'},
-  {ja:'サーモン腹',kana:'さーもんはら',zh:'鮭魚腹肉',desc:'鮭魚油脂最豐富的腹部',cat:'sushi'},
-  {ja:'ハマチ',kana:'はまち',zh:'黃尾鰤（幼魚）',desc:'鰤魚幼魚，油脂豐富鮮甜',cat:'sushi'},
-  {ja:'ブリ',kana:'ぶり',zh:'鰤魚',desc:'成熟鰤魚，冬季最肥美',cat:'sushi'},
-  {ja:'カンパチ',kana:'かんぱち',zh:'紅甘鯧',desc:'清爽口感，比鰤魚清淡',cat:'sushi'},
-  {ja:'シマアジ',kana:'しまあじ',zh:'條紋鰺',desc:'高級白身魚，口感細緻',cat:'sushi'},
-  {ja:'アジ',kana:'あじ',zh:'竹莢魚',desc:'夏季鮮魚，通常切碎成泥',cat:'sushi'},
-  {ja:'サバ',kana:'さば',zh:'鯖魚',desc:'通常用醋醃漬，壽司常見',cat:'sushi'},
-  {ja:'コハダ',kana:'こはだ',zh:'斑魚',desc:'醋漬小魚，江戶前壽司代表',cat:'sushi'},
-  {ja:'カツオ',kana:'かつお',zh:'鰹魚',desc:'春秋兩季最美味，略有腥氣',cat:'sushi'},
-  {ja:'サンマ',kana:'さんま',zh:'秋刀魚',desc:'秋季限定，油脂豐富',cat:'sushi'},
-  {ja:'イワシ',kana:'いわし',zh:'沙丁魚',desc:'小型青背魚，味道濃郁',cat:'sushi'},
-  {ja:'ヒラメ',kana:'ひらめ',zh:'比目魚',desc:'白身魚，口感清淡細嫩',cat:'sushi'},
-  {ja:'カレイ',kana:'かれい',zh:'鰈魚',desc:'白身魚，比目魚的近親',cat:'sushi'},
-  {ja:'タイ',kana:'たい',zh:'鯛魚',desc:'白身魚之王，清淡高雅',cat:'sushi'},
-  {ja:'スズキ',kana:'すずき',zh:'鱸魚',desc:'清淡白身魚，夏季美味',cat:'sushi'},
-  {ja:'イカ',kana:'いか',zh:'透抽/魷魚',desc:'白色生魷魚，口感Q彈',cat:'sushi'},
-  {ja:'タコ',kana:'たこ',zh:'章魚',desc:'燙熟切片，口感紮實',cat:'sushi'},
-  {ja:'エビ',kana:'えび',zh:'煮蝦',desc:'燙熟後彎曲的鮮蝦',cat:'sushi'},
-  {ja:'甘エビ',kana:'あまえび',zh:'甜蝦',desc:'生食北方甜蝦，甜嫩多汁',cat:'sushi'},
-  {ja:'ボタンエビ',kana:'ぼたんえび',zh:'牡丹蝦',desc:'生食大型甜蝦，極品',cat:'sushi'},
-  {ja:'シャコ',kana:'しゃこ',zh:'蝦蛄',desc:'形似螳螂的甲殼類，鮮甜',cat:'sushi'},
-  {ja:'ホタテ',kana:'ほたて',zh:'干貝',desc:'生食扇貝，甘甜多汁',cat:'sushi'},
-  {ja:'ホッキ',kana:'ほっき',zh:'北極貝',desc:'厚實貝肉，甜中帶嚼勁',cat:'sushi'},
-  {ja:'アワビ',kana:'あわび',zh:'鮑魚',desc:'高級食材，口感有嚼勁',cat:'sushi'},
-  {ja:'トリガイ',kana:'とりがい',zh:'鳥蛤',desc:'形似鳥嘴的貝類，清脆',cat:'sushi'},
-  {ja:'ウニ',kana:'うに',zh:'海膽',desc:'生食海膽，濃郁鮮甜奶香',cat:'sushi'},
-  {ja:'バフンウニ',kana:'ばふんうに',zh:'馬糞海膽',desc:'橙色海膽，味道最濃郁',cat:'sushi'},
-  {ja:'ムラサキウニ',kana:'むらさきうに',zh:'紫海膽',desc:'淡黃色，味道較清爽',cat:'sushi'},
-  {ja:'イクラ',kana:'いくら',zh:'鮭魚卵',desc:'醬油醃鮭魚卵，鹹鮮爆漿',cat:'sushi'},
-  {ja:'数の子',kana:'かずのこ',zh:'鯡魚卵',desc:'醃漬鯡魚卵，爽脆',cat:'sushi'},
-  {ja:'とびっこ',kana:'とびっこ',zh:'飛魚卵',desc:'細小橙色魚卵，嚼起來沙沙的',cat:'sushi'},
-  {ja:'穴子',kana:'あなご',zh:'星鰻',desc:'蒲燒星鰻，比鰻魚清淡',cat:'sushi'},
-  {ja:'うなぎ',kana:'うなぎ',zh:'鰻魚',desc:'蒲燒鰻魚，甜鹹醬汁',cat:'sushi'},
-  {ja:'たまご',kana:'たまご',zh:'玉子燒壽司',desc:'甜味蛋卷壽司，兒童最愛',cat:'sushi'},
-  {ja:'かんぴょう巻き',kana:'かんぴょうまき',zh:'干瓢卷',desc:'醃葫蘆乾細卷，傳統江戶風',cat:'sushi'},
-  {ja:'鉄火巻き',kana:'てっかまき',zh:'鮪魚細卷',desc:'鮪魚紅肉細卷',cat:'sushi'},
-  {ja:'かっぱ巻き',kana:'かっぱまき',zh:'小黃瓜卷',desc:'小黃瓜細卷，清爽素食',cat:'sushi'},
-  {ja:'手巻き寿司',kana:'てまきずし',zh:'手卷壽司',desc:'圓錐形海苔手卷',cat:'sushi'},
-  {ja:'太巻き',kana:'ふとまき',zh:'粗卷',desc:'多種食材的大卷壽司',cat:'sushi'},
-  {ja:'裏巻き',kana:'うらまき',zh:'裡卷/加州卷',desc:'米飯在外海苔在內',cat:'sushi'},
-  {ja:'軍艦巻き',kana:'ぐんかんまき',zh:'軍艦卷',desc:'海苔圍住米飯盛食材',cat:'sushi'},
-  {ja:'にぎり',kana:'にぎり',zh:'握壽司',desc:'手握橢圓形飯糰上放料',cat:'sushi'},
-  {ja:'おまかせ',kana:'おまかせ',zh:'主廚推薦',desc:'交由師傅決定內容，通常最新鮮',cat:'sushi'},
-  {ja:'あぶり',kana:'あぶり',zh:'炙燒',desc:'用火槍略燒表面，增加香氣',cat:'sushi'},
-  {ja:'漬け',kana:'づけ',zh:'醬漬',desc:'以醬油等醃漬的壽司料',cat:'sushi'},
-  {ja:'シャリ',kana:'しゃり',zh:'醋飯',desc:'壽司米飯底座',cat:'sushi'},
-  {ja:'ネタ',kana:'ねた',zh:'壽司料',desc:'壽司上方的食材統稱',cat:'sushi'},
-  {ja:'あがり',kana:'あがり',zh:'壽司店熱茶',desc:'壽司店對熱茶的業界暗語',cat:'sushi'},
-  {ja:'むらさき',kana:'むらさき',zh:'醬油（壽司暗語）',desc:'壽司店對醬油的業界暗語',cat:'sushi'},
-  {ja:'わさび抜き',kana:'わさびぬき',zh:'不加山葵',desc:'要求去掉山葵的說法',cat:'sushi'},
-  {ja:'おまかせコース',kana:'おまかせこーす',zh:'主廚套餐',desc:'由師傅決定的全套壽司套餐',cat:'sushi'},
+  // ── 壽司 ──
+  {ja:'マグロ',kana:'まぐろ',romaji:'maguro',zh:'鮪魚（赤身）',desc:'鮪魚紅肉，清爽不油膩',cat:'sushi'},
+  {ja:'大トロ',kana:'おおとろ',romaji:'ōtoro',zh:'大腹鮪魚',desc:'鮪魚最肥美腹部，入口即化',cat:'sushi'},
+  {ja:'中トロ',kana:'ちゅうとろ',romaji:'chūtoro',zh:'中腹鮪魚',desc:'鮪魚中等油脂，均衡好吃',cat:'sushi'},
+  {ja:'サーモン',kana:'さーもん',romaji:'sāmon',zh:'鮭魚',desc:'挪威鮭魚，油脂豐富橙紅色',cat:'sushi'},
+  {ja:'サーモン腹',kana:'さーもんはら',romaji:'sāmon hara',zh:'鮭魚腹肉',desc:'鮭魚油脂最豐富的腹部',cat:'sushi'},
+  {ja:'ハマチ',kana:'はまち',romaji:'hamachi',zh:'黃尾鰤（幼魚）',desc:'鰤魚幼魚，油脂豐富鮮甜',cat:'sushi'},
+  {ja:'ブリ',kana:'ぶり',romaji:'buri',zh:'鰤魚',desc:'成熟鰤魚，冬季最肥美',cat:'sushi'},
+  {ja:'カンパチ',kana:'かんぱち',romaji:'kanpachi',zh:'紅甘鯧',desc:'清爽口感，比鰤魚清淡',cat:'sushi'},
+  {ja:'シマアジ',kana:'しまあじ',romaji:'shima aji',zh:'條紋鰺',desc:'高級白身魚，口感細緻',cat:'sushi'},
+  {ja:'アジ',kana:'あじ',romaji:'aji',zh:'竹莢魚',desc:'夏季鮮魚，通常切碎成泥',cat:'sushi'},
+  {ja:'サバ',kana:'さば',romaji:'saba',zh:'鯖魚',desc:'通常用醋醃漬，壽司常見',cat:'sushi'},
+  {ja:'コハダ',kana:'こはだ',romaji:'kohada',zh:'斑魚',desc:'醋漬小魚，江戶前壽司代表',cat:'sushi'},
+  {ja:'カツオ',kana:'かつお',romaji:'katsuo',zh:'鰹魚',desc:'春秋兩季最美味，略有腥氣',cat:'sushi'},
+  {ja:'サンマ',kana:'さんま',romaji:'sanma',zh:'秋刀魚',desc:'秋季限定，油脂豐富',cat:'sushi'},
+  {ja:'イワシ',kana:'いわし',romaji:'iwashi',zh:'沙丁魚',desc:'小型青背魚，味道濃郁',cat:'sushi'},
+  {ja:'ヒラメ',kana:'ひらめ',romaji:'hirame',zh:'比目魚',desc:'白身魚，口感清淡細嫩',cat:'sushi'},
+  {ja:'カレイ',kana:'かれい',romaji:'karei',zh:'鰈魚',desc:'白身魚，比目魚的近親',cat:'sushi'},
+  {ja:'タイ',kana:'たい',romaji:'tai',zh:'鯛魚',desc:'白身魚之王，清淡高雅',cat:'sushi'},
+  {ja:'スズキ',kana:'すずき',romaji:'suzuki',zh:'鱸魚',desc:'清淡白身魚，夏季美味',cat:'sushi'},
+  {ja:'キンメダイ',kana:'きんめだい',romaji:'kinmedai',zh:'金目鯛',desc:'橘紅色高級魚，冬季最美味',cat:'sushi'},
+  {ja:'イカ',kana:'いか',romaji:'ika',zh:'透抽/魷魚',desc:'白色生魷魚，口感Q彈',cat:'sushi'},
+  {ja:'タコ',kana:'たこ',romaji:'tako',zh:'章魚',desc:'燙熟切片，口感紮實',cat:'sushi'},
+  {ja:'エビ',kana:'えび',romaji:'ebi',zh:'煮蝦',desc:'燙熟後彎曲的鮮蝦',cat:'sushi'},
+  {ja:'甘エビ',kana:'あまえび',romaji:'ama ebi',zh:'甜蝦',desc:'生食北方甜蝦，甜嫩多汁',cat:'sushi'},
+  {ja:'ボタンエビ',kana:'ぼたんえび',romaji:'botan ebi',zh:'牡丹蝦',desc:'生食大型甜蝦，極品',cat:'sushi'},
+  {ja:'シャコ',kana:'しゃこ',romaji:'shako',zh:'蝦蛄',desc:'形似螳螂的甲殼類，鮮甜',cat:'sushi'},
+  {ja:'ホタテ',kana:'ほたて',romaji:'hotate',zh:'干貝',desc:'生食扇貝，甘甜多汁',cat:'sushi'},
+  {ja:'ホッキ',kana:'ほっき',romaji:'hokki',zh:'北極貝',desc:'厚實貝肉，甜中帶嚼勁',cat:'sushi'},
+  {ja:'アワビ',kana:'あわび',romaji:'awabi',zh:'鮑魚',desc:'高級食材，口感有嚼勁',cat:'sushi'},
+  {ja:'トリガイ',kana:'とりがい',romaji:'torigai',zh:'鳥蛤',desc:'形似鳥嘴的貝類，清脆',cat:'sushi'},
+  {ja:'ミル貝',kana:'みるがい',romaji:'mirugai',zh:'海松貝',desc:'長形大型貝，口感脆嫩',cat:'sushi'},
+  {ja:'ウニ',kana:'うに',romaji:'uni',zh:'海膽',desc:'生食海膽，濃郁鮮甜奶香',cat:'sushi'},
+  {ja:'バフンウニ',kana:'ばふんうに',romaji:'bafun uni',zh:'馬糞海膽',desc:'橙色海膽，味道最濃郁',cat:'sushi'},
+  {ja:'ムラサキウニ',kana:'むらさきうに',romaji:'murasaki uni',zh:'紫海膽',desc:'淡黃色，味道較清爽',cat:'sushi'},
+  {ja:'イクラ',kana:'いくら',romaji:'ikura',zh:'鮭魚卵',desc:'醬油醃鮭魚卵，鹹鮮爆漿',cat:'sushi'},
+  {ja:'数の子',kana:'かずのこ',romaji:'kazunoko',zh:'鯡魚卵',desc:'醃漬鯡魚卵，爽脆',cat:'sushi'},
+  {ja:'とびっこ',kana:'とびっこ',romaji:'tobikko',zh:'飛魚卵',desc:'細小橙色魚卵，嚼起來沙沙的',cat:'sushi'},
+  {ja:'穴子',kana:'あなご',romaji:'anago',zh:'星鰻',desc:'蒲燒星鰻，比鰻魚清淡',cat:'sushi'},
+  {ja:'うなぎ',kana:'うなぎ',romaji:'unagi',zh:'鰻魚',desc:'蒲燒鰻魚，甜鹹醬汁',cat:'sushi'},
+  {ja:'たまご',kana:'たまご',romaji:'tamago',zh:'玉子燒壽司',desc:'甜味蛋卷壽司，兒童最愛',cat:'sushi'},
+  {ja:'かんぴょう巻き',kana:'かんぴょうまき',romaji:'kanpyō maki',zh:'干瓢卷',desc:'醃葫蘆乾細卷，傳統江戶風',cat:'sushi'},
+  {ja:'鉄火巻き',kana:'てっかまき',romaji:'tekka maki',zh:'鮪魚細卷',desc:'鮪魚紅肉細卷',cat:'sushi'},
+  {ja:'かっぱ巻き',kana:'かっぱまき',romaji:'kappa maki',zh:'小黃瓜卷',desc:'小黃瓜細卷，清爽素食',cat:'sushi'},
+  {ja:'手巻き寿司',kana:'てまきずし',romaji:'temaki zushi',zh:'手卷壽司',desc:'圓錐形海苔手卷',cat:'sushi'},
+  {ja:'太巻き',kana:'ふとまき',romaji:'futomaki',zh:'粗卷',desc:'多種食材的大卷壽司',cat:'sushi'},
+  {ja:'軍艦巻き',kana:'ぐんかんまき',romaji:'gunkan maki',zh:'軍艦卷',desc:'海苔圍住米飯盛食材',cat:'sushi'},
+  {ja:'にぎり',kana:'にぎり',romaji:'nigiri',zh:'握壽司',desc:'手握橢圓形飯糰上放料',cat:'sushi'},
+  {ja:'おまかせ',kana:'おまかせ',romaji:'omakase',zh:'主廚推薦',desc:'交由師傅決定，通常最新鮮',cat:'sushi'},
+  {ja:'あぶり',kana:'あぶり',romaji:'aburi',zh:'炙燒',desc:'用火槍略燒表面，增加香氣',cat:'sushi'},
+  {ja:'漬け',kana:'づけ',romaji:'zuke',zh:'醬漬',desc:'以醬油等醃漬的壽司料',cat:'sushi'},
+  {ja:'シャリ',kana:'しゃり',romaji:'shari',zh:'醋飯',desc:'壽司米飯底座',cat:'sushi'},
+  {ja:'ネタ',kana:'ねた',romaji:'neta',zh:'壽司料',desc:'壽司上方的食材統稱',cat:'sushi'},
+  {ja:'あがり',kana:'あがり',romaji:'agari',zh:'壽司店熱茶',desc:'壽司店對熱茶的業界暗語',cat:'sushi'},
+  {ja:'むらさき',kana:'むらさき',romaji:'murasaki',zh:'醬油（壽司暗語）',desc:'壽司店對醬油的業界暗語',cat:'sushi'},
+  {ja:'わさび抜き',kana:'わさびぬき',romaji:'wasabi nuki',zh:'不加山葵',desc:'要求去掉山葵的說法',cat:'sushi'},
+  {ja:'おまかせコース',kana:'おまかせこーす',romaji:'omakase kōsu',zh:'主廚套餐',desc:'由師傅決定的全套壽司套餐',cat:'sushi'},
 
-  // ── 燒肉（55品）──
-  {ja:'カルビ',kana:'かるび',zh:'牛五花',desc:'牛肋骨側油脂豐富部位',cat:'yakiniku'},
-  {ja:'上カルビ',kana:'じょうかるび',zh:'上等牛五花',desc:'精選高品質牛五花',cat:'yakiniku'},
-  {ja:'特上カルビ',kana:'とくじょうかるび',zh:'特上等牛五花',desc:'最高等級牛五花',cat:'yakiniku'},
-  {ja:'ロース',kana:'ろーす',zh:'里脊肉',desc:'牛背部瘦肉，適中油脂',cat:'yakiniku'},
-  {ja:'サーロイン',kana:'さーろいん',zh:'沙朗',desc:'牛背部頂級部位，油花豐富',cat:'yakiniku'},
-  {ja:'リブロース',kana:'りぶろーす',zh:'肋眼',desc:'肋骨周圍的高油花部位',cat:'yakiniku'},
-  {ja:'ヒレ',kana:'ひれ',zh:'菲力',desc:'牛腰內肉，最嫩部位，低脂',cat:'yakiniku'},
-  {ja:'ランプ',kana:'らんぷ',zh:'臀肉',desc:'牛後臀部位，瘦肉有嚼勁',cat:'yakiniku'},
-  {ja:'イチボ',kana:'いちぼ',zh:'臀尖肉',desc:'後臀邊角油花均勻',cat:'yakiniku'},
-  {ja:'シンタマ',kana:'しんたま',zh:'後腿芯肉',desc:'後腿中心瘦肉，口感扎實',cat:'yakiniku'},
-  {ja:'ザブトン',kana:'ざぶとん',zh:'板腱',desc:'肩胛部稀少部位，霜降明顯',cat:'yakiniku'},
-  {ja:'ミスジ',kana:'みすじ',zh:'嫩肩里脊',desc:'前肩稀少部位，筋紋細緻',cat:'yakiniku'},
-  {ja:'トモサンカク',kana:'ともさんかく',zh:'後腿三角肉',desc:'後腿稀少霜降部位',cat:'yakiniku'},
-  {ja:'ハラミ',kana:'はらみ',zh:'牛橫隔膜',desc:'口感嫩，屬內臟但像瘦肉',cat:'yakiniku'},
-  {ja:'サガリ',kana:'さがり',zh:'牛腹橫隔膜',desc:'與ハラミ相近，肉質略有不同',cat:'yakiniku'},
-  {ja:'タン',kana:'たん',zh:'牛舌',desc:'牛舌，口感Q彈有嚼勁',cat:'yakiniku'},
-  {ja:'タン塩',kana:'たんしお',zh:'鹽烤牛舌',desc:'薄切牛舌配檸檬鹽醬',cat:'yakiniku'},
-  {ja:'タン元',kana:'たんもと',zh:'牛舌根部',desc:'牛舌根部，最柔嫩部位',cat:'yakiniku'},
-  {ja:'タン先',kana:'たんさき',zh:'牛舌尖',desc:'牛舌前端，較有嚼勁',cat:'yakiniku'},
-  {ja:'ミノ',kana:'みの',zh:'牛百葉',desc:'牛第一個胃，口感脆嫩',cat:'yakiniku'},
-  {ja:'ハチノス',kana:'はちのす',zh:'蜂巢胃',desc:'牛第二個胃，蜂巢狀紋路',cat:'yakiniku'},
-  {ja:'センマイ',kana:'せんまい',zh:'千葉胃',desc:'牛第三個胃，千層薄片狀',cat:'yakiniku'},
-  {ja:'ギアラ',kana:'ぎあら',zh:'紅胃',desc:'牛第四個胃，口感柔軟',cat:'yakiniku'},
-  {ja:'シマチョウ',kana:'しまちょう',zh:'大腸',desc:'牛大腸，油脂豐富入口即化',cat:'yakiniku'},
-  {ja:'マルチョウ',kana:'まるちょう',zh:'小腸',desc:'牛小腸，比大腸油脂更多',cat:'yakiniku'},
-  {ja:'レバー',kana:'ればー',zh:'肝臟',desc:'牛/豬肝，鐵質豐富',cat:'yakiniku'},
-  {ja:'ハツ',kana:'はつ',zh:'心臟',desc:'牛/豬心，口感有彈性',cat:'yakiniku'},
-  {ja:'コブクロ',kana:'こぶくろ',zh:'子宮',desc:'豬子宮，口感爽脆',cat:'yakiniku'},
-  {ja:'テッポウ',kana:'てっぽう',zh:'豬直腸',desc:'豬直腸，管狀口感脆',cat:'yakiniku'},
-  {ja:'豚トロ',kana:'ぶたとろ',zh:'豬頸肉',desc:'豬頸部油脂豐富，類似霜降',cat:'yakiniku'},
-  {ja:'豚バラ',kana:'ぶたばら',zh:'豬五花',desc:'豬腹部五花肉',cat:'yakiniku'},
-  {ja:'豚ロース',kana:'ぶたろーす',zh:'豬里脊',desc:'豬背部里脊肉',cat:'yakiniku'},
-  {ja:'黒毛和牛',kana:'くろげわぎゅう',zh:'黑毛和牛',desc:'日本最高等級和牛品種',cat:'yakiniku'},
-  {ja:'A5ランク',kana:'えーふぁいぶらんく',zh:'A5等級',desc:'日本和牛最高評級',cat:'yakiniku'},
-  {ja:'霜降り',kana:'しもふり',zh:'霜降（油花）',desc:'脂肪均勻分布於肉中',cat:'yakiniku'},
-  {ja:'赤身',kana:'あかみ',zh:'紅肉',desc:'脂肪少的純瘦肉部位',cat:'yakiniku'},
-  {ja:'塩ダレ',kana:'しおだれ',zh:'鹽醬',desc:'清淡鹹味醬料，適合高級肉',cat:'yakiniku'},
-  {ja:'焼肉のタレ',kana:'やきにくのたれ',zh:'燒肉醬',desc:'甜鹹醬油底燒肉沾醬',cat:'yakiniku'},
-  {ja:'コチュジャン',kana:'こちゅじゃん',zh:'韓式辣醬',desc:'韓式辣味調味醬',cat:'yakiniku'},
-  {ja:'サンチュ',kana:'さんちゅ',zh:'生菜',desc:'包肉用的萵苣葉',cat:'yakiniku'},
-  {ja:'ニンニク',kana:'にんにく',zh:'大蒜',desc:'烤蒜片，去腥增香',cat:'yakiniku'},
-  {ja:'ネギ塩',kana:'ねぎしお',zh:'蔥鹽',desc:'青蔥鹽醬，清爽解膩',cat:'yakiniku'},
-  {ja:'ナムル',kana:'なむる',zh:'韓式涼拌菜',desc:'韓式調味蔬菜小菜',cat:'yakiniku'},
-  {ja:'石焼ビビンバ',kana:'いしやきびびんば',zh:'石鍋拌飯',desc:'熱石鍋裝的韓式拌飯',cat:'yakiniku'},
-  {ja:'クッパ',kana:'くっぱ',zh:'韓式湯飯',desc:'韓式牛骨湯泡飯',cat:'yakiniku'},
-  {ja:'ユッケ',kana:'ゆっけ',zh:'韓式生牛肉',desc:'調味生牛絞肉，類似韃靼牛肉',cat:'yakiniku'},
-  {ja:'レア',kana:'れあ',zh:'三分熟',desc:'幾乎生的程度',cat:'yakiniku'},
-  {ja:'ミディアム',kana:'みでぃあむ',zh:'五分熟',desc:'中等熟度',cat:'yakiniku'},
-  {ja:'ウェルダン',kana:'うぇるだん',zh:'全熟',desc:'完全熟透',cat:'yakiniku'},
-  {ja:'焼き加減',kana:'やきかげん',zh:'燒烤程度',desc:'詢問/說明肉的熟度',cat:'yakiniku'},
-  {ja:'一人前',kana:'いちにんまえ',zh:'一人份',desc:'一人份量',cat:'yakiniku'},
-  {ja:'盛り合わせ',kana:'もりあわせ',zh:'綜合拼盤',desc:'多種肉類組合拼盤',cat:'yakiniku'},
-  {ja:'テグタン',kana:'てぐたん',zh:'韓式牛雜湯',desc:'辣味牛雜湯',cat:'yakiniku'},
-  {ja:'カルビクッパ',kana:'かるびくっぱ',zh:'牛肋湯飯',desc:'牛肋肉湯泡飯',cat:'yakiniku'},
-  {ja:'コムタン',kana:'こむたん',zh:'牛骨濃湯',desc:'長時燉煮的白色牛骨湯',cat:'yakiniku'},
+  // ── 燒肉 ──
+  {ja:'カルビ',kana:'かるび',romaji:'karubi',zh:'牛五花',desc:'牛肋骨側油脂豐富部位',cat:'yakiniku'},
+  {ja:'上カルビ',kana:'じょうかるび',romaji:'jō karubi',zh:'上等牛五花',desc:'精選高品質牛五花',cat:'yakiniku'},
+  {ja:'特上カルビ',kana:'とくじょうかるび',romaji:'tokujō karubi',zh:'特上等牛五花',desc:'最高等級牛五花',cat:'yakiniku'},
+  {ja:'ロース',kana:'ろーす',romaji:'rōsu',zh:'里脊肉',desc:'牛背部瘦肉，適中油脂',cat:'yakiniku'},
+  {ja:'サーロイン',kana:'さーろいん',romaji:'sāroin',zh:'沙朗',desc:'牛背部頂級部位，油花豐富',cat:'yakiniku'},
+  {ja:'リブロース',kana:'りぶろーす',romaji:'ribu rōsu',zh:'肋眼',desc:'肋骨周圍的高油花部位',cat:'yakiniku'},
+  {ja:'ヒレ',kana:'ひれ',romaji:'hire',zh:'菲力',desc:'牛腰內肉，最嫩部位，低脂',cat:'yakiniku'},
+  {ja:'ランプ',kana:'らんぷ',romaji:'ranpu',zh:'臀肉',desc:'牛後臀部位，瘦肉有嚼勁',cat:'yakiniku'},
+  {ja:'イチボ',kana:'いちぼ',romaji:'ichibo',zh:'臀尖肉',desc:'後臀邊角油花均勻',cat:'yakiniku'},
+  {ja:'シンタマ',kana:'しんたま',romaji:'shintama',zh:'後腿芯肉',desc:'後腿中心瘦肉，口感扎實',cat:'yakiniku'},
+  {ja:'ザブトン',kana:'ざぶとん',romaji:'zabuton',zh:'板腱',desc:'肩胛部稀少部位，霜降明顯',cat:'yakiniku'},
+  {ja:'ミスジ',kana:'みすじ',romaji:'misuji',zh:'嫩肩里脊',desc:'前肩稀少部位，筋紋細緻',cat:'yakiniku'},
+  {ja:'トモサンカク',kana:'ともさんかく',romaji:'tomo sankaku',zh:'後腿三角肉',desc:'後腿稀少霜降部位',cat:'yakiniku'},
+  {ja:'ハラミ',kana:'はらみ',romaji:'harami',zh:'牛橫隔膜',desc:'口感嫩，屬內臟但像瘦肉',cat:'yakiniku'},
+  {ja:'サガリ',kana:'さがり',romaji:'sagari',zh:'牛腹橫隔膜',desc:'與ハラミ相近，肉質略有不同',cat:'yakiniku'},
+  {ja:'タン',kana:'たん',romaji:'tan',zh:'牛舌',desc:'牛舌，口感Q彈有嚼勁',cat:'yakiniku'},
+  {ja:'タン塩',kana:'たんしお',romaji:'tan shio',zh:'鹽烤牛舌',desc:'薄切牛舌配檸檬鹽醬',cat:'yakiniku'},
+  {ja:'タン元',kana:'たんもと',romaji:'tan moto',zh:'牛舌根部',desc:'牛舌根部，最柔嫩部位',cat:'yakiniku'},
+  {ja:'タン先',kana:'たんさき',romaji:'tan saki',zh:'牛舌尖',desc:'牛舌前端，較有嚼勁',cat:'yakiniku'},
+  {ja:'ミノ',kana:'みの',romaji:'mino',zh:'牛百葉',desc:'牛第一個胃，口感脆嫩',cat:'yakiniku'},
+  {ja:'ハチノス',kana:'はちのす',romaji:'hachinosu',zh:'蜂巢胃',desc:'牛第二個胃，蜂巢狀紋路',cat:'yakiniku'},
+  {ja:'センマイ',kana:'せんまい',romaji:'senmai',zh:'千葉胃',desc:'牛第三個胃，千層薄片狀',cat:'yakiniku'},
+  {ja:'ギアラ',kana:'ぎあら',romaji:'giara',zh:'紅胃',desc:'牛第四個胃，口感柔軟',cat:'yakiniku'},
+  {ja:'シマチョウ',kana:'しまちょう',romaji:'shimachō',zh:'大腸',desc:'牛大腸，油脂豐富入口即化',cat:'yakiniku'},
+  {ja:'マルチョウ',kana:'まるちょう',romaji:'maruchō',zh:'小腸',desc:'牛小腸，比大腸油脂更多',cat:'yakiniku'},
+  {ja:'レバー',kana:'ればー',romaji:'rebā',zh:'肝臟',desc:'牛/豬肝，鐵質豐富',cat:'yakiniku'},
+  {ja:'ハツ',kana:'はつ',romaji:'hatsu',zh:'心臟',desc:'牛/豬心，口感有彈性',cat:'yakiniku'},
+  {ja:'コブクロ',kana:'こぶくろ',romaji:'kobukuro',zh:'子宮',desc:'豬子宮，口感爽脆',cat:'yakiniku'},
+  {ja:'テッポウ',kana:'てっぽう',romaji:'teppō',zh:'豬直腸',desc:'豬直腸，管狀口感脆',cat:'yakiniku'},
+  {ja:'豚トロ',kana:'ぶたとろ',romaji:'buta toro',zh:'豬頸肉',desc:'豬頸部油脂豐富，類似霜降',cat:'yakiniku'},
+  {ja:'豚バラ',kana:'ぶたばら',romaji:'buta bara',zh:'豬五花',desc:'豬腹部五花肉',cat:'yakiniku'},
+  {ja:'豚ロース',kana:'ぶたろーす',romaji:'buta rōsu',zh:'豬里脊',desc:'豬背部里脊肉',cat:'yakiniku'},
+  {ja:'黒毛和牛',kana:'くろげわぎゅう',romaji:'kurogewa gyū',zh:'黑毛和牛',desc:'日本最高等級和牛品種',cat:'yakiniku'},
+  {ja:'A5ランク',kana:'えーふぁいぶらんく',romaji:'ē faibu ranku',zh:'A5等級',desc:'日本和牛最高評級',cat:'yakiniku'},
+  {ja:'霜降り',kana:'しもふり',romaji:'shimofuri',zh:'霜降（油花）',desc:'脂肪均勻分布於肉中',cat:'yakiniku'},
+  {ja:'赤身',kana:'あかみ',romaji:'akami',zh:'紅肉',desc:'脂肪少的純瘦肉部位',cat:'yakiniku'},
+  {ja:'塩ダレ',kana:'しおだれ',romaji:'shio dare',zh:'鹽醬',desc:'清淡鹹味醬料，適合高級肉',cat:'yakiniku'},
+  {ja:'焼肉のタレ',kana:'やきにくのたれ',romaji:'yakiniku no tare',zh:'燒肉醬',desc:'甜鹹醬油底燒肉沾醬',cat:'yakiniku'},
+  {ja:'ネギ塩',kana:'ねぎしお',romaji:'negi shio',zh:'蔥鹽',desc:'青蔥鹽醬，清爽解膩',cat:'yakiniku'},
+  {ja:'サンチュ',kana:'さんちゅ',romaji:'sanchu',zh:'生菜',desc:'包肉用的萵苣葉',cat:'yakiniku'},
+  {ja:'ニンニク',kana:'にんにく',romaji:'ninniku',zh:'大蒜',desc:'烤蒜片，去腥增香',cat:'yakiniku'},
+  {ja:'ナムル',kana:'なむる',romaji:'namuru',zh:'韓式涼拌菜',desc:'韓式調味蔬菜小菜',cat:'yakiniku'},
+  {ja:'石焼ビビンバ',kana:'いしやきびびんば',romaji:'ishiyaki bibinba',zh:'石鍋拌飯',desc:'熱石鍋裝的韓式拌飯',cat:'yakiniku'},
+  {ja:'クッパ',kana:'くっぱ',romaji:'kuppa',zh:'韓式湯飯',desc:'韓式牛骨湯泡飯',cat:'yakiniku'},
+  {ja:'ユッケ',kana:'ゆっけ',romaji:'yukke',zh:'韓式生牛肉',desc:'調味生牛絞肉，類似韃靼牛肉',cat:'yakiniku'},
+  {ja:'レア',kana:'れあ',romaji:'rea',zh:'三分熟',desc:'幾乎生的程度',cat:'yakiniku'},
+  {ja:'ミディアム',kana:'みでぃあむ',romaji:'midiamu',zh:'五分熟',desc:'中等熟度',cat:'yakiniku'},
+  {ja:'ウェルダン',kana:'うぇるだん',romaji:'werudan',zh:'全熟',desc:'完全熟透',cat:'yakiniku'},
+  {ja:'盛り合わせ',kana:'もりあわせ',romaji:'moriawase',zh:'綜合拼盤',desc:'多種肉類組合拼盤',cat:'yakiniku'},
+  {ja:'一人前',kana:'いちにんまえ',romaji:'ichi ninmae',zh:'一人份',desc:'一人份量',cat:'yakiniku'},
+  {ja:'テグタン',kana:'てぐたん',romaji:'tegutan',zh:'韓式牛雜湯',desc:'辣味牛雜湯',cat:'yakiniku'},
+  {ja:'コムタン',kana:'こむたん',romaji:'komutan',zh:'牛骨濃湯',desc:'長時燉煮的白色牛骨湯',cat:'yakiniku'},
 
   // ── 拉麵 ──
-  {ja:'とんこつラーメン',kana:'とんこつらーめん',zh:'豚骨拉麵',desc:'濃郁豬骨白湯，博多風',cat:'ramen'},
-  {ja:'醤油ラーメン',kana:'しょうゆらーめん',zh:'醬油拉麵',desc:'清爽雞骨醬油湯底',cat:'ramen'},
-  {ja:'味噌ラーメン',kana:'みそらーめん',zh:'味噌拉麵',desc:'濃厚味噌湯底，北海道風',cat:'ramen'},
-  {ja:'塩ラーメン',kana:'しおらーめん',zh:'鹽味拉麵',desc:'清淡鹽味，最能品嚐高湯',cat:'ramen'},
-  {ja:'つけ麺',kana:'つけめん',zh:'沾麵',desc:'濃縮沾醬配麵條',cat:'ramen'},
-  {ja:'替え玉',kana:'かえだま',zh:'加麵',desc:'追加麵條，不含湯',cat:'ramen'},
-  {ja:'チャーシュー',kana:'ちゃーしゅー',zh:'叉燒',desc:'滷製豬肉片，拉麵必備',cat:'ramen'},
-  {ja:'味玉',kana:'あじたま',zh:'溏心蛋',desc:'醬油醃漬半熟雞蛋',cat:'ramen'},
-  {ja:'海苔',kana:'のり',zh:'海苔',desc:'烤海苔片',cat:'ramen'},
-  {ja:'もやし',kana:'もやし',zh:'豆芽菜',desc:'豆芽菜配料',cat:'ramen'},
-  {ja:'背脂',kana:'せあぶら',zh:'背部豬脂',desc:'豬背脂肪，增加濃郁感',cat:'ramen'},
-  {ja:'メンマ',kana:'めんま',zh:'筍乾',desc:'醃漬竹筍，拉麵配料',cat:'ramen'},
-  {ja:'辛味噌',kana:'からみそ',zh:'辣味噌',desc:'加辣的味噌醬',cat:'ramen'},
-  {ja:'ネギ',kana:'ねぎ',zh:'蔥花',desc:'切碎的青蔥',cat:'ramen'},
+  {ja:'とんこつラーメン',kana:'とんこつらーめん',romaji:'tonkotsu rāmen',zh:'豚骨拉麵',desc:'濃郁豬骨白湯，博多風',cat:'ramen'},
+  {ja:'醤油ラーメン',kana:'しょうゆらーめん',romaji:'shōyu rāmen',zh:'醬油拉麵',desc:'清爽雞骨醬油湯底',cat:'ramen'},
+  {ja:'味噌ラーメン',kana:'みそらーめん',romaji:'miso rāmen',zh:'味噌拉麵',desc:'濃厚味噌湯底，北海道風',cat:'ramen'},
+  {ja:'塩ラーメン',kana:'しおらーめん',romaji:'shio rāmen',zh:'鹽味拉麵',desc:'清淡鹽味，最能品嚐高湯',cat:'ramen'},
+  {ja:'つけ麺',kana:'つけめん',romaji:'tsukemen',zh:'沾麵',desc:'濃縮沾醬配麵條',cat:'ramen'},
+  {ja:'替え玉',kana:'かえだま',romaji:'kaedama',zh:'加麵',desc:'追加麵條，不含湯',cat:'ramen'},
+  {ja:'チャーシュー',kana:'ちゃーしゅー',romaji:'chāshū',zh:'叉燒',desc:'滷製豬肉片，拉麵必備',cat:'ramen'},
+  {ja:'味玉',kana:'あじたま',romaji:'ajitama',zh:'溏心蛋',desc:'醬油醃漬半熟雞蛋',cat:'ramen'},
+  {ja:'メンマ',kana:'めんま',romaji:'menma',zh:'筍乾',desc:'醃漬竹筍，拉麵配料',cat:'ramen'},
+  {ja:'背脂',kana:'せあぶら',romaji:'seabura',zh:'背部豬脂',desc:'豬背脂肪，增加濃郁感',cat:'ramen'},
+  {ja:'もやし',kana:'もやし',romaji:'moyashi',zh:'豆芽菜',desc:'豆芽菜配料',cat:'ramen'},
+  {ja:'海苔',kana:'のり',romaji:'nori',zh:'海苔',desc:'烤海苔片',cat:'ramen'},
+  {ja:'ネギ',kana:'ねぎ',romaji:'negi',zh:'蔥花',desc:'切碎的青蔥',cat:'ramen'},
+  {ja:'辛味噌',kana:'からみそ',romaji:'kara miso',zh:'辣味噌',desc:'加辣的味噌醬',cat:'ramen'},
 
   // ── 串燒 ──
-  {ja:'焼き鳥',kana:'やきとり',zh:'烤雞串',desc:'各部位雞肉串燒統稱',cat:'kushiyaki'},
-  {ja:'もも',kana:'もも',zh:'雞腿肉',desc:'雞腿肉串，多汁',cat:'kushiyaki'},
-  {ja:'むね',kana:'むね',zh:'雞胸肉',desc:'雞胸肉串，清淡',cat:'kushiyaki'},
-  {ja:'つくね',kana:'つくね',zh:'雞肉丸',desc:'雞絞肉丸串燒',cat:'kushiyaki'},
-  {ja:'レバー',kana:'ればー',zh:'雞肝',desc:'雞肝串燒，嫩滑',cat:'kushiyaki'},
-  {ja:'ハツ',kana:'はつ',zh:'雞心',desc:'雞心串燒，有彈性',cat:'kushiyaki'},
-  {ja:'皮',kana:'かわ',zh:'雞皮',desc:'雞皮串燒，脆香',cat:'kushiyaki'},
-  {ja:'ぼんじり',kana:'ぼんじり',zh:'雞尾椎',desc:'雞屁股串燒，油脂豐富',cat:'kushiyaki'},
-  {ja:'タレ',kana:'たれ',zh:'醬汁口味',desc:'甜醬油口味',cat:'kushiyaki'},
-  {ja:'塩',kana:'しお',zh:'鹽味',desc:'清淡鹽味，品嚐原味',cat:'kushiyaki'},
+  {ja:'焼き鳥',kana:'やきとり',romaji:'yakitori',zh:'烤雞串',desc:'各部位雞肉串燒統稱',cat:'kushiyaki'},
+  {ja:'もも',kana:'もも',romaji:'momo',zh:'雞腿肉',desc:'雞腿肉串，多汁',cat:'kushiyaki'},
+  {ja:'むね',kana:'むね',romaji:'mune',zh:'雞胸肉',desc:'雞胸肉串，清淡',cat:'kushiyaki'},
+  {ja:'つくね',kana:'つくね',romaji:'tsukune',zh:'雞肉丸',desc:'雞絞肉丸串燒',cat:'kushiyaki'},
+  {ja:'レバー',kana:'ればー',romaji:'rebā',zh:'雞肝',desc:'雞肝串燒，嫩滑',cat:'kushiyaki'},
+  {ja:'ハツ',kana:'はつ',romaji:'hatsu',zh:'雞心',desc:'雞心串燒，有彈性',cat:'kushiyaki'},
+  {ja:'皮',kana:'かわ',romaji:'kawa',zh:'雞皮',desc:'雞皮串燒，脆香',cat:'kushiyaki'},
+  {ja:'ぼんじり',kana:'ぼんじり',romaji:'bonjiri',zh:'雞尾椎',desc:'雞屁股串燒，油脂豐富',cat:'kushiyaki'},
+  {ja:'砂肝',kana:'すなぎも',romaji:'sunagimo',zh:'雞胗',desc:'雞胗串，口感有嚼勁',cat:'kushiyaki'},
+  {ja:'タレ',kana:'たれ',romaji:'tare',zh:'醬汁口味',desc:'甜醬油口味串燒',cat:'kushiyaki'},
+  {ja:'塩',kana:'しお',romaji:'shio',zh:'鹽味',desc:'清淡鹽味，品嚐原味',cat:'kushiyaki'},
 
   // ── 天婦羅 ──
-  {ja:'天ぷら',kana:'てんぷら',zh:'天婦羅',desc:'裹麵糊油炸的食材統稱',cat:'tempura'},
-  {ja:'海老天',kana:'えびてん',zh:'炸蝦天婦羅',desc:'大蝦天婦羅，最受歡迎',cat:'tempura'},
-  {ja:'かき揚げ',kana:'かきあげ',zh:'什錦天婦羅餅',desc:'蝦仁蔬菜混合炸餅',cat:'tempura'},
-  {ja:'なす天',kana:'なすてん',zh:'茄子天婦羅',desc:'茄子天婦羅',cat:'tempura'},
-  {ja:'さつまいも天',kana:'さつまいもてん',zh:'地瓜天婦羅',desc:'甜地瓜天婦羅',cat:'tempura'},
-  {ja:'天つゆ',kana:'てんつゆ',zh:'天婦羅沾醬',desc:'昆布柴魚高湯沾醬',cat:'tempura'},
-  {ja:'大根おろし',kana:'だいこんおろし',zh:'白蘿蔔泥',desc:'搭配天婦羅的白蘿蔔泥',cat:'tempura'},
+  {ja:'天ぷら',kana:'てんぷら',romaji:'tempura',zh:'天婦羅',desc:'裹麵糊油炸的食材統稱',cat:'tempura'},
+  {ja:'海老天',kana:'えびてん',romaji:'ebi ten',zh:'炸蝦天婦羅',desc:'大蝦天婦羅，最受歡迎',cat:'tempura'},
+  {ja:'かき揚げ',kana:'かきあげ',romaji:'kakiage',zh:'什錦天婦羅餅',desc:'蝦仁蔬菜混合炸餅',cat:'tempura'},
+  {ja:'なす天',kana:'なすてん',romaji:'nasu ten',zh:'茄子天婦羅',desc:'茄子天婦羅',cat:'tempura'},
+  {ja:'さつまいも天',kana:'さつまいもてん',romaji:'satsumaimo ten',zh:'地瓜天婦羅',desc:'甜地瓜天婦羅',cat:'tempura'},
+  {ja:'天つゆ',kana:'てんつゆ',romaji:'tentsuyu',zh:'天婦羅沾醬',desc:'昆布柴魚高湯沾醬',cat:'tempura'},
+  {ja:'大根おろし',kana:'だいこんおろし',romaji:'daikon oroshi',zh:'白蘿蔔泥',desc:'搭配天婦羅的白蘿蔔泥',cat:'tempura'},
 
   // ── 定食 ──
-  {ja:'定食',kana:'ていしょく',zh:'定食套餐',desc:'主菜+白飯+味噌湯+小菜',cat:'teishoku'},
-  {ja:'日替わり定食',kana:'ひがわりていしょく',zh:'每日特餐',desc:'每天更換的定食套餐',cat:'teishoku'},
-  {ja:'焼き魚定食',kana:'やきざかなていしょく',zh:'烤魚定食',desc:'烤魚套餐',cat:'teishoku'},
-  {ja:'サバの塩焼き',kana:'さばのしおやき',zh:'鹽烤鯖魚',desc:'鹽烤鯖魚',cat:'teishoku'},
-  {ja:'ハンバーグ',kana:'はんばーぐ',zh:'漢堡排',desc:'日式漢堡排，常配醬汁',cat:'teishoku'},
-  {ja:'生姜焼き',kana:'しょうがやき',zh:'薑汁燒肉',desc:'豬肉薑汁醬炒',cat:'teishoku'},
-  {ja:'から揚げ定食',kana:'からあげていしょく',zh:'炸雞定食',desc:'日式炸雞套餐',cat:'teishoku'},
-  {ja:'味噌汁',kana:'みそしる',zh:'味噌湯',desc:'日式味噌豆腐蔬菜湯',cat:'teishoku'},
-  {ja:'おかわり',kana:'おかわり',zh:'免費續碗',desc:'白飯可以免費續碗',cat:'teishoku'},
-  {ja:'漬物',kana:'つけもの',zh:'醃漬小菜',desc:'定食附贈的醃菜',cat:'teishoku'},
+  {ja:'定食',kana:'ていしょく',romaji:'teishoku',zh:'定食套餐',desc:'主菜+白飯+味噌湯+小菜',cat:'teishoku'},
+  {ja:'日替わり定食',kana:'ひがわりていしょく',romaji:'higawari teishoku',zh:'每日特餐',desc:'每天更換的定食套餐',cat:'teishoku'},
+  {ja:'焼き魚定食',kana:'やきざかなていしょく',romaji:'yakizakana teishoku',zh:'烤魚定食',desc:'烤魚套餐',cat:'teishoku'},
+  {ja:'サバの塩焼き',kana:'さばのしおやき',romaji:'saba no shioyaki',zh:'鹽烤鯖魚',desc:'鹽烤鯖魚',cat:'teishoku'},
+  {ja:'ハンバーグ',kana:'はんばーぐ',romaji:'hanbāgu',zh:'漢堡排',desc:'日式漢堡排，常配醬汁',cat:'teishoku'},
+  {ja:'生姜焼き',kana:'しょうがやき',romaji:'shōga yaki',zh:'薑汁燒肉',desc:'豬肉薑汁醬炒',cat:'teishoku'},
+  {ja:'から揚げ定食',kana:'からあげていしょく',romaji:'karaage teishoku',zh:'炸雞定食',desc:'日式炸雞套餐',cat:'teishoku'},
+  {ja:'味噌汁',kana:'みそしる',romaji:'miso shiru',zh:'味噌湯',desc:'日式味噌豆腐蔬菜湯',cat:'teishoku'},
+  {ja:'おかわり',kana:'おかわり',romaji:'okawari',zh:'免費續碗',desc:'白飯可以免費續碗',cat:'teishoku'},
+  {ja:'漬物',kana:'つけもの',romaji:'tsukemono',zh:'醃漬小菜',desc:'定食附贈的醃菜',cat:'teishoku'},
 
   // ── 烏龍/蕎麥 ──
-  {ja:'かけうどん',kana:'かけうどん',zh:'清湯烏龍麵',desc:'最基本的烏龍麵，清淡高湯',cat:'udon'},
-  {ja:'ざるうどん',kana:'ざるうどん',zh:'竹篩烏龍冷麵',desc:'冷卻後配沾醬食用',cat:'udon'},
-  {ja:'肉うどん',kana:'にくうどん',zh:'肉片烏龍麵',desc:'加入甜辣牛肉片',cat:'udon'},
-  {ja:'釜玉うどん',kana:'かまたまうどん',zh:'釜玉烏龍麵',desc:'剛煮好配生蛋拌勻',cat:'udon'},
-  {ja:'ぶっかけうどん',kana:'ぶっかけうどん',zh:'澆汁烏龍麵',desc:'冷麵直接澆上濃縮醬汁',cat:'udon'},
-  {ja:'とろろうどん',kana:'とろろうどん',zh:'山藥泥烏龍麵',desc:'加入黏稠山藥泥',cat:'udon'},
-  {ja:'ざるそば',kana:'ざるそば',zh:'竹篩冷蕎麥麵',desc:'冷蕎麥麵配沾醬',cat:'udon'},
-  {ja:'もりそば',kana:'もりそば',zh:'盛蕎麥麵',desc:'冷蕎麥麵，最基本款',cat:'udon'},
-  {ja:'天ざるそば',kana:'てんざるそば',zh:'天婦羅冷蕎麥麵',desc:'附炸蝦天婦羅的冷蕎麥麵',cat:'udon'},
+  {ja:'かけうどん',kana:'かけうどん',romaji:'kake udon',zh:'清湯烏龍麵',desc:'最基本的烏龍麵，清淡高湯',cat:'udon'},
+  {ja:'ざるうどん',kana:'ざるうどん',romaji:'zaru udon',zh:'竹篩烏龍冷麵',desc:'冷卻後配沾醬食用',cat:'udon'},
+  {ja:'肉うどん',kana:'にくうどん',romaji:'niku udon',zh:'肉片烏龍麵',desc:'加入甜辣牛肉片',cat:'udon'},
+  {ja:'釜玉うどん',kana:'かまたまうどん',romaji:'kamatama udon',zh:'釜玉烏龍麵',desc:'剛煮好配生蛋拌勻',cat:'udon'},
+  {ja:'ぶっかけうどん',kana:'ぶっかけうどん',romaji:'bukkake udon',zh:'澆汁烏龍麵',desc:'冷麵直接澆上濃縮醬汁',cat:'udon'},
+  {ja:'ざるそば',kana:'ざるそば',romaji:'zaru soba',zh:'竹篩冷蕎麥麵',desc:'冷蕎麥麵配沾醬',cat:'udon'},
+  {ja:'もりそば',kana:'もりそば',romaji:'mori soba',zh:'盛蕎麥麵',desc:'冷蕎麥麵，最基本款',cat:'udon'},
+  {ja:'天ざるそば',kana:'てんざるそば',romaji:'ten zaru soba',zh:'天婦羅冷蕎麥麵',desc:'附炸蝦天婦羅的冷蕎麥麵',cat:'udon'},
+  {ja:'とろろそば',kana:'とろろそば',romaji:'tororo soba',zh:'山藥泥蕎麥麵',desc:'加入黏稠山藥泥的蕎麥麵',cat:'udon'},
 
   // ── 咖哩 ──
-  {ja:'カレーライス',kana:'かれーらいす',zh:'咖哩飯',desc:'日式咖哩，偏甜濃稠',cat:'curry'},
-  {ja:'カツカレー',kana:'かつかれー',zh:'豬排咖哩',desc:'炸豬排配咖哩飯',cat:'curry'},
-  {ja:'チキンカレー',kana:'ちきんかれー',zh:'雞肉咖哩',desc:'雞肉咖哩飯',cat:'curry'},
-  {ja:'辛さ',kana:'からさ',zh:'辣度',desc:'咖哩辣度選擇',cat:'curry'},
-  {ja:'甘口',kana:'あまくち',zh:'不辣',desc:'最低辣度',cat:'curry'},
-  {ja:'中辛',kana:'ちゅうから',zh:'中辣',desc:'中等辣度',cat:'curry'},
-  {ja:'大辛',kana:'おおから',zh:'大辣',desc:'最高辣度',cat:'curry'},
-  {ja:'トッピング',kana:'とっぴんぐ',zh:'加料',desc:'額外加入的配料',cat:'curry'},
+  {ja:'カレーライス',kana:'かれーらいす',romaji:'karē raisu',zh:'咖哩飯',desc:'日式咖哩，偏甜濃稠',cat:'curry'},
+  {ja:'カツカレー',kana:'かつかれー',romaji:'katsu karē',zh:'豬排咖哩',desc:'炸豬排配咖哩飯',cat:'curry'},
+  {ja:'チキンカレー',kana:'ちきんかれー',romaji:'chikin karē',zh:'雞肉咖哩',desc:'雞肉咖哩飯',cat:'curry'},
+  {ja:'甘口',kana:'あまくち',romaji:'amakuchi',zh:'不辣',desc:'最低辣度',cat:'curry'},
+  {ja:'中辛',kana:'ちゅうから',romaji:'chūkara',zh:'中辣',desc:'中等辣度',cat:'curry'},
+  {ja:'大辛',kana:'おおから',romaji:'ōkara',zh:'大辣',desc:'最高辣度',cat:'curry'},
+  {ja:'トッピング',kana:'とっぴんぐ',romaji:'toppingu',zh:'加料',desc:'額外加入的配料',cat:'curry'},
+  {ja:'辛さ',kana:'からさ',romaji:'karasa',zh:'辣度',desc:'咖哩辣度選擇',cat:'curry'},
 
   // ── 丼飯 ──
-  {ja:'牛丼',kana:'ぎゅうどん',zh:'牛肉丼',desc:'甜辣醬汁燉牛肉蓋飯',cat:'donburi'},
-  {ja:'親子丼',kana:'おやこどん',zh:'親子丼',desc:'雞肉雞蛋蓋飯',cat:'donburi'},
-  {ja:'カツ丼',kana:'かつどん',zh:'炸豬排蓋飯',desc:'炸豬排配雞蛋丼',cat:'donburi'},
-  {ja:'海鮮丼',kana:'かいせんどん',zh:'海鮮丼',desc:'生魚片海鮮蓋飯',cat:'donburi'},
-  {ja:'天丼',kana:'てんどん',zh:'天婦羅丼',desc:'炸蝦天婦羅蓋飯',cat:'donburi'},
-  {ja:'うな丼',kana:'うなどん',zh:'鰻魚丼',desc:'蒲燒鰻魚蓋飯',cat:'donburi'},
-  {ja:'並盛り',kana:'なみもり',zh:'一般份量',desc:'標準份量',cat:'donburi'},
-  {ja:'大盛り',kana:'おおもり',zh:'大份',desc:'加大份量',cat:'donburi'},
-  {ja:'特盛り',kana:'とくもり',zh:'特大份',desc:'超大份量',cat:'donburi'},
+  {ja:'牛丼',kana:'ぎゅうどん',romaji:'gyūdon',zh:'牛肉丼',desc:'甜辣醬汁燉牛肉蓋飯',cat:'donburi'},
+  {ja:'親子丼',kana:'おやこどん',romaji:'oyakodon',zh:'親子丼',desc:'雞肉雞蛋蓋飯',cat:'donburi'},
+  {ja:'カツ丼',kana:'かつどん',romaji:'katsudon',zh:'炸豬排蓋飯',desc:'炸豬排配雞蛋丼',cat:'donburi'},
+  {ja:'海鮮丼',kana:'かいせんどん',romaji:'kaisendon',zh:'海鮮丼',desc:'生魚片海鮮蓋飯',cat:'donburi'},
+  {ja:'天丼',kana:'てんどん',romaji:'tendon',zh:'天婦羅丼',desc:'炸蝦天婦羅蓋飯',cat:'donburi'},
+  {ja:'うな丼',kana:'うなどん',romaji:'unadon',zh:'鰻魚丼',desc:'蒲燒鰻魚蓋飯',cat:'donburi'},
+  {ja:'並盛り',kana:'なみもり',romaji:'namimori',zh:'一般份量',desc:'標準份量',cat:'donburi'},
+  {ja:'大盛り',kana:'おおもり',romaji:'ōmori',zh:'大份',desc:'加大份量',cat:'donburi'},
+  {ja:'特盛り',kana:'とくもり',romaji:'tokumori',zh:'特大份',desc:'超大份量',cat:'donburi'},
 
   // ── 咖啡廳 ──
-  {ja:'ホットコーヒー',kana:'ほっとこーひー',zh:'熱咖啡',desc:'美式或濾滴咖啡',cat:'cafe'},
-  {ja:'アイスコーヒー',kana:'あいすこーひー',zh:'冰咖啡',desc:'冰咖啡',cat:'cafe'},
-  {ja:'カフェラテ',kana:'かふぇらて',zh:'拿鐵',desc:'濃縮咖啡加牛奶',cat:'cafe'},
-  {ja:'抹茶ラテ',kana:'まっちゃらて',zh:'抹茶拿鐵',desc:'抹茶加牛奶',cat:'cafe'},
-  {ja:'モーニング',kana:'もーにんぐ',zh:'早餐套餐',desc:'咖啡廳早餐，含土司和飲料',cat:'cafe'},
-  {ja:'パンケーキ',kana:'ぱんけーき',zh:'厚鬆餅',desc:'日式厚鬆餅，咖啡廳招牌',cat:'cafe'},
+  {ja:'ホットコーヒー',kana:'ほっとこーひー',romaji:'hotto kōhī',zh:'熱咖啡',desc:'美式或濾滴咖啡',cat:'cafe'},
+  {ja:'アイスコーヒー',kana:'あいすこーひー',romaji:'aisu kōhī',zh:'冰咖啡',desc:'冰咖啡',cat:'cafe'},
+  {ja:'カフェラテ',kana:'かふぇらて',romaji:'kafe rate',zh:'拿鐵',desc:'濃縮咖啡加牛奶',cat:'cafe'},
+  {ja:'抹茶ラテ',kana:'まっちゃらて',romaji:'matcha rate',zh:'抹茶拿鐵',desc:'抹茶加牛奶',cat:'cafe'},
+  {ja:'モーニング',kana:'もーにんぐ',romaji:'mōningu',zh:'早餐套餐',desc:'咖啡廳早餐，含土司和飲料',cat:'cafe'},
+  {ja:'パンケーキ',kana:'ぱんけーき',romaji:'pankēki',zh:'厚鬆餅',desc:'日式厚鬆餅，咖啡廳招牌',cat:'cafe'},
 
   // ── 便利店 ──
-  {ja:'おにぎり',kana:'おにぎり',zh:'飯糰',desc:'各種口味的三角飯糰',cat:'convenience'},
-  {ja:'弁当',kana:'べんとう',zh:'便當',desc:'便利店便當，微波即食',cat:'convenience'},
-  {ja:'肉まん',kana:'にくまん',zh:'肉包',desc:'熱乎乎的豬肉包子',cat:'convenience'},
-  {ja:'から揚げ',kana:'からあげ',zh:'炸雞塊',desc:'便利店熱食區炸雞',cat:'convenience'},
-  {ja:'コーヒー',kana:'こーひー',zh:'現煮咖啡',desc:'便利店現磨咖啡，便宜好喝',cat:'convenience'},
-  {ja:'プリン',kana:'ぷりん',zh:'布丁',desc:'便利店招牌甜點',cat:'convenience'},
+  {ja:'おにぎり',kana:'おにぎり',romaji:'onigiri',zh:'飯糰',desc:'各種口味的三角飯糰',cat:'convenience'},
+  {ja:'弁当',kana:'べんとう',romaji:'bentō',zh:'便當',desc:'便利店便當，微波即食',cat:'convenience'},
+  {ja:'肉まん',kana:'にくまん',romaji:'nikuman',zh:'肉包',desc:'熱乎乎的豬肉包子',cat:'convenience'},
+  {ja:'から揚げ',kana:'からあげ',romaji:'karaage',zh:'炸雞塊',desc:'便利店熱食區炸雞',cat:'convenience'},
+  {ja:'コーヒー',kana:'こーひー',romaji:'kōhī',zh:'現煮咖啡',desc:'便利店現磨咖啡，便宜好喝',cat:'convenience'},
+  {ja:'プリン',kana:'ぷりん',romaji:'purin',zh:'布丁',desc:'便利店招牌甜點',cat:'convenience'},
 
   // ── 飲品 ──
-  {ja:'生ビール',kana:'なまびーる',zh:'生啤酒',desc:'新鮮桶裝生啤酒',cat:'drink'},
-  {ja:'ハイボール',kana:'はいぼーる',zh:'威士忌蘇打',desc:'威士忌兌蘇打水，日本酒吧必點',cat:'drink'},
-  {ja:'チューハイ',kana:'ちゅーはい',zh:'調酎嗨',desc:'燒酒兌果汁，低酒精',cat:'drink'},
-  {ja:'レモンサワー',kana:'れもんさわー',zh:'檸檬沙瓦',desc:'最受歡迎的沙瓦口味',cat:'drink'},
-  {ja:'梅酒',kana:'うめしゅ',zh:'梅酒',desc:'梅子釀製甜酒',cat:'drink'},
-  {ja:'日本酒',kana:'にほんしゅ',zh:'清酒',desc:'米釀日式清酒',cat:'drink'},
-  {ja:'焼酎',kana:'しょうちゅう',zh:'燒酒',desc:'日式蒸餾酒，芋/麥/米',cat:'drink'},
-  {ja:'ウーロン茶',kana:'うーろんちゃ',zh:'烏龍茶',desc:'無酒精飲料',cat:'drink'},
-  {ja:'ノンアルコール',kana:'のんあるこーる',zh:'無酒精',desc:'不含酒精的飲料',cat:'drink'},
-  {ja:'グラス',kana:'ぐらす',zh:'杯裝',desc:'以杯計價',cat:'drink'},
-  {ja:'ボトル',kana:'ぼとる',zh:'整瓶',desc:'以瓶計價',cat:'drink'},
+  {ja:'生ビール',kana:'なまびーる',romaji:'nama bīru',zh:'生啤酒',desc:'新鮮桶裝生啤酒',cat:'drink'},
+  {ja:'ハイボール',kana:'はいぼーる',romaji:'haibōru',zh:'威士忌蘇打',desc:'威士忌兌蘇打水，日本酒吧必點',cat:'drink'},
+  {ja:'チューハイ',kana:'ちゅーはい',romaji:'chūhai',zh:'調酎嗨',desc:'燒酒兌果汁，低酒精',cat:'drink'},
+  {ja:'レモンサワー',kana:'れもんさわー',romaji:'remon sawā',zh:'檸檬沙瓦',desc:'最受歡迎的沙瓦口味',cat:'drink'},
+  {ja:'梅酒',kana:'うめしゅ',romaji:'umeshu',zh:'梅酒',desc:'梅子釀製甜酒',cat:'drink'},
+  {ja:'日本酒',kana:'にほんしゅ',romaji:'nihonshu',zh:'清酒',desc:'米釀日式清酒',cat:'drink'},
+  {ja:'焼酎',kana:'しょうちゅう',romaji:'shōchū',zh:'燒酒',desc:'日式蒸餾酒，芋/麥/米',cat:'drink'},
+  {ja:'ウーロン茶',kana:'うーろんちゃ',romaji:'ūron cha',zh:'烏龍茶',desc:'無酒精飲料',cat:'drink'},
+  {ja:'ノンアルコール',kana:'のんあるこーる',romaji:'non arukōru',zh:'無酒精',desc:'不含酒精的飲料',cat:'drink'},
+  {ja:'グラス',kana:'ぐらす',romaji:'gurasu',zh:'杯裝',desc:'以杯計價',cat:'drink'},
+  {ja:'ボトル',kana:'ぼとる',romaji:'botoru',zh:'整瓶',desc:'以瓶計價',cat:'drink'},
 
   // ── 甜點 ──
-  {ja:'わらび餅',kana:'わらびもち',zh:'蕨餅',desc:'Q彈蕨粉麻糬，沾黃豆粉',cat:'dessert'},
-  {ja:'抹茶アイス',kana:'まっちゃあいす',zh:'抹茶冰淇淋',desc:'抹茶口味冰淇淋',cat:'dessert'},
-  {ja:'たい焼き',kana:'たいやき',zh:'鯛魚燒',desc:'魚形紅豆餡餅，街頭小吃',cat:'dessert'},
-  {ja:'どら焼き',kana:'どらやき',zh:'銅鑼燒',desc:'蜂蜜蛋糕夾紅豆泥',cat:'dessert'},
-  {ja:'大福',kana:'だいふく',zh:'大福麻糬',desc:'外皮麻糬包紅豆餡',cat:'dessert'},
-  {ja:'プリン',kana:'ぷりん',zh:'焦糖布丁',desc:'日式焦糖布丁',cat:'dessert'},
-  {ja:'パフェ',kana:'ぱふぇ',zh:'聖代',desc:'日式聖代，層次豐富',cat:'dessert'},
-  {ja:'ソフトクリーム',kana:'そふとくりーむ',zh:'霜淇淋',desc:'日本霜淇淋，口味多樣',cat:'dessert'},
-  {ja:'かき氷',kana:'かきごおり',zh:'刨冰',desc:'日式刨冰，配糖漿或抹茶',cat:'dessert'},
+  {ja:'わらび餅',kana:'わらびもち',romaji:'warabi mochi',zh:'蕨餅',desc:'Q彈蕨粉麻糬，沾黃豆粉',cat:'dessert'},
+  {ja:'抹茶アイス',kana:'まっちゃあいす',romaji:'matcha aisu',zh:'抹茶冰淇淋',desc:'抹茶口味冰淇淋',cat:'dessert'},
+  {ja:'たい焼き',kana:'たいやき',romaji:'taiyaki',zh:'鯛魚燒',desc:'魚形紅豆餡餅，街頭小吃',cat:'dessert'},
+  {ja:'どら焼き',kana:'どらやき',romaji:'dorayaki',zh:'銅鑼燒',desc:'蜂蜜蛋糕夾紅豆泥',cat:'dessert'},
+  {ja:'大福',kana:'だいふく',romaji:'daifuku',zh:'大福麻糬',desc:'外皮麻糬包紅豆餡',cat:'dessert'},
+  {ja:'プリン',kana:'ぷりん',romaji:'purin',zh:'焦糖布丁',desc:'日式焦糖布丁',cat:'dessert'},
+  {ja:'パフェ',kana:'ぱふぇ',romaji:'pafe',zh:'聖代',desc:'日式聖代，層次豐富',cat:'dessert'},
+  {ja:'ソフトクリーム',kana:'そふとくりーむ',romaji:'sofuto kurīmu',zh:'霜淇淋',desc:'日本霜淇淋，口味多樣',cat:'dessert'},
+  {ja:'かき氷',kana:'かきごおり',romaji:'kakigōri',zh:'刨冰',desc:'日式刨冰，配糖漿或抹茶',cat:'dessert'},
 ];
 
 // ── 字典搜尋邏輯 ──
@@ -3019,14 +3022,16 @@ function renderDictResults(){
   $('dict-results').innerHTML=results.length
     ? results.map(d=>`
       <div class="dict-item">
-        <div>
+        <div style="flex:0 0 auto;min-width:110px;max-width:140px;">
           <div class="dict-ja">${d.ja}<span class="dict-cat-tag">${catLabels[d.cat]||''}</span></div>
           <div class="dict-kana">${d.kana}</div>
+          <div class="dict-romaji">${d.romaji||''}</div>
         </div>
         <div class="dict-right">
           <div class="dict-zh">${d.zh}</div>
           <div class="dict-desc">${d.desc}</div>
         </div>
+        <button class="dict-speak" onclick="speakJa(this,'${d.ja.replace(/'/g,"\'")}')" title="播放日文發音">🔊</button>
       </div>`).join('') + aiBtn
     : `<div class="dict-empty">
         <div style="font-size:32px;margin-bottom:10px;">🔍</div>
@@ -3037,6 +3042,45 @@ function renderDictResults(){
         </button>
       </div>` + (q?'':`<div class="dict-empty" style="padding-top:0;">選擇上方類別或輸入關鍵字</div>`);
 }
+// ── Web Speech API（日文發音）──
+let _speaking=false;
+function speakJa(btn, text){
+  if(!('speechSynthesis' in window)){
+    alert('您的瀏覽器不支援語音功能，建議使用 iOS Safari');
+    return;
+  }
+  // 停止當前播放
+  window.speechSynthesis.cancel();
+  if(_speaking&&btn.classList.contains('speaking')){
+    btn.classList.remove('speaking');
+    _speaking=false;
+    return;
+  }
+  // 停掉其他按鈕動畫
+  document.querySelectorAll('.dict-speak.speaking').forEach(b=>b.classList.remove('speaking'));
+
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang='ja-JP';
+  utter.rate=0.85;  // 稍慢，方便學習
+  utter.pitch=1;
+
+  // iOS 需要選擇日文語音
+  const voices=window.speechSynthesis.getVoices();
+  const jaVoice=voices.find(v=>v.lang==='ja-JP'||v.lang==='ja_JP');
+  if(jaVoice)utter.voice=jaVoice;
+
+  btn.classList.add('speaking');
+  _speaking=true;
+  utter.onend=()=>{btn.classList.remove('speaking');_speaking=false;};
+  utter.onerror=()=>{btn.classList.remove('speaking');_speaking=false;};
+  window.speechSynthesis.speak(utter);
+}
+// iOS 需要預先載入語音列表
+if('speechSynthesis' in window){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+}
+
 let dictAICache={};
 async function dictAISearch(){
   const q=($('dict-search').value||'').trim();
@@ -3053,7 +3097,7 @@ async function dictAISearch(){
         max_tokens:400,
         messages:[{role:'user',content:`你是日文料理翻譯專家，請翻譯以下日文食物/料理詞彙。
 查詢：${q}
-只回傳 JSON，格式：{"ja":"日文原文","kana":"平假名讀音","zh":"繁體中文名稱","desc":"台灣人看得懂的說明，30字以內","found":true}
+只回傳 JSON，格式：{"ja":"日文原文","kana":"平假名讀音","romaji":"羅馬拼音（如 karaage）","zh":"繁體中文名稱","desc":"台灣人看得懂的說明，30字以內","found":true}
 若不是料理/食材相關詞彙，found填false，其他欄位填空字串。`}]
       })
     });
@@ -3074,14 +3118,16 @@ function renderDictAIResult(result,q){
   $('dict-results').innerHTML=`
     <div style="padding:12px 0 6px;font-size:10px;color:var(--text3);font-weight:700;letter-spacing:.5px;">✨ AI 查詢結果</div>
     <div class="dict-item" style="border:2px solid var(--sakura-light);border-radius:var(--rm);padding:12px 14px;background:var(--sakura-light)20;">
-      <div>
+      <div style="flex:0 0 auto;min-width:110px;max-width:140px;">
         <div class="dict-ja">${result.ja}<span class="dict-cat-tag" style="background:var(--sakura-light);color:#C25B7A;">AI</span></div>
-        <div class="dict-kana">${result.kana}</div>
+        <div class="dict-kana">${result.kana||''}</div>
+        <div class="dict-romaji">${result.romaji||''}</div>
       </div>
       <div class="dict-right">
         <div class="dict-zh">${result.zh}</div>
         <div class="dict-desc">${result.desc}</div>
       </div>
+      <button class="dict-speak" onclick="speakJa(this,this.dataset.t)" data-t="${result.ja||''}">🔊</button>
     </div>
     <div style="font-size:10px;color:var(--text3);margin-top:8px;text-align:center;">AI 生成內容，僅供參考</div>`;
 }
