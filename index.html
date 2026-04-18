@@ -207,6 +207,13 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 .receipt-item{display:flex;align-items:center;gap:9px;padding:10px 16px;border-bottom:1px solid var(--border);}
 .receipt-item-num{width:22px;height:22px;border-radius:50%;background:var(--sakura-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--sakura);flex-shrink:0;}
 .receipt-item-info{flex:1;}
+.item-payer-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;}
+.item-payer-chip{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:var(--cloud);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:border-color .12s,transform .1s;flex-shrink:0;overflow:hidden;}
+.item-payer-chip.active{border-color:var(--sakura);transform:scale(1.1);}
+.item-payer-chip img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.rc-tax-badge{font-size:9px;padding:1px 5px;border-radius:6px;font-weight:700;margin-left:4px;}
+.rc-tax-inc{background:#EDF4E6;color:#4A7C3F;}
+.rc-tax-exc{background:#FFF3E0;color:#E65100;}
 .receipt-confirm-btn{display:flex;align-items:center;justify-content:center;margin:14px 16px;padding:14px;background:var(--ink);color:var(--washi);border:none;border-radius:var(--rm);font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(45,27,61,.2);transition:transform .1s;}
 .receipt-confirm-btn:active{transform:scale(.97);}
 
@@ -317,6 +324,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
 
 /* ── BALANCE ── */
 .balance-card{display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:var(--rm);margin-bottom:8px;border:2px solid;box-shadow:var(--sh);overflow:hidden;width:100%;}
+.balance-detail{display:none;border-top:1px solid var(--border);margin-top:10px;padding-top:8px;}
+.balance-detail.open{display:block;}
+.balance-detail-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:11px;color:var(--text2);border-bottom:1px dashed var(--border);}
+.balance-detail-item:last-child{border-bottom:none;}
+.balance-detail-shop{font-size:10px;color:var(--text3);margin-top:1px;}
 .bal-pos{background:#F0FDF4;border-color:#BBF7D0;}
 .bal-neg{background:#FEF2F2;border-color:#FECACA;}
 .bal-zero{background:var(--cloud);border-color:var(--border);}
@@ -642,6 +654,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--w
           <button style="font-size:12px;color:var(--blue);background:none;border:none;cursor:pointer;" id="btn-add-rc-item">＋ 新增</button>
         </div>
         <div class="receipt-items" id="rc-items"></div>
+        <!-- 稅額摘要 -->
+        <div id="rc-tax-summary" style="display:none;margin:0 16px 4px;padding:10px 12px;background:var(--cloud);border-radius:10px;border:1px solid var(--border);font-size:11px;color:var(--text2);line-height:1.8;"></div>
         <div style="padding:12px 16px;">
           <div class="form-group"><label class="form-label">消費者</label><div class="payer-chips" id="rc-payer-chips"></div></div>
           <div class="form-group">
@@ -1307,7 +1321,7 @@ async function enterTrip(id){
   }).subscribe();
   fetchRate();
 }
-function mapExps(rows){return rows.map(r=>({id:r.id,shop:r.shop,amount:r.amount,cat:r.cat,payment:r.payment,region:r.region,note:r.note,payer:r.payer,date:r.date,items:r.items||[],split_members:r.split_members||[],receipt_url:r.receipt_url||null}));}
+function mapExps(rows){return rows.map(r=>({id:r.id,shop:r.shop,amount:r.amount,cat:r.cat,payment:r.payment,region:r.region,note:r.note,payer:r.payer,date:r.date,items:(r.items||[]).map(it=>({...it,payer_ids:it.payer_ids||[]})),split_members:r.split_members||[],receipt_url:r.receipt_url||null}));}
 function backToTrips(){
   DB.removeAllChannels();
   CT=null;EXPS=[];MEMS=[];SCHED=[];editingExpId=null;
@@ -1803,11 +1817,36 @@ $('btn-share-settle').addEventListener('click',()=>{
   // 計算各人餘額
   const bal={};MEMS.forEach(m=>bal[m.id]=0);
   EXPS.forEach(e=>{
-    const splits=(e.split_members?.length?e.split_members:MEMS.map(m=>m.id)).filter(id=>MEMS.find(m=>m.id===id));
-    if(!splits.length)return;
-    const share=e.amount/splits.length;
-    if(bal[e.payer]!==undefined)bal[e.payer]+=e.amount;
-    splits.forEach(id=>{if(bal[id]!==undefined)bal[id]-=share;});
+    // 付款人先墊付全額
+    if(bal[e.payer]!==undefined) bal[e.payer]+=e.amount;
+
+    // 判斷是否有品項級付款人
+    const hasItemPayers=(e.items||[]).some(it=>it.payer_ids&&it.payer_ids.length>0);
+
+    if(hasItemPayers && e.items?.length){
+      // 品項級分攤：每個品項依 payer_ids 分攤
+      e.items.forEach(it=>{
+        const itemAmt=(it.price_inc_tax||it.price)*(it.qty||1);
+        if(itemAmt===0)return;
+        const splitters=(it.payer_ids?.length?it.payer_ids:(e.split_members?.length?e.split_members:MEMS.map(m=>m.id))).filter(id=>MEMS.find(m=>m.id===id));
+        if(!splitters.length)return;
+        const share=itemAmt/splitters.length;
+        splitters.forEach(id=>{if(bal[id]!==undefined)bal[id]-=share;});
+      });
+      // 若品項金額加總與 e.amount 有差（如稅）平均分給全員
+      const itemTotal=(e.items||[]).reduce((s,it)=>(it.price_inc_tax||it.price)*(it.qty||1)+s,0);
+      const diff=e.amount-itemTotal;
+      if(Math.abs(diff)>1){
+        const allSplits=(e.split_members?.length?e.split_members:MEMS.map(m=>m.id)).filter(id=>MEMS.find(m=>m.id===id));
+        if(allSplits.length) allSplits.forEach(id=>{if(bal[id]!==undefined)bal[id]-=diff/allSplits.length;});
+      }
+    } else {
+      // 整筆均攤（原有邏輯）
+      const splits=(e.split_members?.length?e.split_members:MEMS.map(m=>m.id)).filter(id=>MEMS.find(m=>m.id===id));
+      if(!splits.length)return;
+      const share=e.amount/splits.length;
+      splits.forEach(id=>{if(bal[id]!==undefined)bal[id]-=share;});
+    }
   });
   // 轉帳清單
   const pos=[],neg=[];const bal2={};
@@ -1922,23 +1961,52 @@ $('btn-save-avatar').addEventListener('click',async()=>{
   }
 });
 $('btn-add-sched-row').addEventListener('click',addSchedRow);
+function toggleBalanceDetail(id){
+  const el=document.getElementById(id);
+  if(el)el.classList.toggle('open');
+}
 function renderSettle(){
   if(!CT)return;
   const r=CT.exchange_rate||.22;
   const bal={};MEMS.forEach(m=>bal[m.id]=0);
   EXPS.forEach(e=>{
-    const splits=(e.split_members?.length?e.split_members:MEMS.map(m=>m.id)).filter(id=>MEMS.find(m=>m.id===id));
-    if(!splits.length)return;
-    const share=e.amount/splits.length;
-    if(bal[e.payer]!==undefined)bal[e.payer]+=e.amount;
-    splits.forEach(id=>{if(bal[id]!==undefined)bal[id]-=share;});
+    // 付款人先墊付全額
+    if(bal[e.payer]!==undefined) bal[e.payer]+=e.amount;
+
+    // 判斷是否有品項級付款人
+    const hasItemPayers=(e.items||[]).some(it=>it.payer_ids&&it.payer_ids.length>0);
+
+    if(hasItemPayers && e.items?.length){
+      // 品項級分攤：每個品項依 payer_ids 分攤
+      e.items.forEach(it=>{
+        const itemAmt=(it.price_inc_tax||it.price)*(it.qty||1);
+        if(itemAmt===0)return;
+        const splitters=(it.payer_ids?.length?it.payer_ids:(e.split_members?.length?e.split_members:MEMS.map(m=>m.id))).filter(id=>MEMS.find(m=>m.id===id));
+        if(!splitters.length)return;
+        const share=itemAmt/splitters.length;
+        splitters.forEach(id=>{if(bal[id]!==undefined)bal[id]-=share;});
+      });
+      // 若品項金額加總與 e.amount 有差（如稅）平均分給全員
+      const itemTotal=(e.items||[]).reduce((s,it)=>(it.price_inc_tax||it.price)*(it.qty||1)+s,0);
+      const diff=e.amount-itemTotal;
+      if(Math.abs(diff)>1){
+        const allSplits=(e.split_members?.length?e.split_members:MEMS.map(m=>m.id)).filter(id=>MEMS.find(m=>m.id===id));
+        if(allSplits.length) allSplits.forEach(id=>{if(bal[id]!==undefined)bal[id]-=diff/allSplits.length;});
+      }
+    } else {
+      // 整筆均攤（原有邏輯）
+      const splits=(e.split_members?.length?e.split_members:MEMS.map(m=>m.id)).filter(id=>MEMS.find(m=>m.id===id));
+      if(!splits.length)return;
+      const share=e.amount/splits.length;
+      splits.forEach(id=>{if(bal[id]!==undefined)bal[id]-=share;});
+    }
   });
   const total=EXPS.reduce((s,e)=>s+e.amount,0);
   const pp=MEMS.length?Math.round(total/MEMS.length):0;
   $('settle-title').textContent='總支出 ¥'+total.toLocaleString();
   $('settle-sub').textContent=MEMS.length+'人 · 每人平均 ¥'+pp.toLocaleString()+' (NT$'+Math.round(pp*r).toLocaleString()+')';
 
-  // 各人餘額 — 口語化
+  // 各人餘額 — 口語化，附展開品項明細
   $('balance-list').innerHTML=MEMS.map(m=>{
     const b=Math.round(bal[m.id]||0);
     const paid=Math.round(EXPS.filter(e=>e.payer===m.id).reduce((s,e)=>s+e.amount,0));
@@ -1948,16 +2016,57 @@ function renderSettle(){
     if(b>0){statusText='別人要還你';amtText='+¥'+Math.abs(b).toLocaleString();}
     else if(b<0){statusText='你還需要付';amtText='-¥'+Math.abs(b).toLocaleString();}
     else{statusText='已結清 ✓';amtText='¥0';}
-    return'<div class="balance-card '+cls+'" style="padding:13px 14px;">'
-      +'<div style="flex-shrink:0;">'+avHtml(m,42)+'</div>'
-      +'<div style="flex:1;min-width:0;margin-left:11px;">'
-        +'<div style="font-size:14px;font-weight:700;margin-bottom:2px;">'+m.display_name+'</div>'
-        +'<div style="font-size:11px;color:var(--text2);">共付出 ¥'+paid.toLocaleString()+'</div>'
-        +'<div style="font-size:11px;color:'+col+';font-weight:600;margin-top:2px;">'+statusText+'</div>'
-      +'</div>'
-      +'<div style="text-align:right;flex-shrink:0;">'
-        +'<div style="font-size:18px;font-weight:800;color:'+col+';">'+amtText+'</div>'
-        +'<div style="font-size:10px;color:var(--text2);margin-top:2px;">NT$'+Math.abs(Math.round(b*r)).toLocaleString()+'</div>'
+
+    // 收集這個人的品項明細
+    const myItems=[];
+    EXPS.forEach(e=>{
+      const hasItemPayers=(e.items||[]).some(it=>it.payer_ids&&it.payer_ids.length>0);
+      if(hasItemPayers){
+        (e.items||[]).forEach(it=>{
+          const splitters=(it.payer_ids?.length?it.payer_ids:(e.split_members?.length?e.split_members:MEMS.map(x=>x.id))).filter(id=>MEMS.find(x=>x.id===id));
+          if(splitters.includes(m.id)){
+            const itemAmt=(it.price_inc_tax||it.price)*(it.qty||1);
+            myItems.push({shop:e.shop,name:it.name_zh||it.name_ja||'品項',amt:Math.round(itemAmt/splitters.length),date:e.date});
+          }
+        });
+      } else {
+        const splits=(e.split_members?.length?e.split_members:MEMS.map(x=>x.id)).filter(id=>MEMS.find(x=>x.id===id));
+        if(splits.includes(m.id)){
+          myItems.push({shop:e.shop,name:'（整筆均攤）',amt:Math.round(e.amount/splits.length),date:e.date});
+        }
+      }
+    });
+
+    const detailId='detail-'+m.id;
+    const detailHtml=myItems.length?`
+      <div class="balance-detail" id="${detailId}">
+        ${myItems.map(it=>`
+          <div class="balance-detail-item">
+            <div>
+              <div>${it.name}</div>
+              <div class="balance-detail-shop">${it.shop}　${it.date||''}</div>
+            </div>
+            <div style="font-weight:700;color:var(--ink);flex-shrink:0;margin-left:8px;">¥${it.amt.toLocaleString()}</div>
+          </div>`).join('')}
+        <div style="font-size:11px;font-weight:700;text-align:right;padding-top:5px;color:var(--ink);">
+          應付合計 ¥${myItems.reduce((s,it)=>s+it.amt,0).toLocaleString()}
+        </div>
+      </div>`:'';
+
+    return'<div style="margin-bottom:8px;">'
+      +'<div class="balance-card '+cls+'" style="padding:13px 14px;flex-wrap:wrap;cursor:pointer;" onclick="toggleBalanceDetail(this.dataset.id)" data-id="'+detailId+'">'
+        +'<div style="flex-shrink:0;">'+avHtml(m,42)+'</div>'
+        +'<div style="flex:1;min-width:0;margin-left:11px;">'
+          +'<div style="font-size:14px;font-weight:700;margin-bottom:2px;">'+m.display_name+'</div>'
+          +'<div style="font-size:11px;color:var(--text2);">共付出 ¥'+paid.toLocaleString()+'</div>'
+          +'<div style="font-size:11px;color:'+col+';font-weight:600;margin-top:2px;">'+statusText+'</div>'
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0;">'
+          +'<div style="font-size:18px;font-weight:800;color:'+col+';">'+amtText+'</div>'
+          +'<div style="font-size:10px;color:var(--text2);margin-top:2px;">NT$'+Math.abs(Math.round(b*r)).toLocaleString()+'</div>'
+          +(myItems.length?'<div style="font-size:9px;color:var(--text3);margin-top:3px;">點擊看明細 ›</div>':'')
+        +'</div>'
+        +detailHtml
       +'</div>'
     +'</div>';
   }).join('');
@@ -2564,6 +2673,8 @@ function showScanConfirm(data){
   $('rc-cat').innerHTML=CATS.map(c=>`<option${c.n===(data.category||'其他')?' selected':''}>${c.n}</option>`).join('');
   $('rc-region').value=schedRegion(data.date||today());
   if(!$('rc-region').value)autoDetectRegion('rc-region');
+  // 初始化每個品項的 payer_ids（預設空 = 整筆均攤）
+  (rcData.items||[]).forEach(it=>{ if(!it.payer_ids)it.payer_ids=[]; });
   renderRcItems();
   renderPayerChips('rc-payer-chips',activePayer);
   renderSplitChips();
@@ -2597,24 +2708,111 @@ function toggleSplitMember(id){
     chip.classList.add('active');
   }
 }
+function rcItemPayerChips(it, i){
+  // 每個品項的付款人 chip 列
+  // 空 payer_ids = 跟隨整筆設定；有值 = 指定特定成員
+  const pids = it.payer_ids||[];
+  const chips = MEMS.map(m=>{
+    const active = pids.length===0 || pids.includes(m.id);
+    const av = m.avatar_url
+      ? `<img src="${m.avatar_url}">`
+      : `<span style="font-size:13px;">${m.emoji||'👤'}</span>`;
+    return `<div class="item-payer-chip${active?' active':''}"
+      title="${m.display_name}"
+      onclick="toggleItemPayer(${i},'${m.id}')"
+      style="background:${m.color||'var(--cloud)'}22;">${av}</div>`;
+  }).join('');
+  return `<div class="item-payer-row">${chips}
+    <span style="font-size:9px;color:var(--text3);align-self:center;margin-left:2px;">點選指定付款人</span>
+  </div>`;
+}
+function toggleItemPayer(i, memberId){
+  const it = rcData.items[i];
+  if(!it.payer_ids) it.payer_ids=[];
+  if(it.payer_ids.length===0){
+    // 從「全員」切換到「指定」：先設為全員，再移除點到的人
+    it.payer_ids = MEMS.map(m=>m.id).filter(id=>id!==memberId);
+  } else if(it.payer_ids.includes(memberId)){
+    if(it.payer_ids.length<=1){toast('至少保留一人');return;}
+    it.payer_ids = it.payer_ids.filter(id=>id!==memberId);
+  } else {
+    it.payer_ids.push(memberId);
+    // 若全員都選了，重設為空（等同全員）
+    if(it.payer_ids.length===MEMS.length) it.payer_ids=[];
+  }
+  renderRcItems();
+}
+function rcTaxBadge(it){
+  // 顯示含稅/未含稅標記及含稅金額
+  if(it.tax_type==='excluded'){
+    const inc = it.price_inc_tax||Math.round(it.price*(1+(it.tax_rate||10)/100));
+    return `<span class="rc-tax-badge rc-tax-exc">稅抜→¥${inc}</span>`;
+  }
+  if(it.tax_type==='included'){
+    return `<span class="rc-tax-badge rc-tax-inc">税込</span>`;
+  }
+  return '';
+}
 function renderRcItems(){
   $('rc-items').innerHTML=(rcData?.items||[]).map((it,i)=>`
-    <div class="receipt-item">
-      <div class="receipt-item-num">${i+1}</div>
-      <div class="receipt-item-info" style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;">${it.name_ja||''}</div>
-        <input
-          style="font-size:12px;color:var(--text2);background:none;border:none;border-bottom:1.5px dashed var(--border);width:100%;outline:none;padding:2px 0;font-family:var(--font);"
-          value="${(it.name_zh||it.name_ja).replace(/"/g,'&quot;')}"
-          onchange="rcData.items[${i}].name_zh=this.value"
-          placeholder="點擊編輯中文譯名"
-        >
-        <div style="font-size:10px;color:var(--text3);margin-top:2px;">${it.qty}x</div>
+    <div class="receipt-item" style="flex-direction:column;align-items:stretch;gap:0;">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <div class="receipt-item-num">${i+1}</div>
+        <div class="receipt-item-info" style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;">
+            ${it.name_ja||''}
+          </div>
+          <input
+            style="font-size:12px;color:var(--text2);background:none;border:none;border-bottom:1.5px dashed var(--border);width:100%;outline:none;padding:2px 0;font-family:var(--font);"
+            value="${(it.name_zh||it.name_ja).replace(/"/g,'&quot;')}"
+            onchange="rcData.items[${i}].name_zh=this.value"
+            placeholder="點擊編輯中文譯名"
+          >
+          <div style="font-size:10px;color:var(--text3);margin-top:2px;">${it.qty}x</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:14px;font-weight:700;color:${it.price<0?'var(--red)':'var(--ink)'};">
+            ¥${it.price_inc_tax||it.price}${rcTaxBadge(it)}
+          </div>
+        </div>
+        <button onclick="rcData.items.splice(${i},1);renderRcItems();" style="background:none;border:none;color:var(--e);cursor:pointer;font-size:16px;padding:4px 6px;">×</button>
       </div>
-      <div style="font-size:14px;font-weight:700;flex-shrink:0;color:${it.price<0?'var(--red)':'var(--ink)'};">¥${it.price}</div>
-      <button onclick="rcData.items.splice(${i},1);renderRcItems();" style="background:none;border:none;color:var(--e);cursor:pointer;font-size:16px;padding:4px 6px;">×</button>
+      ${MEMS.length>1?rcItemPayerChips(it,i):''}
     </div>`).join('');
-  $('btn-confirm-scan').textContent=`確認儲存（${rcData?.items?.length||0}筆）`;
+  // 顯示合計含稅金額
+  const total = rcData?.total_amount || (rcData?.items||[]).reduce((s,it)=>{
+    const p = it.price_inc_tax||it.price;
+    return s + p*(it.qty||1);
+  },0);
+  $('btn-confirm-scan').textContent=`確認儲存（${rcData?.items?.length||0}筆 · ¥${total}）`;
+
+  // 稅額摘要
+  const allItems = rcData?.items||[];
+  const incItems = allItems.filter(it=>it.tax_type==='included'||!it.tax_type);
+  const excItems = allItems.filter(it=>it.tax_type==='excluded');
+  const summaryEl = $('rc-tax-summary');
+  if(summaryEl && allItems.length){
+    const incTotal = incItems.reduce((s,it)=>(it.price_inc_tax||it.price)*(it.qty||1)+s,0);
+    const excTotal = excItems.reduce((s,it)=>(it.price_inc_tax||it.price)*(it.qty||1)+s,0);
+    const itemTotal = incTotal + excTotal;
+    const diffFromOcr = rcData.total_amount ? rcData.total_amount - itemTotal : 0;
+    let html = '';
+    if(incItems.length) html += `<span style="color:var(--green);font-weight:700;">税込 ${incItems.length}品</span>　¥${incTotal.toLocaleString()}`;
+    if(excItems.length) {
+      if(html) html += '　｜　';
+      html += `<span style="color:#E65100;font-weight:700;">税抜 ${excItems.length}品</span>　¥${excTotal.toLocaleString()}`;
+    }
+    if(rcData.total_amount){
+      html += `<br>OCR 合計 <b>¥${rcData.total_amount.toLocaleString()}</b>`;
+      if(Math.abs(diffFromOcr)>1) html += `　<span style="color:var(--red);">（差 ¥${diffFromOcr > 0 ? '+' : ''}${diffFromOcr}，可能有服務費或折扣）</span>`;
+      else html += `　<span style="color:var(--green);">✓ 金額一致</span>`;
+    }
+    if(rcData.tax_summary) html += `<br>稅制說明：${rcData.tax_summary}`;
+    summaryEl.innerHTML = html;
+    summaryEl.style.display = 'block';
+  } else if(summaryEl) {
+    summaryEl.style.display = 'none';
+  }
 }
 function backToScanMain(){
   ['scan-confirm','scan-menu-result','scan-omikuji-result','scan-drug-result'].forEach(id=>$(id).style.display='none');
@@ -2626,7 +2824,11 @@ function backToScanMain(){
 async function confirmScan(){
   if(!rcData)return;
   const date=rcData.date||today();
-  const amount=rcData.total_amount||(rcData.items||[]).reduce((s,i)=>s+i.price*(i.qty||1),0);
+  // 優先使用 AI 辨識的含稅合計；備援用品項含稅金額加總
+  const amount=rcData.total_amount||(rcData.items||[]).reduce((s,it)=>{
+    const p=it.price_inc_tax||it.price;
+    return s+p*(it.qty||1);
+  },0);
   const payer=activePayer||MEMS[0]?.id;
   if(!payer)return toast('尚無成員');
   const splitMembers=(rcSplitMembers&&rcSplitMembers.length>0)?rcSplitMembers:MEMS.map(m=>m.id);
